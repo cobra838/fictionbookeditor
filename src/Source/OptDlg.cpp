@@ -55,13 +55,13 @@ LRESULT COptDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
  	m_lang.AddString(buf);
   if(::LoadString(_Module.GetResourceInstance(), IDS_LANG_RUSSIAN, buf, MAX_LOAD_STRING))
 	m_lang.AddString(buf);
-  if(::LoadString(_Module.GetResourceInstance(), IDS_LANG_UKRAINIAN, buf, MAX_LOAD_STRING))
-	m_lang.AddString(buf);
+//  if(::LoadString(_Module.GetResourceInstance(), IDS_LANG_UKRAINIAN, buf, MAX_LOAD_STRING))
+//	m_lang.AddString(buf);
 
   if(LANG_RUSSIAN == _Settings.GetInterfaceLanguageID())
 	m_lang.SetCurSel(1);
-  else if(LANG_UKRAINIAN == _Settings.GetInterfaceLanguageID())
-	m_lang.SetCurSel(2);
+//  else if(LANG_UKRAINIAN == _Settings.GetInterfaceLanguageID())
+//	m_lang.SetCurSel(2);
   else
 	m_lang.SetCurSel(0);
 
@@ -191,7 +191,7 @@ LRESULT COptDlg::OnOK(WORD, WORD wID, HWND, BOOL&)
   {
 	case 0: new_lang = LANG_ENGLISH; break;
 	case 1: new_lang = LANG_RUSSIAN; break;
-	case 2: new_lang = LANG_UKRAINIAN; break;
+//	case 2: new_lang = LANG_UKRAINIAN; break;
   }
 
   // если пользователь сменил язык интерфейса....

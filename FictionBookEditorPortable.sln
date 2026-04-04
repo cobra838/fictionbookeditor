@@ -1,0 +1,41 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBE", "src\FBE.vcxproj", "{E1B04471-3393-4970-93ED-FB6A57BCDA8B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1BC3F431-9672-4191-9FC5-A8B1C9C08E36} = {1BC3F431-9672-4191-9FC5-A8B1C9C08E36}
+		{EFC59B57-95C8-4FA1-BCE7-8C1F648C01D3} = {EFC59B57-95C8-4FA1-BCE7-8C1F648C01D3}
+		{A1608395-4FF0-44D6-901E-4934B5455614} = {A1608395-4FF0-44D6-901E-4934B5455614}
+		{86298A9D-CAFD-431B-A3C4-F818A739C5CF} = {86298A9D-CAFD-431B-A3C4-F818A739C5CF}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhunspell", "lib\Hunspell\Libhunspell.vcxproj", "{86298A9D-CAFD-431B-A3C4-F818A739C5CF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pcre", "lib\Pcre\Pcre.vcxproj", "{EFC59B57-95C8-4FA1-BCE7-8C1F648C01D3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciLexer", "lib\Scintilla\SciLexer.vcxproj", "{A1608395-4FF0-44D6-901E-4934B5455614}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFC59B57-95C8-4FA1-BCE7-8C1F648C01D3} = {EFC59B57-95C8-4FA1-BCE7-8C1F648C01D3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "res_rus", "Locales\res_rus\res_rus.vcxproj", "{1BC3F431-9672-4191-9FC5-A8B1C9C08E36}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1B04471-3393-4970-93ED-FB6A57BCDA8B}.Release|Win32.ActiveCfg = Release|Win32
+		{E1B04471-3393-4970-93ED-FB6A57BCDA8B}.Release|Win32.Build.0 = Release|Win32
+		{86298A9D-CAFD-431B-A3C4-F818A739C5CF}.Release|Win32.ActiveCfg = Release|Win32
+		{86298A9D-CAFD-431B-A3C4-F818A739C5CF}.Release|Win32.Build.0 = Release|Win32
+		{EFC59B57-95C8-4FA1-BCE7-8C1F648C01D3}.Release|Win32.ActiveCfg = Release|Win32
+		{EFC59B57-95C8-4FA1-BCE7-8C1F648C01D3}.Release|Win32.Build.0 = Release|Win32
+		{A1608395-4FF0-44D6-901E-4934B5455614}.Release|Win32.ActiveCfg = Release|Win32
+		{A1608395-4FF0-44D6-901E-4934B5455614}.Release|Win32.Build.0 = Release|Win32
+		{1BC3F431-9672-4191-9FC5-A8B1C9C08E36}.Release|Win32.ActiveCfg = Release|Win32
+		{1BC3F431-9672-4191-9FC5-A8B1C9C08E36}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

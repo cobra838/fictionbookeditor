@@ -10,7 +10,7 @@ extern bool VBErr;
 class FRBase: public CWinDataExchange<FRBase>
 {
 public:
-	CRegKey		m_fh,m_rh;
+	// CRegKey		m_fh,m_rh;
 
 	CFBEView*	m_view;
 	int			m_whole;
@@ -69,43 +69,28 @@ public:
 		DoDataExchange(FALSE);
 	}
 
-  void	LoadHistoryImp(const TCHAR *path,CRegKey& rk,HWND hCB,CString& first) {
-    if (!hCB)
-      return;
+	void LoadHistoryImp(const TCHAR *path, HWND hCB, CString& first) {
+		if (!hCB) return;
+		
+		CSimpleArray<CString>* pList = NULL;
+		if (U::scmp(path, L"SearchHistory") == 0) pList = &_History.m_search_list;
+		else if (U::scmp(path, L"ReplaceHistory") == 0) pList = &_History.m_replace_list;
+		
+		if (!pList) return;
 
-    // open history key
-    if (rk.Create(_Settings.GetKey(), path)!=ERROR_SUCCESS)
-      return;
-    
-    // get number of entries
-    DWORD nfs;
-    if (rk.QueryDWORDValue(_T(""),nfs)!=ERROR_SUCCESS)
-      return;
-    
-    // fetch the entries
-    //first.Empty();
-
-    CString   ps,str;
-
-    for (DWORD i=0;i<nfs;++i) 
-	{
-      ps.Format(_T("%d"),i);
-      str=U::QuerySV(rk,ps);
-      if (!str.IsEmpty()) 
-	  {
-		::SendMessage(hCB,CB_ADDSTRING,0,(LPARAM)(const TCHAR *)str);
-		if (first.IsEmpty())
-			first=str;
-      }
-    }
-  }
+	    for (int i = 0; i < pList->GetSize(); ++i) 
+		{
+		::SendMessage(hCB, CB_ADDSTRING, 0, (LPARAM)(const TCHAR *)(*pList)[i]);
+		if (first.IsEmpty()) first = (*pList)[i];
+		}
+	}
 
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL& bHandled)
 	{
 		bHandled = FALSE;
 
-		LoadHistoryImp(_T("SearchHistory"), m_fh, GetDlgItem(IDC_TEXT), m_view->m_fo.pattern);
-		LoadHistoryImp(_T("ReplaceHistory"), m_rh, GetDlgItem(IDC_REPLACE), m_view->m_fo.replacement);
+		LoadHistoryImp(_T("SearchHistory"), GetDlgItem(IDC_TEXT), m_view->m_fo.pattern);
+        LoadHistoryImp(_T("ReplaceHistory"), GetDlgItem(IDC_REPLACE), m_view->m_fo.replacement);
 
 		// Load options
 		DWORD flags = _Settings.GetSearchOptions();
@@ -159,34 +144,33 @@ public:
 		SaveStringImp(GetDlgItem(IDC_REPLACE));
 	}
 
-	void SaveHistoryImp(CRegKey& rk,HWND hCB)
-	{
-		if(!rk && !hCB)
-			return;
+	void SaveHistoryImp(const TCHAR *path, HWND hCB)
+	  {
+	  if (!hCB) return;
+    
+		CSimpleArray<CString>* pList = NULL;
+		if (U::scmp(path, L"SearchHistory") == 0) pList = &_History.m_search_list;
+		else if (U::scmp(path, L"ReplaceHistory") == 0) pList = &_History.m_replace_list;
+    
+	    if (!pList) return;
 
+		pList->RemoveAll();
 		LRESULT lCount = ::SendMessage(hCB, CB_GETCOUNT, 0, 0);
-		if(lCount > 100)
-			lCount = 100;
+		if(lCount > 100) lCount = 100;
 
-		CString path;
 		for (int i = 0; i < lCount; ++i)
 		{
-			CString cur(U::GetCBString(hCB, i));
-			if(cur.IsEmpty())
-				continue;
-			path.Format(L"%d", i);
-			rk.SetStringValue(path, cur);
+		CString cur(U::GetCBString(hCB, i));
+		if(!cur.IsEmpty()) pList->Add(cur);
 		}
-
-		rk.SetDWORDValue(L"", lCount);
 	}
 
 	void SaveHistory() 
-	{
-		_Settings.SetSearchOptions(m_view->m_fo.flags | (m_view->m_fo.fRegexp ? CFBEView::FRF_REGEX : 0), true);
-		SaveHistoryImp(m_fh,GetDlgItem(IDC_TEXT));
-		SaveHistoryImp(m_rh,GetDlgItem(IDC_REPLACE));
-	}
+    {
+        _Settings.SetSearchOptions(m_view->m_fo.flags | (m_view->m_fo.fRegexp ? CFBEView::FRF_REGEX : 0), true);
+        SaveHistoryImp(_T("SearchHistory"), GetDlgItem(IDC_TEXT));
+        SaveHistoryImp(_T("ReplaceHistory"), GetDlgItem(IDC_REPLACE));
+    }
 };
 
 class CFindDlgBase: public CModelessDialogImpl<CFindDlgBase>, public FRBase

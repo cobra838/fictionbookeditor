@@ -131,6 +131,30 @@ static int  compare_nocase(const void *v1,const void *v2)
 	return w1->replacement.CompareNoCase(w2->replacement);
 }
 
+static void AddWordToExclusionsIfNeeded(const CString& word, const CSimpleArray<FB::Doc::Word>& words)
+{
+	CString lowerWord = word;
+	lowerWord.MakeLower();
+
+	WordsItem checker(lowerWord, 0);
+
+	if (std::find(_Settings.m_words.begin(), _Settings.m_words.end(), checker) != _Settings.m_words.end())
+		return;
+
+	int totalCount = 0;
+
+	if (!_Settings.GetDisableWordsStats())
+	{
+		for (int i = 0; i < words.GetSize(); ++i)
+		{
+			if (word.CompareNoCase(words[i].word) == 0)
+				totalCount += words[i].count;
+		}
+	}
+
+	_Settings.m_words.push_back(WordsItem(lowerWord, totalCount));
+}
+
 class CCustomListViewCtrl : public CWindowImpl<CCustomListViewCtrl, CListViewCtrl, CControlWinTraits>
 {
 public:
@@ -531,8 +555,7 @@ public:
 		else
 		{
 			wi->flags |= WARN;
-			if(std::find(_Settings.m_words.begin(), _Settings.m_words.end(), checker) == _Settings.m_words.end())
-				_Settings.m_words.push_back(checker);
+			AddWordToExclusionsIfNeeded(wi->word, m_words);
 
 			if(!m_showhide_excls)
 			{
@@ -555,15 +578,13 @@ public:
 	{
 		FB::Doc::Word* wi = &m_words[iItem];
 		CString word = wi->word;
-		WordsItem checker(wi->word.MakeLower(), wi->count);
 
 		m_lv.SetItemState(iItem, !LVIS_SELECTED, LVIS_SELECTED);
 
 		if(!(wi->flags & WARN))
 		{
 			wi->flags |= WARN;
-			if(std::find(_Settings.m_words.begin(), _Settings.m_words.end(), checker) == _Settings.m_words.end())
-				_Settings.m_words.push_back(checker);
+			AddWordToExclusionsIfNeeded(wi->word, m_words);
 
 			if(!m_showhide_excls)
 			{
@@ -586,13 +607,11 @@ public:
 		{
 			FB::Doc::Word* pw = &m_words[idxs[i]];
 			CString word = pw->word;
-			WordsItem checker(word.MakeLower(), pw->count);
 
 			if(!(pw->flags & WARN))
 			{
 				pw->flags |= WARN;
-				if(std::find(_Settings.m_words.begin(), _Settings.m_words.end(), checker) == _Settings.m_words.end())
-					_Settings.m_words.push_back(checker);
+				AddWordToExclusionsIfNeeded(word, m_words);
 			}
 			else continue;
 
@@ -604,10 +623,7 @@ public:
 				{
 					if(word.CompareNoCase(pwc->word) == 0)
 					{
-						WordsItem checker(word.MakeLower(), pwc->count + pwc->count);
 						pwc->flags |= WARN;
-						if(std::find(_Settings.m_words.begin(), _Settings.m_words.end(), checker) == _Settings.m_words.end())
-							_Settings.m_words.push_back(checker);
 						idxs2.Add(j);
 					}
 				}
@@ -626,7 +642,6 @@ public:
 
 			qsort(idxs.GetData(), idxs.GetSize(), sizeof(int), compare_indexes);
 
-			int count = m_words.GetSize();
 			for(int i = idxs.GetSize() - 1; i >= 0 ; --i)
 			{
 				int idx = idxs[i];
@@ -1127,19 +1142,26 @@ bool ShowWordsDialog(FB::Doc& document, HWND parent)
 		}*/
 		int exclsize = _Settings.m_words.size();
 		int hwsize = hwords.GetSize();
+		bool canCountStats = !_Settings.GetDisableWordsStats() && !document.m_words_counted_for_session;
+
 		for(i = 0; i < hwsize; ++i)
 		{
 			for(j = 0; j < exclsize; ++j)
 			{
 				if(hwords[i].word.CompareNoCase(_Settings.m_words[j].m_word) == 0)
 				{
-					_Settings.m_words[j].m_count += hwords[i].count;
+					if(canCountStats)
+						_Settings.m_words[j].m_count += hwords[i].count;
+
 					// Equal, mark as suspicious and advance both
 					hwords[i].flags = WARN;
 					break;
 				}
 			}
 		}
+
+		if(canCountStats)
+			document.m_words_counted_for_session = true;
 	}
 
 	CWordsDlg dlg(hwords, document);

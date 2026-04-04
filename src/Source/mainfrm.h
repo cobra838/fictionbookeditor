@@ -60,7 +60,7 @@ public:
 	}
 };
 
-class CCustomStatic : public CWindowImpl<CCustomStatic,CStatic/*,CCustomStaticWinTraits*/>
+class CCustomStatic : public CWindowImpl<CCustomStatic,CStatic>
 {
 private:
 	HFONT m_font;
@@ -72,14 +72,6 @@ public:
     {		
       RECT rc;
       GetClientRect(&rc);
-	  /*HBRUSH hBr = GetSysColorBrush(COLOR_3DFACE);
-	  HPEN pen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DFACE));
-	  HBRUSH oldBrush = (HBRUSH)SelectObject(dc, hBr);
-	  HPEN oldPen = (HPEN)SelectObject(dc, pen);
-	  Rectangle(dc, rc.left, rc.top, rc.right, rc.bottom);
-	  SelectObject(dc, oldBrush);
-	  SelectObject(dc, oldPen);*/
-      DWORD dwStyle = GetStyle();
 	  HFONT oldFont = (HFONT)SelectObject(dc, m_font);
 
       UINT iFlags = DT_SINGLELINE | DT_CENTER | DT_VCENTER;      
@@ -126,7 +118,6 @@ public:
 	}
 
 	BEGIN_MSG_MAP(CCustomStatic)
-		//MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 	END_MSG_MAP()
 };	
@@ -166,9 +157,6 @@ public:
 	// Child windows
 	CSplitterWindow		m_splitter; // doc tree and views
 	CContainerWnd		m_view; // document, description and source
-	//CPaneContainer	m_tree_pane; // left pane with a tree
-	//CSplitterWindow		m_dummy_pane; // frame around the tree
-	//CTreeView			m_tree; // treeview itself
 	CDocumentTree		m_document_tree;
 
   CMultiPaneStatusBarCtrl m_status; // status bar
@@ -186,7 +174,6 @@ public:
 	CCustomEdit		m_id; // paragraph ID
 	CCustomEdit		m_href; // link's href
 	CWindow			m_source; // source editor
-	//bool			m_save_sp_mode;
 
   CComboBox		  m_section_box;
   CCustomEdit	  m_section;	// ID ??? <section>
@@ -227,7 +214,6 @@ public:
   CCustomStatic   m_valign_caption;  
 
   FB::Doc		  *m_doc; // currently open document
-  DWORD			  m_last_tree_update;
   BOOL			  m_last_sci_ovr:1;
   bool			  m_last_ie_ovr:1;
   bool			  m_doc_changed:1;
@@ -236,7 +222,7 @@ public:
   bool			  m_need_title_update:1;
 
   MSXML2::IXMLDOMDocumentPtr		m_saved_xml;
-
+  bool m_force_source_rebuild;
 
   // IDs in combobox
   bool			  m_cb_updated:1;
@@ -268,7 +254,7 @@ public:
 	  CString refid;
 	  bool isFolder;
 	  int wID;
-	  /*ACCEL accel;*/
+	  DWORD hash;
   };
 
   // Script small menu icon (16x16) type
@@ -280,10 +266,10 @@ public:
   };
 
   CSimpleArray<ScrInfo>	 m_scripts;
-  CSimpleMap<unsigned int, HBITMAP> m_scripts_images;
   void CollectScripts(CString path, TCHAR* mask, int lastid, CString refid);
   int GrabScripts(CString, TCHAR*, CString);
   void AddScriptsSubMenu(HMENU, CString, CSimpleArray<ScrInfo>&);
+  void FreeScriptsPictures();
   void QuickScriptsSort(CSimpleArray<ScrInfo>&, int, int);
   void UpScriptsFolders(CSimpleArray<ScrInfo>&);
   ScrInfo* m_last_script;
@@ -293,12 +279,12 @@ public:
   CMainFrame() : m_doc(0), m_cb_updated(false),
     m_doc_changed(false), m_sel_changed(false), m_want_focus(0),
     m_ignore_cb_changes(false), m_incsearch(0), m_cb_last_images(false),
-    m_last_ie_ovr(true), m_last_sci_ovr(true), m_saved_xml(0), m_sci_find_dlg(0), m_sci_replace_dlg(0),
+    m_last_ie_ovr(true), m_last_sci_ovr(true), m_saved_xml(0), m_force_source_rebuild(false), m_sci_find_dlg(0), m_sci_replace_dlg(0),
 	m_last_script(0), m_last_plugin(0), m_restore_pos_cmdline(false), m_bad_xml(false)
 	// added by SeNS
 	{ 
 		TCHAR prgPath[MAX_PATH];
-		DWORD pathlen = ::GetModuleFileName(_Module.GetModuleInstance(), prgPath, MAX_PATH);
+		::GetModuleFileName(_Module.GetModuleInstance(), prgPath, MAX_PATH);
 		PathRemoveFileSpec(prgPath);
 		if (_Settings.GetUseSpellChecker())
 		{
@@ -316,11 +302,8 @@ public:
   // browser controls
   void	  AttachDocument(FB::Doc *doc);
   CFBEView& ActiveView() {
-/*    return m_doc->m_desc==m_view.GetActiveWnd() ?
-	      m_doc->m_desc : m_doc->m_body;*/
 	  return m_doc->m_body;
   }
-  //bool	  IsSourceActive() { return m_source==m_view.GetActiveWnd(); }
   bool	  IsSourceActive() 
   { 
 	  return m_current_view == SOURCE; 
@@ -344,8 +327,6 @@ public:
   enum VIEW_TYPE { BODY, DESC, SOURCE, NEXT };
   void	  ShowView(VIEW_TYPE vt=BODY);
   bool	  ShowSource(bool saveSelection = true);
-  //VIEW_TYPE GetCurView();
-
   
   VIEW_TYPE		  m_current_view;
   VIEW_TYPE		  m_last_view;
@@ -360,11 +341,15 @@ public:
   void RestoreSelection(); 
   void ClearSelection();
 
-	// Plugins support
-	CSimpleArray<CLSID> m_import_plugins;
-	CSimpleArray<CLSID> m_export_plugins;
-	void InitPlugins();
-	void InitPluginsType(HMENU hMenu, const TCHAR* type, UINT cmdbase, CSimpleArray<CLSID>& plist);
+    struct PluginInfo {
+        CLSID clsid;
+        CString dllPath;
+    };
+    CSimpleArray<PluginInfo> m_import_plugins;
+    CSimpleArray<PluginInfo> m_export_plugins;
+    void InitPlugins();
+    void InitPluginsType(HMENU hMenu, const TCHAR* type, UINT cmdbase, CSimpleArray<PluginInfo>& plist);
+
 	void InitPluginHotkey(CString guid, UINT cmd, CString name);
 	UINT m_last_plugin;
 
@@ -469,7 +454,7 @@ public:
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
 		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
-
+		
 		// added by SeNS: toolbar customization menu
 		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 
@@ -561,7 +546,6 @@ public:
 		COMMAND_ID_HANDLER(ID_TOOLS_OPTIONS, OnToolsOptions)
       
 		COMMAND_ID_HANDLER(ID_TOOLS_CUSTOMIZE, OnToolCustomize)
-		//COMMAND_ID_HANDLER(ID_HIDETOOLBAR, OnHideToolbar)
 
 		COMMAND_RANGE_HANDLER(ID_SCRIPT_BASE, ID_SCRIPT_BASE + 999, OnToolsScript)
 		COMMAND_ID_HANDLER(ID_LAST_SCRIPT, OnLastScript)
@@ -570,6 +554,7 @@ public:
 		COMMAND_ID_HANDLER(ID_TOOLS_SPELLCHECK_HIGHLIGHT, OnToggleHighlight);
 
 		// help menu
+		COMMAND_ID_HANDLER(ID_HELP, OnHelp)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 
 		// navigation commands
@@ -622,12 +607,22 @@ public:
 		CHAIN_MSG_MAP(CUpdateUI<CMainFrame>)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 		CHAIN_MSG_MAP(CCustomizableToolBarCommands<CMainFrame>)
+
+		NOTIFY_CODE_HANDLER(TBN_TOOLBARCHANGE, OnToolbarChange)
+		NOTIFY_CODE_HANDLER(TBN_ENDADJUST, OnToolbarEndAdjust)
+		NOTIFY_CODE_HANDLER(TBN_INITCUSTOMIZE, OnInitCustomize)
+
 	END_MSG_MAP()
 
   LRESULT OnCreate(UINT, WPARAM, LPARAM, BOOL&);
   LRESULT OnClose(UINT, WPARAM, LPARAM, BOOL&);
   LRESULT OnDestroy(UINT, WPARAM, LPARAM, BOOL&);
   LRESULT OnPostCreate(UINT, WPARAM, LPARAM, BOOL&);
+
+  LRESULT OnToolbarChange(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+  LRESULT OnToolbarEndAdjust(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
+  LRESULT OnInitCustomize(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& bHandled);
+
   LRESULT OnSettingChange(UINT, WPARAM, LPARAM, BOOL&) {
     if (m_doc)
       m_doc->ApplyConfChanges();
@@ -785,10 +780,8 @@ public:
 
   LRESULT OnToolCustomize(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/)
   {
-	  UnhookSysDialogs();
 	  if (m_selBandID == ATL_IDW_BAND_FIRST+1) m_CmdToolbar.Customize(); else
 	  if (m_selBandID == ATL_IDW_BAND_FIRST+2) m_ScriptsToolbar.Customize();
-	  HookSysDialogs();
       return 0;
   }
 
@@ -802,6 +795,7 @@ public:
 	}
 
   LRESULT OnAppAbout(WORD, WORD, HWND, BOOL&);
+  LRESULT OnHelp(WORD, WORD, HWND, BOOL&);
 
   LRESULT OnSelectCtl(WORD, WORD, HWND, BOOL&);
   LRESULT OnNextItem(WORD, WORD, HWND, BOOL&);
@@ -893,8 +887,6 @@ public:
   LRESULT OnTreeMoveElementOne(WORD, WORD, HWND, BOOL&);
   LRESULT OnTreeMoveElementSmart(WORD, WORD, HWND, BOOL&);
   LRESULT OnTreeMoveLeftElement(WORD, WORD, HWND, BOOL&);
-  //LRESULT OnTreeMoveLeftElementOne(WORD, WORD, HWND, BOOL&);
-  //LRESULT OnTreeMoveElementWithChildren(WORD, WORD, HWND, BOOL&);
   LRESULT OnTreeViewElement(WORD, WORD, HWND, BOOL&);
   LRESULT OnTreeViewElementSource(WORD, WORD, HWND, BOOL&);
   LRESULT OnTreeDeleteElement(WORD, WORD, HWND, BOOL&);

@@ -31,6 +31,7 @@ public:
   CString		m_filename;
   bool			m_namevalid;
   bstr_t		m_save_marker;
+  bool			m_words_counted_for_session;
 
   static bool			  m_fast_mode;
 

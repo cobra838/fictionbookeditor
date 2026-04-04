@@ -8,6 +8,296 @@
 #include "CFileDialogEx.h"
 #include "SettingsDlg.h"
 #include "xmlMatchedTagsHighlighter.h"
+#include <fstream>
+
+// БЛОК PORTABLE ТУЛБАРОВ
+#include <vector>
+
+static bool g_bToolbarsChanged = false;
+static CSimpleMap<DWORD, TBBUTTON> g_ScriptBtnCache;
+
+// Алгоритм FNV-1a для 32-битного хэша
+static DWORD CalculateFNV1aHash(const CString& str) {
+    DWORD hash = 0x811C9DC5; // Стартовое число (Offset Basis)
+    for (int i = 0; i < str.GetLength(); ++i) {
+        hash ^= (DWORD)str[i]; // Перемешиваем символ
+        hash *= 0x01000193;    // Умножаем на FNV Prime
+    }
+    return hash;
+}
+
+// --- 1. Обычная панель: сохраняем и читаем прямые ID ---
+static CString GetCommandHex(CToolBarCtrl& tb) {
+    CString hexStr;
+    for (int i = 0; i < tb.GetButtonCount(); ++i) {
+        TBBUTTON btn; tb.GetButton(i, &btn);
+        DWORD id = (btn.fsStyle & BTNS_SEP) ? 0xFFFFFFFF : btn.idCommand;
+        CString byteStr;
+        byteStr.Format(L"%02x,%02x,%02x,%02x", (id & 0xFF), ((id >> 8) & 0xFF), ((id >> 16) & 0xFF), ((id >> 24) & 0xFF));
+        if (!hexStr.IsEmpty()) hexStr += L",";
+        hexStr += byteStr;
+    }
+    return hexStr;
+}
+
+static void SetCommandHex(CToolBarCtrl& tb, const CString& hexStr) {
+    if (hexStr.IsEmpty()) return;
+    CSimpleMap<DWORD, TBBUTTON> btnMap;
+    for (int i = 0; i < tb.GetButtonCount(); ++i) {
+        TBBUTTON btn; tb.GetButton(i, &btn);
+        if (!(btn.fsStyle & BTNS_SEP)) btnMap.Add(btn.idCommand, btn);
+    }
+
+    CString cleanHex = hexStr;
+    cleanHex.Replace(L"hex:", L"");
+    std::vector<BYTE> bytes;
+    int pos = 0; CString tok;
+    while (!(tok = cleanHex.Tokenize(L", \\\r\n\t", pos)).IsEmpty()) {
+        bytes.push_back((BYTE)_tcstoul(tok, nullptr, 16));
+    }
+    while (tb.GetButtonCount() > 0) tb.DeleteButton(0);
+
+    for (size_t i = 0; i + 3 < bytes.size(); i += 4) {
+        DWORD id = bytes[i] | (bytes[i+1] << 8) | (bytes[i+2] << 16) | (bytes[i+3] << 24);
+        if (id == 0xFFFFFFFF) {
+            TBBUTTON sep = {0}; sep.fsState = TBSTATE_ENABLED; sep.fsStyle = BTNS_SEP;
+            tb.AddButtons(1, &sep);
+        } else {
+            int idx = btnMap.FindKey(id);
+            if (idx != -1) {
+                TBBUTTON btn = btnMap.GetValueAt(idx);
+                btn.fsState |= TBSTATE_ENABLED;
+                tb.AddButtons(1, &btn);
+            }
+        }
+    }
+    tb.AutoSize();
+}
+
+// --- 2. Панель скриптов: сохраняем и читаем ХЭШИ ---
+static CString GetScriptsHex(CToolBarCtrl& tb, CSimpleArray<CMainFrame::ScrInfo>& scripts) {
+    CString hexStr;
+    for (int i = 0; i < tb.GetButtonCount(); ++i) {
+        TBBUTTON btn; 
+        tb.GetButton(i, &btn);
+        DWORD val = 0;
+
+        if (btn.fsStyle & BTNS_SEP) {
+            val = 0xFFFFFFFF; // 1. Это честный разделитель
+        } 
+        else if (btn.idCommand == ID_LAST_SCRIPT) {
+            val = 0xFFFFFFFE; // 2. Наш уникальный маркер для "Последний скрипт"
+        } 
+        else if (btn.idCommand >= ID_SCRIPT_BASE) {
+            // 3. Это динамический скрипт — ищем его хэш
+            int wID = btn.idCommand - ID_SCRIPT_BASE; 
+            bool found = false;
+            for (int j = 0; j < scripts.GetSize(); ++j) {
+                if (!scripts[j].isFolder && scripts[j].wID == wID) {
+                    val = scripts[j].hash; 
+                    found = true;
+                    break;
+                }
+            }
+            // Если скрипт был удален с диска, но кнопка осталась в памяти - игнорируем (не пишем мусор)
+            if (!found) continue; 
+        }
+        else {
+            // 4. Любая другая стандартная команда редактора (сохраняем её родной ID)
+            val = btn.idCommand; 
+        }
+
+        // Формируем hex-строку по байтам
+        CString byteStr;
+        byteStr.Format(L"%02x,%02x,%02x,%02x", 
+                       (val & 0xFF), 
+                       ((val >> 8) & 0xFF), 
+                       ((val >> 16) & 0xFF), 
+                       ((val >> 24) & 0xFF));
+                       
+        if (!hexStr.IsEmpty()) hexStr += L",";
+        hexStr += byteStr;
+    }
+    return hexStr;
+}
+
+static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<CMainFrame::ScrInfo>& scripts)
+{
+    if (hexStr.IsEmpty())
+        return;
+
+    // 1. Сохраняем эталонные кнопки, которые уже есть на панели (включая ID_LAST_SCRIPT)
+    CSimpleMap<DWORD, TBBUTTON> defaultBtnMap;
+    for (int i = 0; i < tb.GetButtonCount(); ++i)
+    {
+        TBBUTTON btn = { 0 };
+        if (tb.GetButton(i, &btn) && !(btn.fsStyle & BTNS_SEP))
+        {
+            // На случай повторов сохраняем только первую найденную кнопку
+            if (defaultBtnMap.FindKey(btn.idCommand) == -1)
+                defaultBtnMap.Add(btn.idCommand, btn);
+        }
+    }
+
+    // 2. Парсим hex-строку в массив байтов
+    CString cleanHex = hexStr;
+    cleanHex.Replace(L"hex:", L"");
+
+    std::vector<BYTE> bytes;
+    int pos = 0;
+    CString tok;
+
+    while (!(tok = cleanHex.Tokenize(L", \r\n\t", pos)).IsEmpty())
+    {
+        unsigned long value = _tcstoul(tok, NULL, 16);
+        bytes.push_back((BYTE)(value & 0xFF));
+    }
+
+    // 3. Полностью очищаем панель
+    while (tb.GetButtonCount() > 0)
+    {
+        tb.DeleteButton(0);
+    }
+
+    // 4. Восстанавливаем панель по XML
+    for (size_t i = 0; i + 3 < bytes.size(); i += 4)
+    {
+        DWORD hash_or_id =
+            (DWORD)bytes[i] |
+            ((DWORD)bytes[i + 1] << 8) |
+            ((DWORD)bytes[i + 2] << 16) |
+            ((DWORD)bytes[i + 3] << 24);
+
+        // --- РАЗДЕЛИТЕЛЬ ---
+        if (hash_or_id == 0xFFFFFFFF)
+        {
+            TBBUTTON sep = { 0 };
+            sep.fsState = TBSTATE_ENABLED;
+            sep.fsStyle = BTNS_SEP;
+            sep.iBitmap = 8; // ширина разделителя
+
+            tb.AddButtons(1, &sep);
+            continue;
+        }
+
+        // --- КНОПКА "ПОСЛЕДНИЙ СКРИПТ" ---
+        if (hash_or_id == 0xFFFFFFFE)
+        {
+            int defIdx = defaultBtnMap.FindKey(ID_LAST_SCRIPT);
+            if (defIdx != -1)
+            {
+                TBBUTTON btn = defaultBtnMap.GetValueAt(defIdx);
+                btn.fsState |= TBSTATE_ENABLED;
+                tb.AddButtons(1, &btn);
+            }
+            continue;
+        }
+
+        // --- ИЩЕМ: ЭТО СКРИПТ ИЛИ ОБЫЧНАЯ КОМАНДА ---
+        DWORD target_id = hash_or_id; // по умолчанию считаем, что это обычная команда
+        int min_wID = INT_MAX;
+        bool isScript = false;
+        int bestIdx = -1;
+
+        for (int j = 0; j < scripts.GetSize(); ++j)
+        {
+            if (!scripts[j].isFolder && scripts[j].hash == hash_or_id)
+            {
+                if (scripts[j].wID > 0 && scripts[j].wID < min_wID)
+                {
+                    min_wID = scripts[j].wID;
+                    target_id = ID_SCRIPT_BASE + scripts[j].wID;
+                    isScript = true;
+                    bestIdx = j;
+                }
+            }
+        }
+
+        // --- ВОССТАНАВЛИВАЕМ КНОПКУ СКРИПТА ---
+        if (isScript && bestIdx != -1)
+        {
+            int cacheIdx = g_ScriptBtnCache.FindKey(target_id);
+            if (cacheIdx != -1)
+            {
+                TBBUTTON btn = g_ScriptBtnCache.GetValueAt(cacheIdx);
+                btn.fsState |= TBSTATE_ENABLED;
+
+                tb.AddButtons(1, &btn);
+            }
+
+            continue;
+        }
+
+        // --- ВОССТАНАВЛИВАЕМ ОБЫЧНУЮ КНОПКУ ---
+        int defIdx = defaultBtnMap.FindKey(target_id);
+        if (defIdx != -1)
+        {
+            TBBUTTON btn = defaultBtnMap.GetValueAt(defIdx);
+            btn.fsState |= TBSTATE_ENABLED;
+            tb.AddButtons(1, &btn);
+        }
+    }
+
+    tb.AutoSize();
+}
+
+// --- 3. Главные функции чтения и записи XML ---
+static void SaveToolbarsToXML(CToolBarCtrl& cmdTb, CToolBarCtrl& scrTb, CSimpleArray<CMainFrame::ScrInfo>& scripts) {
+    CString path = U::GetSettingsDir() + L"Toolbars.xml";
+    CString xml;
+    xml.Format(
+        L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+        L"<FBE>\r\n"
+        L"  <Toolbars>\r\n"
+        L"    <CommandToolbar>hex:%s</CommandToolbar>\r\n"
+        L"    <ScriptsToolbar>hex:%s</ScriptsToolbar>\r\n"
+        L"  </Toolbars>\r\n"
+        L"</FBE>", 
+        GetCommandHex(cmdTb), GetScriptsHex(scrTb, scripts)
+    );
+
+    HANDLE hFile = ::CreateFile(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile != INVALID_HANDLE_VALUE) {
+        CW2A utf8Xml(xml, CP_UTF8);
+        DWORD written = 0;
+        ::WriteFile(hFile, (LPCSTR)utf8Xml, (DWORD)strlen(utf8Xml), &written, NULL);
+        ::CloseHandle(hFile);
+		g_bToolbarsChanged = false;
+    }
+}
+
+static void RestoreToolbarsFromXML(CToolBarCtrl& cmdTb, CToolBarCtrl& scrTb, CSimpleArray<CMainFrame::ScrInfo>& scripts) {
+    CString path = U::GetSettingsDir() + L"Toolbars.xml";
+    HANDLE hFile = ::CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) return;
+
+    DWORD size = ::GetFileSize(hFile, NULL);
+    if (size == INVALID_FILE_SIZE || size == 0) { ::CloseHandle(hFile); return; }
+
+    std::vector<char> buffer(size + 1, 0);
+    DWORD read = 0;
+    ::ReadFile(hFile, buffer.data(), size, &read, NULL);
+    ::CloseHandle(hFile);
+
+    CString xml = CA2W(buffer.data(), CP_UTF8);
+
+    auto ExtractVal = [&](const wchar_t* tag) -> CString {
+        CString startTag; startTag.Format(L"<%s>", tag);
+        CString endTag; endTag.Format(L"</%s>", tag);
+        int start = xml.Find(startTag);
+        if (start == -1) return L"";
+        start += startTag.GetLength();
+        int end = xml.Find(endTag, start);
+        if (end == -1) return L"";
+        return xml.Mid(start, end - start);
+    };
+
+    CString cmdHex = ExtractVal(L"CommandToolbar");
+    CString scrHex = ExtractVal(L"ScriptsToolbar");
+
+    if (!cmdHex.IsEmpty()) SetCommandHex(cmdTb, cmdHex);
+    if (!scrHex.IsEmpty()) SetScriptsHex(scrTb, scrHex, scripts);
+}
 
 // MessageBox localization
 HHOOK hCBTHook;
@@ -92,11 +382,6 @@ bool  CMainFrame::IsBandVisible(int id) {
 
 void  CMainFrame::AttachDocument(FB::Doc *doc) 
 {
-	/*if (IsSourceActive()) {
-	UIEnable(ID_VIEW_TREE, 1);
-	UISetCheck(ID_VIEW_TREE, m_save_sp_mode);
-	m_splitter.SetSinglePaneMode(m_save_sp_mode ? SPLIT_PANE_NONE : SPLIT_PANE_RIGHT);
-	}*/
 	m_view.AttachWnd(doc->m_body);
 	UISetCheck(ID_VIEW_BODY, 1);
 	UISetCheck(ID_VIEW_DESC, 0);
@@ -184,7 +469,6 @@ public:
       cp+=len;
     }
 
-    //::SetDlgItemText(hWnd,IDC_ENCODING,m_encoding);
 	::SendMessage(::GetDlgItem(hWnd, IDC_ENCODING), CB_SELECTSTRING, 0, (LPARAM)m_encoding.GetBuffer());	
 
 	return TRUE;
@@ -296,10 +580,10 @@ CMainFrame::FILE_OP_STATUS CMainFrame::SaveFile(bool askname) {
     m_doc->m_encoding=encoding;
     if (m_doc->Save(filename)) {
       m_doc->m_filename=filename;
-	  wchar_t str[MAX_PATH];
-	  wcscpy(str, (const wchar_t*)filename);
-	  PathRemoveFileSpec(str);
-	  SetCurrentDirectory(str);
+	  CString dir(filename);
+	  PathRemoveFileSpec(dir.GetBuffer(dir.GetLength() + 1));
+	  dir.ReleaseBuffer();
+	  SetCurrentDirectory(dir);
       m_doc->m_namevalid=true;	 
 	  m_file_age = FileAge(m_doc->m_filename);
 	  if(IsSourceActive())
@@ -345,13 +629,15 @@ CMainFrame::FILE_OP_STATUS  CMainFrame::LoadFile(const wchar_t *initfilename)
   m_status.SetPaneText(ID_DEFAULT_PANE,L"Loading...");
   bool fLoaded = doc->Load(m_view, filename);
   EnableWindow(TRUE);
-  if (!fLoaded) 
+  if (!fLoaded)
   {
-	  if (LoadToScintilla(filename)) return OK;
-	  else return FAIL;
-/*  delete doc;
-	FB::Doc::m_active_doc = m_doc;
-    return FAIL; */
+	  delete doc;
+	  FB::Doc::m_active_doc = m_doc;
+
+	  if (LoadToScintilla(filename))
+		  return OK;
+	  else
+		  return FAIL;
   }
 
   AttachDocument(doc);
@@ -370,7 +656,6 @@ void  CMainFrame::GetDocumentStructure() {
 void  CMainFrame::GoTo(MSHTML::IHTMLElement *e) {
   try {
     m_doc->m_body.GoTo(e);
-   // ShowView();
   }
   catch (_com_error&) {
   }
@@ -415,9 +700,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		{
 			if (m_doc->m_body.PreTranslateMessage(pMsg))
 				return TRUE;
-			/*    } else if (::IsChild(m_doc->m_desc,hWndFocus)) {
-			if (m_doc->m_desc.PreTranslateMessage(pMsg))
-			return TRUE;*/
 		}
 	}
 
@@ -645,7 +927,7 @@ BOOL CMainFrame::OnIdle()
 		// Added by SeNS: process bitmap paste
 		UIEnable(ID_EDIT_PASTE, m_source.SendMessage(SCI_CANPASTE) || BitmapInClipboard());
 
-		if (m_sel_changed && /*GetCurView()*/m_current_view != DESC)
+		if (m_sel_changed && m_current_view != DESC)
 		{
 			m_status.SetPaneText(ID_DEFAULT_PANE, m_doc->m_body.SelPath());
 
@@ -1090,29 +1372,97 @@ BOOL CMainFrame::OnIdle()
 	return FALSE;
 }
 
-void CMainFrame::AddTbButton(HWND hWnd, const TCHAR *text, const int idCommand, const BYTE bState, const HICON icon)
+void CMainFrame::AddTbButton(HWND hWnd, const TCHAR* text, const int idCommand, const BYTE bState, const HICON icon)
 {
-    CToolBarCtrl tb = hWnd;
-	int iImage = I_IMAGENONE;
-	BYTE bStyle = BTNS_BUTTON | BTNS_AUTOSIZE;
-	if (icon)
-	{
-		CImageList iList = tb.GetImageList();
-		if (iList) iImage = iList.AddIcon(icon);
-	}
+    if (!::IsWindow(hWnd))
+        return;
 
-	tb.AddButton(idCommand, bStyle, bState, iImage, text, 0); 
-	// custom added command
-	if (icon)
-	{
-		int idx = tb.CommandToIndex(idCommand);
-		TBBUTTON tbButton;
-		tb.GetButton(idx, &tbButton);
-		AddToolbarButton(tb,tbButton, text);
-		// move button to unassigned
-		tb.DeleteButton(idx);
-	}
-	tb.AutoSize();
+    CToolBarCtrl tb = hWnd;
+
+    const TCHAR* safeText = (text != NULL) ? text : _T("");
+    int iImage = I_IMAGENONE;
+    bool imageAdded = false;
+
+    // Если передана иконка, пытаемся добавить её в image list тулбара
+    if (icon != NULL)
+    {
+        CImageList iList = tb.GetImageList();
+        if (iList.m_hImageList != NULL)
+        {
+            int newImage = iList.AddIcon(icon);
+            if (newImage >= 0)
+            {
+                iImage = newImage;
+                imageAdded = true;
+            }
+        }
+    }
+
+    // Для TB_ADDSTRING строка должна быть в формате "text\0\0"
+    int stringIndex = -1;
+    int strLen = lstrlen(safeText);
+    if (strLen > 0)
+    {
+        std::vector<TCHAR> safeStr(strLen + 2, 0);
+        memcpy(&safeStr[0], safeText, strLen * sizeof(TCHAR));
+        safeStr[strLen] = 0;
+        safeStr[strLen + 1] = 0;
+
+        int addStrResult = tb.AddStrings(&safeStr[0]);
+        if (addStrResult >= 0)
+            stringIndex = addStrResult;
+    }
+
+    TBBUTTON btn = { 0 };
+    btn.idCommand = idCommand;
+    btn.fsStyle = BTNS_BUTTON | BTNS_AUTOSIZE;
+    btn.fsState = bState;
+    btn.iBitmap = iImage;
+    btn.iString = stringIndex;
+
+    if (!tb.AddButtons(1, &btn))
+    {
+        // Если кнопку добавить не удалось, убираем только что добавленную иконку,
+        // чтобы не засорять image list.
+        if (imageAdded)
+        {
+            CImageList iList = tb.GetImageList();
+            if (iList.m_hImageList != NULL && iImage >= 0)
+                iList.Remove(iImage);
+        }
+        return;
+    }
+
+    // custom added command
+    // Добавляем в "unassigned" и кэшируем реальную структуру кнопки только
+    // для кнопок с иконкой, как и в исходной логике.
+    if (icon != NULL)
+    {
+        int idx = tb.CommandToIndex(idCommand);
+        if (idx >= 0)
+        {
+            TBBUTTON tbButton = { 0 };
+            if (tb.GetButton(idx, &tbButton))
+            {
+                AddToolbarButton(tb, tbButton, safeText);
+
+                TBBUTTON realBtn = { 0 };
+                if (tb.GetButton(idx, &realBtn))
+                {
+                    int cacheIdx = g_ScriptBtnCache.FindKey(realBtn.idCommand);
+                    if (cacheIdx != -1)
+                        g_ScriptBtnCache.RemoveAt(cacheIdx);
+
+                    g_ScriptBtnCache.Add(realBtn.idCommand, realBtn);
+                }
+
+                // move button to unassigned
+                tb.DeleteButton(idx);
+            }
+        }
+    }
+
+    tb.AutoSize();
 }
 
 static void SubclassBox(HWND hWnd, RECT& rc, const int pos, CComboBox& box, DWORD dwStyle, CCustomEdit& custedit, const int resID, HFONT& hFont)
@@ -1136,125 +1486,99 @@ void CMainFrame::AddStaticText(CCustomStatic &st, HWND toolbarHwnd, int id, cons
 	st.SetEnabled(true);
 }
 
-void CMainFrame::InitPluginsType(HMENU hMenu, const TCHAR* type, UINT cmdbase, CSimpleArray<CLSID>& plist)
+// ПРЯМАЯ ЗАГРУЗКА COM-ОБЪЕКТОВ БЕЗ РЕЕСТРА ---
+HRESULT CreateInstanceFromDll(const CString& dllPath, REFCLSID rclsid, REFIID riid, void** ppv)
 {
-	CRegKey rk;
+    *ppv = NULL;
+    HMODULE hDll = ::LoadLibrary(dllPath); // Грузим DLL напрямую из папки!
+    if (!hDll) return HRESULT_FROM_WIN32(::GetLastError());
 
-	if(rk.Open(HKEY_CURRENT_USER, _Settings.GetKeyPath() + L"\\Plugins") != ERROR_SUCCESS)
-		return;
-	int ncmd = 0;
-	for(int i = 0; ncmd < 20; ++i)
-	{
-		CString name;
-		DWORD size = 128; // enough for GUIDs
-		TCHAR* cp = name.GetBuffer(size);
-		FILETIME ft;
-		if(::RegEnumKeyEx(rk, i, cp, &size, 0, 0, 0, &ft) != ERROR_SUCCESS)
-			break;
-		name.ReleaseBuffer(size);
-		CRegKey pk;
-		if(pk.Open(rk, name) != ERROR_SUCCESS)
-			continue;
-		CString pt(U::QuerySV(pk, L"Type"));
-		CString ms(U::QuerySV(pk, L"Menu"));
-		if(pt.IsEmpty() || ms.IsEmpty() || pt != type)
-			continue;
-		CLSID clsid;
-		if(::CLSIDFromString((TCHAR*)(const TCHAR *)name, &clsid) != NOERROR)
-			continue;
+    typedef HRESULT (STDAPICALLTYPE *DllGetClassObject_t)(REFCLSID, REFIID, LPVOID*);
+    DllGetClassObject_t pfnGetClassObject = (DllGetClassObject_t)::GetProcAddress(hDll, "DllGetClassObject");
+    if (!pfnGetClassObject) return HRESULT_FROM_WIN32(::GetLastError());
 
-		// all checks pass, add to menu and remember clsid
-		plist.Add(clsid);
-		::AppendMenu(hMenu, MF_STRING, cmdbase + ncmd, ms);
-		CString hs = ms;
-		hs.Remove(L'&');
-		InitPluginHotkey(name, cmdbase + ncmd, pt + CString(L" | ") + hs);
-		// check if an icon is available
-		CString icon(U::QuerySV(pk, L"Icon"));
-		if(!icon.IsEmpty())
-		{
-			int cp = icon.ReverseFind(L',');
-			int iconID;
-			if(cp > 0 && _stscanf((const TCHAR *)icon + cp, L",%d", &iconID) == 1)
-				icon.Delete(cp, icon.GetLength() - cp);
-			else
-				iconID = 0;
+    IClassFactory* pClassFactory = NULL;
+    HRESULT hr = pfnGetClassObject(rclsid, IID_IClassFactory, (void**)&pClassFactory);
+    if (SUCCEEDED(hr) && pClassFactory) {
+        hr = pClassFactory->CreateInstance(NULL, riid, ppv);
+        pClassFactory->Release();
+    }
+    return hr;
+}
+// ------------------------------------------------
 
-			// try load from file first
-			HICON hIcon;
-			if(::ExtractIconEx(icon, iconID, NULL, &hIcon, 1) > 0 && hIcon)
-			{
-				m_MenuBar.AddIcon(hIcon, cmdbase + ncmd);
-				::DestroyIcon(hIcon);
-			}
-		}
-		++ncmd;
-	}
+void CMainFrame::InitPluginsType(HMENU hMenu, const TCHAR* type, UINT cmdbase, CSimpleArray<PluginInfo>& plist)
+{
+    CString pluginsDir = U::GetProgDir() + L"Plugins\\";
+    CString iniPath = pluginsDir + L"Plugins.ini";
 
-	// Old path to provide searching of old plugins
-	CRegKey oldRk;
-	if(oldRk.Open(HKEY_LOCAL_MACHINE, L"Software\\Haali\\FBE\\Plugins") != ERROR_SUCCESS)
-		goto skip;
-	else
-	{
-		for(int i = ncmd; ncmd < 20; ++i)
-		{
-			CString name;
-			DWORD size = 128; // enough for GUIDs
-			TCHAR* cp = name.GetBuffer(size);
-			FILETIME ft;
-			if(::RegEnumKeyEx(oldRk, i, cp, &size, 0, 0, 0, &ft) != ERROR_SUCCESS)
-				break;
-			name.ReleaseBuffer(size);
-			CRegKey pk;
-			if(pk.Open(oldRk, name) != ERROR_SUCCESS)
-				continue;
-			CString pt(U::QuerySV(pk, L"Type"));
-			CString ms(U::QuerySV(pk, L"Menu"));
-			if(pt.IsEmpty() || ms.IsEmpty() || pt != type)
-				continue;
-			CLSID clsid;
-			if(::CLSIDFromString((TCHAR*)(const TCHAR *)name, &clsid) != NOERROR)
-				continue;
+    // Получаем список всех секций [Плагинов] в INI-файле
+    wchar_t sections[4096] = {0};
+    ::GetPrivateProfileSectionNames(sections, 4096, iniPath);
 
-			// all checks pass, add to menu and remember clsid
-			plist.Add(clsid);
-			::AppendMenu(hMenu, MF_STRING, cmdbase + ncmd, ms);
-			CString hs = ms;
-			hs.Remove(L'&');
-			InitPluginHotkey(name, cmdbase + ncmd,pt + CString(L" | ") + hs);
-			// check if an icon is available
-			CString icon(U::QuerySV(pk, L"Icon"));
-			if(!icon.IsEmpty())
-			{
-				int cp = icon.ReverseFind(L',');
-				int iconID;
-				if(cp > 0 && _stscanf((const TCHAR *)icon + cp, L",%d", &iconID) == 1)
-					icon.Delete(cp, icon.GetLength() - cp);
-				else
-					iconID = 0;
+    int ncmd = 0;
+    wchar_t* pSection = sections;
+    while (*pSection && ncmd < 20)
+    {
+        wchar_t pt[128] = {0};
+        ::GetPrivateProfileString(pSection, L"Type", L"", pt, 128, iniPath);
+        if (U::scmp(pt, type) != 0) {
+            pSection += wcslen(pSection) + 1;
+            continue;
+        }
 
-				// try load from file first
-				HICON hIcon;
-				if(::ExtractIconEx(icon, iconID, NULL, &hIcon, 1) > 0 && hIcon)
-				{
-					m_MenuBar.AddIcon(hIcon, cmdbase + ncmd);
-					::DestroyIcon(hIcon);
-				}
-			}
-			++ncmd;
-		}
-	}
-skip:
-	if(ncmd > 0) // delete placeholder from menu
-	::RemoveMenu(hMenu, 0, MF_BYPOSITION);
+        wchar_t ms[128] = {0};
+        ::GetPrivateProfileString(pSection, L"Menu", L"", ms, 128, iniPath);
+        wchar_t guidStr[128] = {0};
+        ::GetPrivateProfileString(pSection, L"GUID", L"", guidStr, 128, iniPath);
+        wchar_t dllName[MAX_PATH] = {0};
+        ::GetPrivateProfileString(pSection, L"DLL", L"", dllName, MAX_PATH, iniPath);
+
+        CLSID clsid;
+        if (::CLSIDFromString(guidStr, &clsid) == NOERROR && wcslen(ms) > 0 && wcslen(dllName) > 0)
+        {
+            PluginInfo pi;
+            pi.clsid = clsid;
+            pi.dllPath = pluginsDir + dllName; // Собираем полный путь к DLL в папке Plugins
+            plist.Add(pi);
+
+            ::AppendMenu(hMenu, MF_STRING, cmdbase + ncmd, ms);
+            CString hs = ms; hs.Remove(L'&');
+            InitPluginHotkey(guidStr, cmdbase + ncmd, CString(pt) + L" | " + hs);
+
+            // Читаем иконку
+            wchar_t iconStr[MAX_PATH] = {0};
+            ::GetPrivateProfileString(pSection, L"Icon", L"", iconStr, MAX_PATH, iniPath);
+            CString icon(iconStr);
+            if (!icon.IsEmpty()) {
+                int cp = icon.ReverseFind(L',');
+                int iconID = 0;
+                if (cp > 0) {
+                    iconID = _wtoi((const TCHAR*)icon + cp + 1);
+                    icon.Delete(cp, icon.GetLength() - cp);
+                }
+                HICON hIcon;
+                if (::ExtractIconEx(pluginsDir + icon, iconID, NULL, &hIcon, 1) > 0 && hIcon) {
+                    m_MenuBar.AddIcon(hIcon, cmdbase + ncmd);
+                    ::DestroyIcon(hIcon);
+                }
+            }
+            ++ncmd;
+        }
+        pSection += wcslen(pSection) + 1;
+    }
+
+    if (ncmd > 0) ::RemoveMenu(hMenu, 0, MF_BYPOSITION); // Удаляем заглушку из меню
 }
 
 void CMainFrame::InitPlugins()
 {
+	FreeScriptsPictures();
+	m_scripts.RemoveAll();
+	m_last_script = 0;
+	
 	CollectScripts(_Settings.GetScriptsFolder(), L"*.js", 1, L"0");	
 	QuickScriptsSort(m_scripts, 0, m_scripts.GetSize() - 1);
-	UpScriptsFolders(m_scripts);
 
 	HMENU file = ::GetSubMenu(m_MenuBar.GetMenu(), 0);
 	HMENU sub = ::GetSubMenu(file, 6);
@@ -1265,9 +1589,15 @@ void CMainFrame::InitPlugins()
 
 	sub = ::GetSubMenu(file, 9);
 	m_mru.SetMenuHandle(sub);
-	m_mru.ReadFromRegistry(_Settings.GetKeyPath());
+
+	// ПОРТАТИВНАЯ ЗАГРУЗКА ИСТОРИИ
 	m_mru.SetMaxEntries(m_mru.m_nMaxEntries_Max - 1);
 
+    _History.Load();
+    for (int i = 0; i < _History.m_mru_list.GetSize(); ++i) {
+        m_mru.AddToList(_History.m_mru_list[i]);
+    }
+    
 	// Scripts
 	HMENU ManMenu = m_MenuBar.GetMenu();
 	HMENU scripts = GetSubMenu(ManMenu, 6);
@@ -1304,8 +1634,6 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
   m_CmdToolbar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE,  ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST | CCS_ADJUSTABLE);
   m_CmdToolbar.SetExtendedStyle(TBSTYLE_EX_MIXEDBUTTONS);
   InitToolBar(m_CmdToolbar, IDR_MAINFRAME);
-  // Restore commands toolbar layout and position
-  m_CmdToolbar.RestoreState(HKEY_CURRENT_USER, L"SOFTWARE\\FBETeam\\FictionBook Editor\\Toolbars", L"CommandToolbar");
   UIAddToolBar(m_CmdToolbar);
 
   m_ScriptsToolbar = CreateSimpleToolBarCtrl(m_hWnd, IDR_SCRIPTS, FALSE,  ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST | CCS_ADJUSTABLE);
@@ -1415,13 +1743,8 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
   // add editor controls  
   RECT rc;    
   
-  // m_id_caption.SetParent(this->m_hWnd);
-
-  /*HDC hdc = ::GetDC(hWndLinksBar);
-  COLORREF bkCollor = GetBkColor(hdc);*/
   HDC hdc1 = ::GetDC(m_id_caption);
   SetBkColor(hdc1, RGB(0,0,0));
-  //ReleaseDC(hdc);
   ReleaseDC(hdc1);
 
   DWORD CBS_COMMON_STYLE =  WS_CHILD | WS_VISIBLE | CBS_AUTOHSCROLL;
@@ -1486,17 +1809,7 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
   m_splitter.SetSplitterExtendedStyle(0);
 
   // create splitter contents
-//  m_document_tree.Create(m_splitter);
-//  m_document_tree.SetTitle(L"Document Tree");
   m_view.Create(m_splitter,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|WS_CLIPCHILDREN);
-
-  // create a tree
-  /*m_dummy_pane.Create(m_document_tree,rcDefault,NULL,WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|WS_CLIPCHILDREN,WS_EX_CLIENTEDGE);
-  m_document_tree.SetClient(m_dummy_pane);
-  m_document_tree.Create(m_dummy_pane, rcDefault);
-  m_document_tree.SetBkColor(::GetSysColor(COLOR_WINDOW));
-  m_dummy_pane.SetSplitterPane(0,m_document_tree);
-  m_dummy_pane.SetSinglePaneMode(SPLIT_PANE_LEFT);*/
 
   // create a source view
   m_source.Create(_T("Scintilla"),m_view,rcDefault,NULL,WS_CHILD|WS_CLIPSIBLINGS|WS_CLIPCHILDREN,0);
@@ -1653,9 +1966,13 @@ LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
   }
   else UIEnable(ID_TOOLS_SPELLCHECK, false, true);
 
-  // Restore scripts toolbar layout and position
-  m_ScriptsToolbar.RestoreState(HKEY_CURRENT_USER, L"SOFTWARE\\FBETeam\\FictionBook Editor\\Toolbars", L"ScriptsToolbar");
-
+    CString path = U::GetSettingsDir() + L"Toolbars.xml";
+    if (::GetFileAttributes(path) == INVALID_FILE_ATTRIBUTES) {
+        SaveToolbarsToXML(m_CmdToolbar, m_ScriptsToolbar, m_scripts);
+    } else {
+        RestoreToolbarsFromXML(m_CmdToolbar, m_ScriptsToolbar, m_scripts);
+    }
+    
   return 0;
 }
 
@@ -1677,13 +1994,19 @@ LRESULT CMainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		m_Speller->SetEnabled(false);
 	}
 	_Settings.SetViewStatusBar(m_status.IsWindowVisible() != 0);
-	//_Settings.SetViewDocumentTree(IsSourceActive() ? m_document_tree.IsWindowVisible()==0 : !m_save_sp_mode);
     _Settings.SetSplitterPos(m_splitter.GetSplitterPos());	
     WINDOWPLACEMENT wpl;
     wpl.length=sizeof(wpl);
     GetWindowPlacement(&wpl);
 	_Settings.SetWindowPosition(wpl);
-    m_mru.WriteToRegistry(_Settings.GetKeyPath());
+
+	// ПОРТАТИВНОЕ СОХРАНЕНИЕ ИСТОРИИ
+    _History.m_mru_list.RemoveAll();
+    for (int i = 0; i < m_mru.m_arrDocs.GetSize(); ++i) {
+        _History.m_mru_list.Add(m_mru.m_arrDocs[i].szDocName);
+    }
+    _History.Save();
+    
     // save toolbars state
     CString tbs;
     REBARBANDINFO  rbi;
@@ -1698,10 +2021,10 @@ LRESULT CMainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
       tbs+=bi;
     }
 
-	// Save toolbar layout
-    m_CmdToolbar.SaveState(HKEY_CURRENT_USER, L"SOFTWARE\\FBETeam\\FictionBook Editor\\Toolbars", L"CommandToolbar");
-    m_ScriptsToolbar.SaveState(HKEY_CURRENT_USER, L"SOFTWARE\\FBETeam\\FictionBook Editor\\Toolbars", L"ScriptsToolbar");
-
+	if (g_bToolbarsChanged) {
+        SaveToolbarsToXML(m_CmdToolbar, m_ScriptsToolbar, m_scripts);
+    }
+	
     _Settings.SetToolbarsSettings(tbs);
 	_Settings.SaveHotkeyGroups();
 	_Settings.Save();
@@ -1716,30 +2039,46 @@ LRESULT CMainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 LRESULT CMainFrame::OnPostCreate(UINT, WPARAM, LPARAM, BOOL&)
 {
-	//SetSplitterPos works best after the default WM_CREATE has been handled
+	// SetSplitterPos works best after the default WM_CREATE has been handled
 	m_splitter.SetSplitterPos(_Settings.GetSplitterPos());
 
 	_Settings.LoadHotkeyGroups();
-	DestroyAcceleratorTable(m_hAccel);
 
-	LPACCEL lpaccelNew = new ACCEL[_Settings.keycodes];
-	int HKentries = _Settings.keycodes;
-	for(unsigned int i = 0; i < _Settings.m_hotkey_groups.size(); ++i)
+	std::vector<ACCEL> accels;
+	if (_Settings.keycodes > 0)
+		accels.reserve(_Settings.keycodes);
+
+	for (size_t i = 0; i < _Settings.m_hotkey_groups.size(); ++i)
 	{
-		for(unsigned int j = 0; j < _Settings.m_hotkey_groups.at(i).m_hotkeys.size(); ++j)
+		const auto& group = _Settings.m_hotkey_groups[i];
+
+		for (size_t j = 0; j < group.m_hotkeys.size(); ++j)
 		{
-			ACCEL accel = _Settings.m_hotkey_groups.at(i).m_hotkeys.at(j).m_accel;
-			if(accel.fVirt != NULL && accel.key != NULL && accel.cmd != NULL)
-			{
-				lpaccelNew[--HKentries] = accel;
-			}
+			const ACCEL& accel = group.m_hotkeys[j].m_accel;
+
+			// Отбрасываем пустые / неинициализированные акселераторы
+			if (accel.fVirt != 0 && accel.key != 0 && accel.cmd != 0)
+				accels.push_back(accel);
 		}
 	}
 
-	m_hAccel = CreateAcceleratorTable(lpaccelNew, _Settings.keycodes);
-	delete[] lpaccelNew;
+	HACCEL hNewAccel = NULL;
+
+	if (!accels.empty())
+	{
+		hNewAccel = CreateAcceleratorTable(&accels[0], static_cast<int>(accels.size()));
+	}
+
+	if (m_hAccel != NULL)
+	{
+		DestroyAcceleratorTable(m_hAccel);
+		m_hAccel = NULL;
+	}
+
+	m_hAccel = hNewAccel;
 
 	FillMenuWithHkeys(m_MenuBar.GetMenu());
+
 	return 0;
 }
 
@@ -1896,7 +2235,7 @@ public:
     m_source.SendMessage(SCI_SETTARGETEND,end);
 
     // convert search pattern and replacement to utf8
-    int	  patlen, num_pat_nbsp, num_rep_nbsp;
+    int	  patlen = 0, num_pat_nbsp = 0, num_rep_nbsp = 0;
 	// added by SeNS
 	if (_Settings.GetNBSPChar().Compare(L"\u00A0") != 0)
 		num_pat_nbsp = m_view->m_fo.pattern.Replace( L"\u00A0", _Settings.GetNBSPChar());
@@ -1970,14 +2309,35 @@ public:
 
 CMainFrame::~CMainFrame()
 { 
-	delete m_doc; 
-	if((bool)m_saved_xml)
+	FreeScriptsPictures();
+	m_scripts.RemoveAll();
+	m_last_script = NULL;
+
+	delete m_doc;
+	m_doc = NULL;
+
+	if ((bool)m_saved_xml)
 	{
 		m_saved_xml.Release();
 	}
-	if(m_sci_find_dlg)
-	{		  
+
+	if (m_sci_find_dlg)
+	{
 		delete m_sci_find_dlg;
+		m_sci_find_dlg = NULL;
+	}
+
+	if (m_sci_replace_dlg)
+	{
+		delete m_sci_replace_dlg;
+		m_sci_replace_dlg = NULL;
+	}
+
+	if (m_Speller)
+	{
+		m_Speller->EndDocumentCheck();
+		delete m_Speller;
+		m_Speller = NULL;
 	}
 }
 
@@ -2010,21 +2370,9 @@ LRESULT CMainFrame::OnUnhandledCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 			{
 				switch (LOWORD(wParam))
 				{
-					/*case ID_EDIT_UNDO:
-						m_source.SendMessage(SCI_UNDO);
-						break;*/
 					case ID_EDIT_REDO:
 						m_source.SendMessage(SCI_REDO);
 						break;
-					/*case ID_EDIT_CUT:
-						m_source.SendMessage(SCI_CUT);
-						break;
-					case ID_EDIT_COPY:
-						m_source.SendMessage(SCI_COPY);
-						break;
-					case ID_EDIT_PASTE:
-						m_source.SendMessage(SCI_PASTE);
-						break;*/
 					case ID_EDIT_FIND:
 						{
 						if(!m_sci_find_dlg)
@@ -2276,8 +2624,6 @@ LRESULT CMainFrame::OnViewOptions(WORD, WORD, HWND, BOOL&)
 	if(ShowSettingsDialog(m_hWnd))
 	{
 		ApplyConfChanges();
-		/*m_doc->ApplyConfChanges();
-		SetSciStyles();*/
 	}
 
 	switch(find_repl)
@@ -2298,8 +2644,7 @@ LRESULT CMainFrame::OnToolsImport(WORD, WORD wID, HWND, BOOL&) {
   if (wID<m_import_plugins.GetSize()) {
     try {
       IUnknownPtr			    unk;
-      CheckError(unk.CreateInstance(m_import_plugins[wID]));
-
+	  CheckError(CreateInstanceFromDll(m_import_plugins[wID].dllPath, m_import_plugins[wID].clsid, __uuidof(IUnknown), (void**)&unk));
       CComQIPtr<IFBEImportPlugin>	    ipl(unk);
 
       IDispatchPtr  obj;
@@ -2327,10 +2672,6 @@ LRESULT CMainFrame::OnToolsImport(WORD, WORD wID, HWND, BOOL&) {
 	  }
       else if (DiscardChanges()) 
 	  {
-		/*FB::Doc *doc=new FB::Doc(*this);
-		FB::Doc::m_active_doc = doc;*/
-
-		//if (doc->LoadFromDOM(m_view,dom)) {
 		CComDispatchDriver	body(m_doc->m_body.Script());
 		CComVariant		    args[2];
 		CComVariant		    res;
@@ -2338,27 +2679,21 @@ LRESULT CMainFrame::OnToolsImport(WORD, WORD wID, HWND, BOOL&) {
 		args[0] = _Settings.GetInterfaceLanguageName();		
 		CheckError(body.InvokeN(L"LoadFromDOM", args, 2, &res));	
 		if(res.boolVal)
-		//if (doc->LoadFromHTML(m_view,(const wchar_t* )filename)) 
 		{
 			if (filename.length()>0) 
 			{
 				m_doc->m_filename=(const TCHAR *)filename;
-				wchar_t str[MAX_PATH];
-				wcscpy(str, (const wchar_t*)filename);
-				PathRemoveFileSpec(str);
-				SetCurrentDirectory(str);
+				CString dir((const wchar_t*)filename);
+				PathRemoveFileSpec(dir.GetBuffer(dir.GetLength() + 1));
+				dir.ReleaseBuffer();
+				SetCurrentDirectory(dir);
 				if (m_doc->m_filename.GetLength()<4 || m_doc->m_filename.Right(4).CompareNoCase(_T(".fb2"))!=0)
 				m_doc->m_filename+=_T(".fb2");
 				m_doc->m_namevalid=true;
 			}
-			/*AttachDocument(doc);
-			delete m_doc;
-			m_doc=doc;*/
 			m_doc->m_body.Init();
 			m_doc->ResetSavePoint();
-		}// else
-			//FB::Doc::m_active_doc = m_doc;
-		//delete doc;
+		}
 	  }
 	}
     catch (_com_error& e) {
@@ -2376,7 +2711,7 @@ LRESULT CMainFrame::OnToolsExport(WORD, WORD wID, HWND, BOOL&)
 		try
 		{
 			IUnknownPtr unk;
-			CheckError(unk.CreateInstance(m_export_plugins[wID]));
+			CheckError(CreateInstanceFromDll(m_export_plugins[wID].dllPath, m_export_plugins[wID].clsid, __uuidof(IUnknown), (void**)&unk));
 
 			CComQIPtr<IFBEExportPlugin> epl(unk);
 
@@ -2488,53 +2823,6 @@ LRESULT CMainFrame::OnToolsScript(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 		}
 	}
   
-  // TODO тут должен быть else
-
-  /*if (wID < m_scripts.GetSize()) {
-  if (StartScript(this) >= 0) {
-		if (SUCCEEDED(ScriptLoad(m_scripts[wID].name))){
-			if(m_scripts[wID].Type == 0)
-			{
-				MSXML2::IXMLDOMDocument2Ptr dom(m_doc->CreateDOM(m_doc->m_encoding));
-				if (dom) 
-				{
-					CComVariant arg;
-					V_VT(&arg) = VT_DISPATCH;
-					V_DISPATCH(&arg) = dom;
-					dom.AddRef();
-					if (SUCCEEDED(ScriptCall(L"Run",&arg,1,NULL))) 
-					{
-						m_doc->SetXML(dom);						
-					}
-				}
-			}
-			else if(m_scripts[wID].Type == 1)
-			{
-				SHD::IWebBrowser2Ptr HTMLdomBody = m_doc->m_body.Browser();
-				SHD::IWebBrowser2Ptr HTMLdomDesc = m_doc->m_body.Browser();
-				CComVariant* arg = new CComVariant[2];				
-				V_VT(&arg[0]) = VT_DISPATCH;
-				V_DISPATCH(&arg[0]) = HTMLdomBody;
-				HTMLdomBody.AddRef();
-				V_VT(&arg[1]) = VT_DISPATCH;
-				V_DISPATCH(&arg[1]) = HTMLdomDesc;
-				HTMLdomDesc.AddRef();
-				
-				CComVariant vt;
-				if (SUCCEEDED(ScriptCall(L"Run",arg,2,&vt))) 
-				{
-					//m_doc->SetXML(dom);
-				}
-			}
-			else if(m_scripts[wID].Type == 2)
-			{
-				ScriptCall(L"Run",0,0,0);
-			}
-      }
-      StopScript();
-    }
-  }*/
-
   return 0;
 }
 
@@ -2568,23 +2856,6 @@ LRESULT CMainFrame::OnEditInsSymbol(WORD wNotifyCode, WORD wID, HWND hWndCtl, BO
 	{
 		HWND aw = ::GetFocus();
 		::SendMessage(::GetFocus(), WM_CHAR, c, NULL);
-
-		/*IServiceProviderPtr ServiceProvider;
-		ServiceProvider = m_doc->m_body.Browser();
-		if(ServiceProvider)
-		{
-			IOleWindowPtr Window = NULL;
-			if(SUCCEEDED(ServiceProvider->QueryService(SID_SShellBrowser, IID_IOleWindow, (void**)&Window)))
-			{
-				HWND hwndBrowser = NULL;
-				if (SUCCEEDED(Window->GetWindow(&hwndBrowser)))
-				{
-					while(::GetWindow(hwndBrowser, GW_CHILD))
-						hwndBrowser = ::GetWindow(hwndBrowser, GW_CHILD);
-					::SendMessage(hwndBrowser, WM_CHAR, c, 0);
-				}
-			}
-		}*/
 	}
 
 	return 0;
@@ -3301,8 +3572,9 @@ LRESULT CMainFrame::OnChar(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
 
 bool  CMainFrame::SourceToHTML() 
 {
-	LRESULT changed = m_source.SendMessage(SCI_GETMODIFY);
-	int	    textlen = 0;
+	bool	changed = (m_source.SendMessage(SCI_GETMODIFY) != 0);
+	bool	needReload = changed || m_force_source_rebuild;
+	int		textlen = 0;
 	char*	buffer = 0;
 
 	int begin_char = 0;
@@ -3349,7 +3621,7 @@ bool  CMainFrame::SourceToHTML()
 		path_end.CreatePathFromText(ustr, selectedPosEnd, &end_char);
 	}
 		
-	if(changed)
+	if(needReload)
 	{
 		if((bool)m_saved_xml)
 		{
@@ -3373,6 +3645,8 @@ bool  CMainFrame::SourceToHTML()
 					MSXML2::IXMLDOMParseErrorPtr err = ret.pdispVal;
 					if(!(bool)err)
 					{
+						SysFreeString(ustr);
+						delete[] buffer;
 						return false;
 					}
 					bstr_t msg = err->reason;
@@ -3380,12 +3654,15 @@ bool  CMainFrame::SourceToHTML()
 					int linepos = err->linepos;
 					::SendMessage(m_doc->m_frame,AU::WM_SETSTATUSTEXT,0,(LPARAM)(const TCHAR *)msg);
 					SourceGoTo(line, linepos);
+					SysFreeString(ustr);
+					delete[] buffer;
 					return false;
 				}
 			}
 			else
 			{
 				SysFreeString(ustr);
+				delete[] buffer;
 				return false;
 			}			
 		}
@@ -3430,7 +3707,7 @@ bool  CMainFrame::SourceToHTML()
 	
 
 	// если документ был изменен, то перегоняем его в HTML
-	if(changed)
+	if(needReload)
 	{
 		// перегоняем в HTML
 		CComDispatchDriver	body(m_doc->m_body.Script());
@@ -3439,11 +3716,10 @@ bool  CMainFrame::SourceToHTML()
 		args[0] = _Settings.GetInterfaceLanguageName();
 		CheckError(body.InvokeN(L"LoadFromDOM", args, 2));
 		m_doc->m_body.Init();
-		// у нас совершенно новый HTML и указатели на элшементы старого теперь невалидны.
+		// у нас совершенно новый HTML и указатели на элементы старого теперь невалидны.
 		ClearSelection();
-		
-        //m_saved_xml.Release();
-		//m_saved_xml = 0;		
+
+		m_force_source_rebuild = false;
 	}
 
 	//	В HTML по пути находим нужный элемент
@@ -3478,7 +3754,7 @@ bool  CMainFrame::SourceToHTML()
 		}
 	}while(root = root->nextSibling);
 	
-	delete buffer;
+	delete[] buffer;
 	m_doc->m_body.GoTo(selectedHTMLElementBegin);		
 	m_body_selection =  m_doc->m_body.SetSelection(selectedHTMLElementBegin, selectedHTMLElementEnd, begin_char, end_char);	
 	m_doc->MarkDocCP(); // document is in sync with source
@@ -3501,6 +3777,10 @@ bool CMainFrame::ShowSource(bool saveSelection)
 	bool one_element = false;
 
 	int bodies_count = 0;
+
+	if (saveSelection)
+		m_force_source_rebuild = true;
+
 	// берем HTML
 	// запоминаем путь до выделенного элемента
 	if(saveSelection)
@@ -3563,26 +3843,9 @@ bool CMainFrame::ShowSource(bool saveSelection)
 		}
 	}
 
-/*	std::ofstream save;
-	CString s = m_saved_xml->xml;
-	CT2A str (s, 1251);
-	save.open(L"1.xml", std::ios_base::out | std::ios_base::trunc);
-	if (save.is_open())
-		save << str << '\n';
-	save.close();
-
-	MSHTML::IHTMLElementPtr body = (MSHTML::IHTMLElementPtr)m_doc->m_body.Document()->body;
-	s.SetString(body->innerHTML);
-	CT2A str2 (s, 1251);
-	save.open(L"1.htm", std::ios_base::out | std::ios_base::trunc);
-	if (save.is_open())
-		save << str2 << '\n';
-	save.close(); */
-
 	MSXML2::IXMLDOMNodePtr xml_selected_begin;
 	MSXML2::IXMLDOMNodePtr xml_selected_end;
 	//	по пути находим нужный элемент в XML
-	//if(saveSelection)
 	{
 		MSXML2::IXMLDOMNodePtr xml_body = m_saved_xml->firstChild->firstChild;		
 		while(xml_body)
@@ -3622,7 +3885,6 @@ bool CMainFrame::ShowSource(bool saveSelection)
 
 	int savedPosBegin = 0;
 	int savedPosEnd = 0;
-	//if(saveSelection)
 	{
 		savedPosBegin = selection_begin_path.GetNodeFromText(src, selection_begin_char);
 		savedPosEnd = 0;
@@ -3746,14 +4008,11 @@ void  CMainFrame::ShowView(VIEW_TYPE vt)
 			}
 	  }
 
-    /*if (!SourceToHTML())
-      return;*/
 	  if(vt == DESC)
 	  {
 		 if (!SourceToHTML())
 			return;
 		 m_source.SendMessage(SCI_SETSAVEPOINT);
-		// SaveSelection(BODY);
 	  }
   }
 
@@ -3763,15 +4022,10 @@ void  CMainFrame::ShowView(VIEW_TYPE vt)
 	  {
 		  return;
 	  }	  
-	  // turn off doctree
-	  /*m_save_sp_mode=m_document_tree.IsWindowVisible()!=0;
-	  UISetCheck(ID_VIEW_TREE,0);*/
   }
 
   if (prev!=vt && vt!=SOURCE) {
     UIEnable(ID_VIEW_TREE,1);	
-	/*m_save_sp_mode=true;// Modification by Pilgrim - иначе только на ХР(!)при выборе DESC слитает ID_VIEW_TREE и переход на BODY не восстанавливает. Но, если после запуска сразу перейти на SOURCE, то переходы на DESC и BODY не сносят ID_VIEW_TREE. Надо разобраться, а потом удалить m_save_sp_mode=true;
-    UISetCheck(ID_VIEW_TREE, m_save_sp_mode);*/
     m_splitter.SetSinglePaneMode(_Settings.ViewDocumentTree() ? SPLIT_PANE_NONE : SPLIT_PANE_RIGHT);
   }
 
@@ -3884,30 +4138,13 @@ void  CMainFrame::ShowView(VIEW_TYPE vt)
   m_view.SetFocus();
 }
 
-/*CMainFrame::VIEW_TYPE CMainFrame::GetCurView() {
-  HWND	hWnd=m_view.GetActiveWnd();
-  if (hWnd==m_doc->m_body)
-    return BODY;
-  if (hWnd==m_doc->m_desc)
-    return DESC;
-  return SOURCE;
-}*/
-
 void  CMainFrame::SetSciStyles() {
   m_source.SendMessage(SCI_STYLERESETDEFAULT);
 
-  /// Set source font
+  // Set source font
   CT2A srcFont(_Settings.GetSrcFont());
   m_source.SendMessage(SCI_STYLESETFONT,STYLE_DEFAULT,(LPARAM) srcFont.m_psz);
   m_source.SendMessage(SCI_STYLESETSIZE,STYLE_DEFAULT, _Settings.GetFontSize());
-
-/*  DWORD fs = _Settings.GetColorFG();
-  if (fs!=CLR_DEFAULT)
-    m_source.SendMessage(SCI_STYLESETFORE,STYLE_DEFAULT,fs);
-
-  fs = _Settings.GetColorBG();
-  if (fs!=CLR_DEFAULT)
-    m_source.SendMessage(SCI_STYLESETBACK,STYLE_DEFAULT,fs);*/
 
   m_source.SendMessage(SCI_STYLECLEARALL);
 
@@ -4054,7 +4291,7 @@ void  CMainFrame::SetupSci()
   char sciCtrlShiftChars[] = {'Q','W','E','R','Y','O','P','A','S','D','F','G','H','K','Z','X','C','V','B','N',':'};
   for (int i=0; i<sizeof(sciCtrlShiftChars); i++)
     m_source.SendMessage(SCI_ASSIGNCMDKEY, sciCtrlShiftChars[i]+((SCMOD_CTRL+SCMOD_SHIFT) << 16), SCI_NULL);
-  ///
+  //
   if (_Settings.XmlSrcSyntaxHL()) 
   {
     m_source.SendMessage(SCI_SETLEXER, SCLEX_XML);
@@ -4281,7 +4518,7 @@ MSHTML::IHTMLDOMNodePtr CMainFrame::MoveLeftElement(MSHTML::IHTMLDOMNodePtr node
 		m_doc->MoveNode(sibling, node, 0);	
 		sibling = next_sibling;
 	}	
-	// делаем себя  ближайшим братом своего отца	
+	// делаем себя ближайшим братом своего отца	
 	ret = m_doc->MoveNode(node, parent->parentNode, parent->nextSibling);	
 	
 	return ret;			
@@ -4663,7 +4900,7 @@ void CMainFrame::ApplyConfChanges()
 		if (!m_Speller)
 		{
 			TCHAR prgPath[MAX_PATH];
-			DWORD pathlen = ::GetModuleFileName(_Module.GetModuleInstance(), prgPath, MAX_PATH);
+			::GetModuleFileName(_Module.GetModuleInstance(), prgPath, MAX_PATH);
 			PathRemoveFileSpec(prgPath);
 			m_Speller = new CSpeller(CString(prgPath)+L"\\dict\\");
 			m_Speller->SetEnabled(false);
@@ -4777,9 +5014,9 @@ void CMainFrame::CollectScripts(CString path, TCHAR* mask, int lastid, CString r
 
 	if(U::HasSubFolders(path))
 	{
-		WIN32_FIND_DATA fd;
+				WIN32_FIND_DATA fd;
 		HANDLE found = FindFirstFile(path + L"*.*", &fd);
-		if(found)
+		if(found != INVALID_HANDLE_VALUE)
 		{
 			do
 			{
@@ -4813,8 +5050,7 @@ void CMainFrame::CollectScripts(CString path, TCHAR* mask, int lastid, CString r
 						folder.id = refid + temp;
 						folder.refid = refid;
 						folder.isFolder = true;
-						//folder.accel.key = 0;
-
+						
 						folder.picture = NULL;
 						folder.pictType = CMainFrame::NO_PICT;
 
@@ -4847,11 +5083,13 @@ void CMainFrame::CollectScripts(CString path, TCHAR* mask, int lastid, CString r
 								folder.picture = icon;
 								folder.pictType = CMainFrame::ICON;
 							}
-							
 						}
 
-						FindClose(hPicture);
-						FindClose(hIcon);
+						if(hPicture != INVALID_HANDLE_VALUE)
+							FindClose(hPicture);
+						if(hIcon != INVALID_HANDLE_VALUE)
+							FindClose(hIcon);
+
 						delete[] picName;
 
 						m_scripts.Add(folder);
@@ -4870,12 +5108,12 @@ void CMainFrame::CollectScripts(CString path, TCHAR* mask, int lastid, CString r
 
 int CMainFrame::GrabScripts(CString path, TCHAR* mask, CString refid)
 {
-	WIN32_FIND_DATA fd;
+		WIN32_FIND_DATA fd;
 	HANDLE found = FindFirstFile(path + mask, &fd);
 	int newid = 1;
 	
-	if(found)
-	 {
+	if(found != INVALID_HANDLE_VALUE)
+	{
 		do
 		{
 			if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -4904,6 +5142,12 @@ int CMainFrame::GrabScripts(CString path, TCHAR* mask, CString refid)
 						script.name = Name;
 						script.path = path + fd.cFileName;
 
+						// ВЫЧИСЛЯЕМ ХЭШ СКРИПТА
+                        CString fullBaseName(fd.cFileName);
+                        fullBaseName.Delete(fullBaseName.GetLength() - 3, 3); // Отрезаем ".js"
+                        fullBaseName.MakeLower(); // В нижний регистр для 100% совпадения
+                        script.hash = CalculateFNV1aHash(fullBaseName); // Записываем в структуру
+                        
 						script.picture = NULL;
 						script.pictType = CMainFrame::NO_PICT;
 						WIN32_FIND_DATA picFd;
@@ -4934,37 +5178,13 @@ int CMainFrame::GrabScripts(CString path, TCHAR* mask, CString refid)
 							}
 						}
 
-						FindClose(hPicture);
-						FindClose(hIcon);
+						if(hPicture != INVALID_HANDLE_VALUE)
+							FindClose(hPicture);
+						if(hIcon != INVALID_HANDLE_VALUE)
+							FindClose(hIcon);
+
 						delete[] picName;
-
-						/*CComVariant accel;
-						ZeroMemory(&script.accel, sizeof(script.accel));
-						script.accel.key = 0;*/
-
-						/*if (SUCCEEDED(ScriptCall(L"SetHotkey", NULL, 0, &accel)))
-						{
-							TCHAR errCaption[MAX_LOAD_STRING + 1];
-							LoadString(_Module.GetResourceInstance(), IDS_ERRMSGBOX_CAPTION, errCaption, MAX_LOAD_STRING);
-
-							int j;
-							for(j = 0; j < m_scripts.GetSize(); ++j)
-							{
-								if(m_scripts[j].accel.key == accel.intVal && m_scripts[j].accel.key != 0 && !m_scripts[j].isFolder)
-								{
-									if(_Settings.GetScriptsHkErrNotify())
-									{
-										CString errDescr;
-										errDescr.Format(IDS_SCRIPT_HOTKEY_CONFLICT, m_scripts[j].path, script.path);									
-										MessageBox(errDescr.GetBuffer(), errCaption, MB_OK|MB_ICONSTOP);
-									}
-									break;
-								}
-							}
-							if(j == m_scripts.GetSize() && keycodes.FindKey(accel.intVal) != -1)
-								script.accel.key = accel.intVal;
-						}*/
-						
+		
 						CString temp;
 						temp.Format(L"_%d", newid);
 						script.id = refid + temp;
@@ -4988,11 +5208,33 @@ int CMainFrame::GrabScripts(CString path, TCHAR* mask, CString refid)
 	 return newid;
 }
 
+void CMainFrame::FreeScriptsPictures()
+{
+	for (int i = 0; i < m_scripts.GetSize(); ++i)
+	{
+		if (m_scripts[i].picture == NULL)
+			continue;
+
+		switch (m_scripts[i].pictType)
+		{
+		case CMainFrame::BITMAP:
+			::DeleteObject((HBITMAP)m_scripts[i].picture);
+			break;
+
+		case CMainFrame::ICON:
+			::DestroyIcon((HICON)m_scripts[i].picture);
+			break;
+		}
+
+		m_scripts[i].picture = NULL;
+		m_scripts[i].pictType = CMainFrame::NO_PICT;
+	}
+}
+
 void CMainFrame::AddScriptsSubMenu(HMENU parentItem, CString refid, CSimpleArray<ScrInfo>& scripts)
 {
 	MENUITEMINFO mi;
 	static int SCRIPT_COMMAND_ID = 1;
-	int menupos = 0;
 
 	for(int i = 0; i < scripts.GetSize(); ++i)
 	{
@@ -5001,19 +5243,13 @@ void CMainFrame::AddScriptsSubMenu(HMENU parentItem, CString refid, CSimpleArray
 		mi.fMask = MIIM_TYPE | MIIM_STATE;
 		mi.fType = MFT_STRING;
 
-		for(int j = 0; j < scripts.GetSize(); j++)
-		{
-			if(scripts[j].refid == refid)
-				menupos++;
-		}
-
 		if (scripts[i].refid == refid)
 		{
 			if(scripts[i].isFolder)
 			{
 				mi.fMask |= MIIM_SUBMENU | MIIM_ID;
 				mi.hSubMenu = CreateMenu();
-				mi.wID = SCRIPT_COMMAND_ID++;
+				mi.wID = ID_SCRIPT_BASE + SCRIPT_COMMAND_ID++;
 				scripts[i].wID = -1;
 				AddScriptsSubMenu(mi.hSubMenu, scripts[i].id, scripts);
 			}
@@ -5030,15 +5266,27 @@ void CMainFrame::AddScriptsSubMenu(HMENU parentItem, CString refid, CSimpleArray
 			mi.dwTypeData = scripts[i].name.GetBuffer();
 			mi.cch = wcslen(scripts[i].name);
 
-			if(scripts[i].isFolder)
-				InsertMenuItem(parentItem, 0, true, &mi);
-			else
-			{
-				InsertMenuItem(parentItem, menupos--, true, &mi);
-				// added by SeNS: add scripts with icon to toolbar
-				if (scripts[i].pictType == CMainFrame::ICON)
-					AddTbButton(m_ScriptsToolbar, scripts[i].name, mi.wID, TBSTATE_ENABLED, (HICON)scripts[i].picture);
-			}
+			// Всегда вставляем пункт в конец меню, чтобы сохранить правильную сортировку
+            ::InsertMenuItem(parentItem, ::GetMenuItemCount(parentItem), TRUE, &mi);
+
+            if(!scripts[i].isFolder)
+            {
+                // Проверяем, не регистрировали ли мы уже кнопку с таким хэшем
+                bool isDuplicate = false;
+                for (int k = 0; k < scripts.GetSize(); ++k) {
+                    // Если находим скрипт с таким же хэшем, который УЖЕ получил свой ID 
+                    // (то есть был обработан алгоритмом раньше текущего)
+                    if (k != i && !scripts[k].isFolder && scripts[k].hash == scripts[i].hash && scripts[k].wID > 0 && scripts[k].wID < scripts[i].wID) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+
+                // Регистрируем кнопку для диалога настройки только если это первый уникальный скрипт
+                if (!isDuplicate && scripts[i].pictType == CMainFrame::ICON) {
+                    AddTbButton(m_ScriptsToolbar, scripts[i].name, mi.wID, TBSTATE_ENABLED, (HICON)scripts[i].picture);
+                }
+            }
 
 			switch(scripts[i].pictType)
 			{
@@ -5055,77 +5303,76 @@ void CMainFrame::AddScriptsSubMenu(HMENU parentItem, CString refid, CSimpleArray
 
 void CMainFrame::QuickScriptsSort(CSimpleArray<ScrInfo>& scripts, int min, int max)
 {
-	int i, j;
-	ScrInfo mid, tmp;
-	{
-		if (min < max)
-		{
-			mid = scripts[min];
-			i = min - 1;
-			j = max + 1;
-			while(i < j)
-			{
-				do
-				{
-					i++;
+    if (min >= max) return;
 
-				} while(!(scripts[i].order.CompareNoCase(mid.order.GetBuffer()) >= 0));
-				do
-				{
-					j--;
-				} while(!(scripts[j].order.CompareNoCase(mid.order.GetBuffer()) <= 0));
-				if(i < j)
-				{
-					tmp = scripts[i];
-					scripts[i] = scripts[j];
-					scripts[j] = tmp;
-				}
-			}
+    int i = min, j = max;
+    // Берем опорный элемент из середины
+    ScrInfo mid = scripts[min + (max - min) / 2]; 
 
-			QuickScriptsSort(scripts, min, j);
-			QuickScriptsSort(scripts, j + 1, max);
-		}
-	}
-}
+    while (i <= j) {
+        // Ищем элемент слева, который должен стоять после mid
+        while (true) {
+            bool less = false;
+            if (scripts[i].isFolder && !mid.isFolder) less = true;
+            else if (!scripts[i].isFolder && mid.isFolder) less = false;
+            else less = (scripts[i].order.CompareNoCase(mid.order) < 0);
 
-void CMainFrame::UpScriptsFolders(CSimpleArray<ScrInfo>& scripts)
-{
-	for(int i = 0; i < scripts.GetSize(); ++i)
-	{
-		if(!scripts[i].isFolder)
-		{
-			for(int j = i; j < scripts.GetSize(); ++j)
-			{
-				if(scripts[j].isFolder)
-				{
-					for(int k = j; k > i; --k)
-					{
-						ScrInfo tmp = scripts[k-1];
-						scripts[k-1] = scripts[k];
-						scripts[k] = tmp;
-					}
-				}
-			}
-		}
-	}
+            if (less) i++; else break;
+        }
+        // Ищем элемент справа, который должен стоять перед mid
+        while (true) {
+            bool greater = false;
+            if (!scripts[j].isFolder && mid.isFolder) greater = true;
+            else if (scripts[j].isFolder && !mid.isFolder) greater = false;
+            else greater = (scripts[j].order.CompareNoCase(mid.order) > 0);
+
+            if (greater) j--; else break;
+        }
+
+        if (i <= j) {
+            ScrInfo tmp = scripts[i];
+            scripts[i] = scripts[j];
+            scripts[j] = tmp;
+            i++;
+            j--;
+        }
+    }
+
+    if (min < j) QuickScriptsSort(scripts, min, j);
+    if (i < max) QuickScriptsSort(scripts, i, max);
 }
 
 void CMainFrame::InitScriptHotkey(CMainFrame::ScrInfo& script)
 {
-	std::vector<CHotkeysGroup>& hotkey_groups = _Settings.m_hotkey_groups;
-	for(unsigned int i = 0; i < hotkey_groups.size(); ++i)
-	{
-		if(hotkey_groups.at(i).m_reg_name == L"Scripts")
-		{
-			CHotkey ScriptsHotkey(script.path,
-				script.name,
-				NULL,
-				ID_SCRIPT_BASE + script.wID,
-				NULL,
-				script.path);
-			hotkey_groups.at(i).m_hotkeys.push_back(ScriptsHotkey);
-		}
-	}
+    // Вычисляем относительный путь для сохранения отображения
+    CString relativePath = script.path;
+    CString baseFolder = _Settings.GetScriptsFolder();
+    
+    // Отрезаем базовую папку (без учета регистра)
+    if (relativePath.GetLength() >= baseFolder.GetLength())
+    {
+        CString prefix = relativePath.Left(baseFolder.GetLength());
+        if (prefix.CompareNoCase(baseFolder) == 0)
+        {
+            relativePath.Delete(0, baseFolder.GetLength());
+        }
+    }
+
+    std::vector<CHotkeysGroup>& hotkey_groups = _Settings.m_hotkey_groups;
+    for(unsigned int i = 0; i < hotkey_groups.size(); ++i)
+    {
+        if(hotkey_groups.at(i).m_reg_name == L"Scripts")
+        {
+            // Передаем relativePath и как системное имя (для XML), и как описание (для отображения в окне настроек)
+            CHotkey ScriptsHotkey(relativePath, 
+                script.name,
+                NULL,
+                ID_SCRIPT_BASE + script.wID,
+                NULL,
+                relativePath);
+            hotkey_groups.at(i).m_hotkeys.push_back(ScriptsHotkey);
+        }
+    }
 }
 
 void CMainFrame::InitPluginHotkey(CString guid, UINT cmd, CString name)
@@ -5256,60 +5503,81 @@ bool CMainFrame::LoadToScintilla(CString filename)
 	CString src(L"");
 	std::ifstream load;
 	load.open(filename);
+
+	char *buffer = NULL;
+
 	if (load.is_open())
-	try
 	{
-		char *buffer=(char*)malloc(65535);
-		do
+		try
 		{
-			load.getline(buffer, 65535, '\n');
-			if (!strstr(buffer, "<?xml version="))
+			buffer = (char*)malloc(65535);
+			if (buffer == NULL)
+				return false;
+
+			do
 			{
-				src += CA2W(buffer, 1251);
-				src += L"\r\n";
+				load.getline(buffer, 65535, '\n');
+				if (!strstr(buffer, "<?xml version="))
+				{
+					src += CA2W(buffer, 1251);
+					src += L"\r\n";
+				}
+				// try to detect encoding
+				else
+				{
+					enc = buffer;
+					enc.MakeLower();
+					int pos = enc.Find(L"encoding");
+					if (pos >= 0)
+					{
+						enc = enc.Mid(pos + 10, enc.GetLength() - pos - 13);
+						if (enc != L"utf-8") isUTF8 = false;
+					}
+					else
+					{
+						enc.SetString(L"utf-8");
+					}
+				}
 			}
-			// try to detect encoding
+			while (!load.eof());
+
+			// send document to Scintilla
+			m_source.SendMessage(SCI_CLEARALL);
+			if (isUTF8)
+			{
+				CT2A s(src, 1251);
+				m_source.SendMessage(SCI_APPENDTEXT, strlen(s), (LPARAM)(LPSTR)s);
+			}
 			else
 			{
-				enc = buffer;
-				enc.MakeLower();
-				int pos = enc.Find(L"encoding");
-				if (pos >=0)
-				{
-					enc = enc.Mid(pos+10, enc.GetLength()-pos-13);
-					if (enc != L"utf-8") isUTF8 = false;
-				}
-				else enc.SetString(L"utf-8");
+				CT2A s(src, CP_UTF8);
+				m_source.SendMessage(SCI_APPENDTEXT, strlen(s), (LPARAM)(LPSTR)s);
 			}
+			m_source.SendMessage(SCI_EMPTYUNDOBUFFER);
+			m_source.SendMessage(SCI_SETSAVEPOINT);
+
+			SciGotoWrongTag();
+
+			m_bad_xml = true;
+			m_bad_filename = filename;
+			m_doc->m_encoding = enc;
+
+			result = true;
 		}
-		while (!load.eof());
+		catch(...)
+		{
+			result = false;
+		}
+
+		if (buffer)
+		{
+			free(buffer);
+			buffer = NULL;
+		}
+
 		load.close();
-		free(buffer);
-
-		// send document to Scintilla
-		m_source.SendMessage(SCI_CLEARALL);
-		if (isUTF8)
-		{
-			CT2A s (src, 1251); 
-			m_source.SendMessage(SCI_APPENDTEXT, strlen(s),(LPARAM)(LPSTR)s);
-		}
-		else
-		{
-			CT2A s (src, CP_UTF8);
-			m_source.SendMessage(SCI_APPENDTEXT, strlen(s),(LPARAM)(LPSTR)s);
-		}
-		m_source.SendMessage(SCI_EMPTYUNDOBUFFER);
-		m_source.SendMessage(SCI_SETSAVEPOINT);
-
-		SciGotoWrongTag();
-
-		m_bad_xml = true;
-		m_bad_filename = filename;
-		m_doc->m_encoding = enc;
-
-		result = true;
 	}
-	catch(...) {};
+
 	return result;
 }
 
@@ -5344,4 +5612,43 @@ void CMainFrame::DisplayCharCode()
 		m_status.SetPaneText(ID_PANE_CHAR, s);
 	}
 	else m_status.SetPaneText(ID_PANE_CHAR, L"");
+}
+
+// ПЕРЕХВАТ ИЗМЕНЕНИЙ ПАНЕЛИ
+LRESULT CMainFrame::OnToolbarChange(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& bHandled) {
+    g_bToolbarsChanged = true; // Поднимаем флаг: пользователь что-то изменил
+    bHandled = FALSE; // Разрешаем WTL обрабатывать сообщение дальше
+    return 0;
+}
+
+LRESULT CMainFrame::OnToolbarEndAdjust(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& bHandled) {
+    SaveToolbarsToXML(m_CmdToolbar, m_ScriptsToolbar, m_scripts);
+	HookSysDialogs();
+	bHandled = FALSE;
+    return 0;
+}
+
+LRESULT CMainFrame::OnInitCustomize(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& bHandled) {
+    UnhookSysDialogs();
+	bHandled = TRUE;
+    return TBNRF_HIDEHELP; 
+}
+
+LRESULT CMainFrame::OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+    // Ищем CHM-файл в папке Help
+    CString helpPath = U::GetProgDir() + L"Help\\Help_FBE.chm"; 
+    
+    if (::GetFileAttributes(helpPath) != INVALID_FILE_ATTRIBUTES) 
+    {
+        // Запускаем CHM-файл стандартным просмотрщиком Windows
+        ::ShellExecute(m_hWnd, L"open", helpPath, NULL, NULL, SW_SHOWNORMAL);
+    } 
+    else 
+    {
+        // Выдаем точное сообщение, если файла на месте не оказалось
+        ::MessageBox(m_hWnd, L"Файл справки не найден!\n\nУбедитесь, что файл Help_FBE.chm находится в папке Help рядом с программой.", L"Справка FictionBook Editor", MB_OK | MB_ICONWARNING);
+    }
+    
+    return 0;
 }

@@ -124,11 +124,6 @@ LRESULT CSettingsDlg::OnClickedCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, 
 
 	if(nTab != 3)
 	{
-		if(_Settings.m_initial_scripts_folder != _Settings.GetScriptsFolder())
-		{
-			_Settings.SetScriptsFolder(_Settings.m_initial_scripts_folder, true);
-		}
-
 		CWindow* pWnd;
 		TC_ITEM tci;
 		tci.mask = TCIF_PARAM;

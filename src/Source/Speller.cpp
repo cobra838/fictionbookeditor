@@ -504,8 +504,6 @@ SPELL_RESULT CSpeller::SpellCheck(CString word)
 		checkWord.Replace(L"\u00AD", L"");
 		// remove accent
 		checkWord.Replace(L"\u0301", L"");
-		// special case for Russian letter "¸"
-		if (currDict == m_Dictionaries[LANG_RU].handle) checkWord.Replace(L"¸", L"å");
 
 		// encode string to the dictionary encoding 
 		CT2A str (checkWord, m_codePage);

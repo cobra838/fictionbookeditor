@@ -9,500 +9,352 @@
       <UniqueIdentifier>{dd80cc0d-c2aa-4363-8853-0be60a1f6747}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
-    <Filter Include="Header Files\WTL">
-      <UniqueIdentifier>{b1ca92e5-588b-4574-bb31-44c2f60a6c7b}</UniqueIdentifier>
-      <Extensions>cpp;h</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{0bbc609e-4d9f-4d7f-81d8-e1fbece798f6}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="extras">
+    <Filter Include="Other">
+      <UniqueIdentifier>{149b0aef-9c93-42e0-9370-6a7298e91ffa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other\extras">
       <UniqueIdentifier>{f4ba7b2e-b161-4bea-8393-950f5ce075c1}</UniqueIdentifier>
       <Extensions>cpp;h</Extensions>
     </Filter>
-    <Filter Include="Dependance Files">
-      <UniqueIdentifier>{ec6d40b1-6c46-4771-8c2d-e3968dadb91c}</UniqueIdentifier>
+    <Filter Include="Other\utils">
+      <UniqueIdentifier>{eada8831-cd0c-41fd-95a6-990d83837bd4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Dependance Files\XML Stylesheets">
-      <UniqueIdentifier>{b00b3d8d-440c-4ff4-9fd4-7290f74f57ce}</UniqueIdentifier>
+    <Filter Include="Other\WTL">
+      <UniqueIdentifier>{0ffd786b-ad27-4175-a1d4-8942ab2e926a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Dependance Files\XML Schemas">
-      <UniqueIdentifier>{23f8d9b2-47ae-4034-bb33-c3ea42d51d4e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Dependance Files\Style Sheets">
-      <UniqueIdentifier>{4824b569-5baa-4847-b66b-a21ffbcc5b93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Dependance Files\FictionBook Files">
-      <UniqueIdentifier>{ba1b12bd-aa55-4b44-b16c-0235bcd5cb11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Dependance Files\Hypertext Files">
-      <UniqueIdentifier>{739cf53b-fcad-4838-b088-5b22085673ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Dependance Files\Script Files">
-      <UniqueIdentifier>{6e8566fd-3860-480a-9dbc-4c090f1f8515}</UniqueIdentifier>
+    <Filter Include="Other\XMLSerializer">
+      <UniqueIdentifier>{74051783-a730-4176-91c7-559fd3ffb6ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AboutBox.cpp">
+    <ClCompile Include="Source\AboutBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="apputils.cpp">
+    <ClCompile Include="Source\apputils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DocumentTree.cpp">
+    <ClCompile Include="Source\DocumentTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ElementDescMnr.cpp">
+    <ClCompile Include="Source\ElementDescMnr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ElementDescriptor.cpp">
+    <ClCompile Include="Source\ElementDescriptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExternalHelper.cpp">
+    <ClCompile Include="Source\ExternalHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FBDoc.cpp">
+    <ClCompile Include="Source\FBDoc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FBE.cpp">
+    <ClCompile Include="Source\FBE.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FBEview.cpp">
+    <ClCompile Include="Source\FBEview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GLLogo.cpp">
+    <ClCompile Include="Source\GLLogo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mainfrm.cpp">
+    <ClCompile Include="Source\mainfrm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OptDlg.cpp">
+    <ClCompile Include="Source\OptDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="script.cpp">
+    <ClCompile Include="Source\script.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Settings.cpp">
+    <ClCompile Include="Source\Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SettingsDlg.cpp">
+    <ClCompile Include="Source\SettingsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SettingsHotkeysDlg.cpp">
+    <ClCompile Include="Source\SettingsHotkeysDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SettingsOtherDlg.cpp">
+    <ClCompile Include="Source\SettingsOtherDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SettingsWordsDlg.cpp">
+    <ClCompile Include="Source\SettingsWordsDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Speller.cpp">
+    <ClCompile Include="Source\Speller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Splitter.cpp">
+    <ClCompile Include="Source\Splitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Source\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TreeView.cpp">
+    <ClCompile Include="Source\TreeView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\Utils.cpp">
+    <ClCompile Include="Source\Words.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Words.cpp">
+    <ClCompile Include="Source\xmlMatchedTagsHighlighter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xmlMatchedTagsHighlighter.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Source\extras\ColorButton.cpp">
+      <Filter>Other\extras</Filter>
     </ClCompile>
-    <ClCompile Include="XMLSerializer\XMLSerializer.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Source\XMLSerializer\XMLSerializer.cpp">
+      <Filter>Other\XMLSerializer</Filter>
     </ClCompile>
-    <ClCompile Include="extras\ColorButton.cpp">
-      <Filter>extras</Filter>
+    <ClCompile Include="Source\utils\Utils.cpp">
+      <Filter>Other\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="fbe.idl">
+    <Midl Include="Source\fbe.idl">
       <Filter>Source Files</Filter>
     </Midl>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AboutBox.h">
+    <ClInclude Include="Source\extras\atlcrypt.h">
+      <Filter>Other\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\extras\atlctrlsext.h">
+      <Filter>Other\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\extras\atlgdix.h">
+      <Filter>Other\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\extras\ColorButton.h">
+      <Filter>Other\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\extras\http_download.h">
+      <Filter>Other\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\extras\MD5.h">
+      <Filter>Other\extras</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AboutBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="apputils.h">
+    <ClInclude Include="Source\wtl\atlapp.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atluser.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlcrack.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlctrls.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlctrlw.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlctrlx.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlddx.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atldlgs.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlframe.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlgdi.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlmisc.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlprint.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlres.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlscrl.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atlsplit.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\wtl\atltheme.h">
+      <Filter>Other\WTL</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\atlimage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="atlimage.h">
+    <ClInclude Include="Source\XMLSerializer\Serializable.h">
+      <Filter>Other\XMLSerializer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\XMLSerializer\XMLSerializer.h">
+      <Filter>Other\XMLSerializer</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\utils\CFileDialogEx.h">
+      <Filter>Other\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\utils\utils.h">
+      <Filter>Other\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\apputils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\CFileDialogEx.h">
+    <ClInclude Include="Source\xmlMatchedTagsHighlighter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ContainerWnd.h">
+    <ClInclude Include="Source\ContainerWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DocumentTree.h">
+    <ClInclude Include="Source\DocumentTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ElementDescMnr.h">
+    <ClInclude Include="Source\ElementDescMnr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ElementDescriptor.h">
+    <ClInclude Include="Source\ElementDescriptor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ErrsEx.h">
+    <ClInclude Include="Source\ErrsEx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExternalHelper.h">
+    <ClInclude Include="Source\ExternalHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FBDoc.h">
+    <ClInclude Include="Source\FBDoc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FBEview.h">
+    <ClInclude Include="Source\FBEview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GLLogo.h">
+    <ClInclude Include="Source\GLLogo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mainfrm.h">
+    <ClInclude Include="Source\mainfrm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemProtocol.h">
+    <ClInclude Include="Source\MemProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelessDialog.h">
+    <ClInclude Include="Source\ModelessDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OptDlg.h">
+    <ClInclude Include="Source\OptDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="res1.h">
+    <ClInclude Include="Source\res1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Source\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SearchReplace.h">
+    <ClInclude Include="Source\SearchReplace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XMLSerializer\Serializable.h">
+    <ClInclude Include="Source\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Settings.h">
+    <ClInclude Include="Source\SettingsDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SettingsDlg.h">
+    <ClInclude Include="Source\SettingsHotkeysDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SettingsHotkeysDlg.h">
+    <ClInclude Include="Source\SettingsOtherDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SettingsOtherDlg.h">
+    <ClInclude Include="Source\SettingsWordsDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SettingsWordsDlg.h">
+    <ClInclude Include="Source\Speller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Speller.h">
+    <ClInclude Include="Source\Splitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Splitter.h">
+    <ClInclude Include="Source\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Source\TreeView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TreeView.h">
+    <ClInclude Include="Source\Words.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Words.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="xmlMatchedTagsHighlighter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XMLSerializer\XMLSerializer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlapp.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlcrack.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlctrls.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlctrlw.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlctrlx.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlddx.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atldlgs.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlframe.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlgdi.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlmisc.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlprint.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlres.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlscrl.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlsplit.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atltheme.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atluser.h">
-      <Filter>Header Files\WTL</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\atlctrlsext.h">
-      <Filter>extras</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\atlgdix.h">
-      <Filter>extras</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\ColorButton.h">
-      <Filter>extras</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\http_download.h">
-      <Filter>extras</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\MD5.h">
-      <Filter>extras</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\SciLexer.h">
-      <Filter>extras</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\Scintilla.h">
-      <Filter>extras</Filter>
-    </ClInclude>
-    <ClInclude Include="extras\atlcrypt.h">
-      <Filter>extras</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\center.bmp">
+    <None Include="Source\res\center.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\doc.bmp">
+    <None Include="Source\res\doc.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\document.bmp">
+    <None Include="Source\res\document.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\error.bmp">
+    <None Include="Source\res\Fb2-shema.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Fb2-shema.bmp">
+    <None Include="Source\res\FBE.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\FBE2.ico">
+    <None Include="Source\res\FBE2.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\green.bmp">
+    <None Include="Source\res\green.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\html.bmp">
+    <None Include="Source\res\html.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_02.bmp">
+    <None Include="Source\res\orange.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_03.bmp">
+    <None Include="Source\res\other.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_04.bmp">
+    <None Include="Source\res\prc.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_05.bmp">
+    <None Include="Source\res\Scripts.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_06.bmp">
+    <None Include="Source\res\struct.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_07.bmp">
+    <None Include="Source\res\text.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_08.bmp">
+    <None Include="Source\res\Toolbar.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_09.bmp">
+    <None Include="Source\res\Toolbar_small.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_10.bmp">
+    <None Include="Source\res\wordstat.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_11.bmp">
+    <None Include="Source\res\xml.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_12.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_13.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_14.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_15.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_16.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_17.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_18.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_19.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_20.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_21.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_22.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_23.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_24.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_25.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\ok.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\orange.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\other.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\prc.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Scripts.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\struct.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\text.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Toolbar.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Toolbar_small.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\update.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\wordstat.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\wsoverlays.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\xml.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="files\eng.xsl">
-      <Filter>Dependance Files\XML Stylesheets</Filter>
-    </None>
-    <None Include="files\fb2.xsl">
-      <Filter>Dependance Files\XML Stylesheets</Filter>
-    </None>
-    <None Include="files\html.xsl">
-      <Filter>Dependance Files\XML Stylesheets</Filter>
-    </None>
-    <None Include="files\rus.xsl">
-      <Filter>Dependance Files\XML Stylesheets</Filter>
-    </None>
-    <None Include="files\main.css">
-      <Filter>Dependance Files\Style Sheets</Filter>
-    </None>
-    <None Include="files\main_fast.css">
-      <Filter>Dependance Files\Style Sheets</Filter>
-    </None>
-    <None Include="files\blank.fb2">
-      <Filter>Dependance Files\FictionBook Files</Filter>
-    </None>
-    <None Include="files\imgprev.html">
-      <Filter>Dependance Files\Hypertext Files</Filter>
-    </None>
-    <None Include="files\main.html">
-      <Filter>Dependance Files\Hypertext Files</Filter>
-    </None>
-    <None Include="files\main.js">
-      <Filter>Dependance Files\Script Files</Filter>
-    </None>
-    <None Include="files\contributors.txt" />
-    <None Include="extras\atlcrypt.inl">
-      <Filter>extras</Filter>
-    </None>
-    <None Include="res\FBE.ico">
-      <Filter>Resource Files</Filter>
+    <None Include="Source\extras\atlcrypt.inl">
+      <Filter>Other\extras</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="res\FBE.exe.manifest">
+    <Manifest Include="Source\res\FBE.exe.manifest">
       <Filter>Resource Files</Filter>
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="FBE.rc">
+    <ResourceCompile Include="Source\FBE.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Xsd Include="files\FictionBook.xsd">
-      <Filter>Dependance Files\XML Schemas</Filter>
-    </Xsd>
-    <Xsd Include="files\FictionBookGenres.xsd">
-      <Filter>Dependance Files\XML Schemas</Filter>
-    </Xsd>
-    <Xsd Include="files\FictionBookLang.xsd">
-      <Filter>Dependance Files\XML Schemas</Filter>
-    </Xsd>
-    <Xsd Include="files\FictionBookLinks.xsd">
-      <Filter>Dependance Files\XML Schemas</Filter>
-    </Xsd>
   </ItemGroup>
 </Project>

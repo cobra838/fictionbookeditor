@@ -44,6 +44,7 @@ END_OBJECT_MAP()
 
 CSettings _Settings;
 CSimpleArray<CString> _ARGV;
+CHistory _History;
 
 // External helpers
 IDispatchPtr  CFBEView::CreateHelper()
@@ -203,10 +204,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
   // init module
   hRes = _Module.Init(ObjectMap, hInstance, &LIBID_FBELib);
-  ATLASSERT(SUCCEEDED(hRes));
-
-  // register typelib
-  hRes = _Module.RegisterTypeLib();
   ATLASSERT(SUCCEEDED(hRes));
 
   // enable web browser hosting

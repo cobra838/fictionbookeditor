@@ -576,23 +576,35 @@ public:
 			#endif
 				  if (btn.iString)
 				  {
-					  pstr = m_BtnText.GetValueAt(m_BtnText.FindKey(btn.idCommand));
-					  btn.iString = tb.AddStrings(pstr);
-					  lpTbNotify->tbButton = btn;
+					  int textIdx = m_BtnText.FindKey(btn.idCommand);
+					  if (textIdx != -1)
+					  {
+						  pstr = m_BtnText.GetValueAt(textIdx);
+					  }
+					  else
+					  {
+						  pstr = _T("");
+					  }
 				  }
-				  else	
-				  {
-					  for(int i = 0; i < nRet; i++)
-						 if(szBuff[i] == _T('\n')) 
-						 {
-							pstr = szBuff + i + 1;
-							break;
-						 }
+                  else  
+                  {
+                      for(int i = 0; i < nRet; i++)
+                      {
+                         if(szBuff[i] == _T('\n')) 
+                         {
+                            pstr = szBuff + i + 1;
+                            break;
+                         }
+                      }
+                  }
 
-					  lpTbNotify->tbButton = btn;
-					  ::lstrcpyn(lpTbNotify->pszText, pstr, lpTbNotify->cchText);
-					  lpTbNotify->cchText = ::lstrlen(pstr);
-				  }
+                  lpTbNotify->tbButton = btn;
+
+                  if (lpTbNotify->pszText != NULL && lpTbNotify->cchText > 0 && pstr != NULL)
+                  {
+                      ::lstrcpyn(lpTbNotify->pszText, pstr, lpTbNotify->cchText);
+                      lpTbNotify->cchText = ::lstrlen(pstr);
+                  }
 			  }
 		  }
 	  }

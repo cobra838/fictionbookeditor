@@ -1,1 +1,11 @@
 .vs/
+src/Release/
+src/Package/
+Locales/res_rus/Release/
+Locales/res_rus/Package/
+Lib/Hunspell/Release/
+Lib/Hunspell/Package/
+Lib/Pcre/Release/
+Lib/Pcre/Package/
+Lib/Scintilla/Release/
+Lib/Scintilla/Package/

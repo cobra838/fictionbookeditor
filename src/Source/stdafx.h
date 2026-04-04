@@ -67,7 +67,7 @@ extern CAppModule _Module;
 #include <time.h>
 
 // MSXML
-#import <msxml4.dll>
+#import <msxml6.dll>
 
 // vb regexps
 #import "vbscript3.tlb"

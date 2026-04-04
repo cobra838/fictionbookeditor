@@ -3185,6 +3185,33 @@ void  CFBEView::OnFocusIn(IDispatch *evt) {
   m_cur_val=m_cur_input->value;
 }
 
+static bool IsUtf8TrailByte(int ch)
+{
+	return (ch >= 0x80) && (ch < 0xC0);
+}
+
+static int PrevSciSearchPos(HWND src, int pos)
+{
+	if (pos <= 0)
+		return 0;
+
+	--pos;
+
+	int codePage = (int)::SendMessage(src, SCI_GETCODEPAGE, 0, 0);
+	if (codePage == SC_CP_UTF8)
+	{
+		while (pos > 0)
+		{
+			int ch = (int)::SendMessage(src, SCI_GETCHARAT, pos, 0);
+			if (!IsUtf8TrailByte(ch))
+				break;
+			--pos;
+		}
+	}
+
+	return pos;
+}
+
 // find/replace support for scintilla
 bool CFBEView::SciFindNext(HWND src,bool fFwdOnly,bool fBarf) {
   if (m_fo.pattern.IsEmpty())
@@ -3213,7 +3240,7 @@ bool CFBEView::SciFindNext(HWND src,bool fFwdOnly,bool fBarf) {
     int p2=::SendMessage(src,SCI_GETSELECTIONEND,0,0);
 	if (p2>p1 && !rev) p1=p2;
 //   if (p1!=p2 && !rev) ++p1;
-    if (rev) --p1;
+    if (rev) p1 = PrevSciSearchPos(src, p1);
     if (p1<0) p1=0;
     p2=rev ? 0 : ::SendMessage(src,SCI_GETLENGTH,0,0);
     int p3=p2==0 ? ::SendMessage(src,SCI_GETLENGTH,0,0) : 0;

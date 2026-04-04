@@ -18,13 +18,18 @@ public:
 	CString	m_word;
 
 	int		m_count;
-	CString	m_sCount;
 
-	int		m_percent;
-	int		m_prc_idx;
+	WordsItem()
+		: m_word()
+		, m_count(0)
+	{
+	}
 
-	WordsItem() { }
-	WordsItem(CString word, int count) : m_word(word), m_count(count) { }
+	WordsItem(const CString& word, int count)
+		: m_word(word)
+		, m_count(count)
+	{
+	}
 
 	int GetProperties(std::vector<CString>& properties)
 	{
@@ -309,6 +314,8 @@ public:
 		}
 		if(sProperty == L"Hotkey")
 		{
+			m_ptr_hotkeys.clear(); // Очищаем кэш перед каждым сохранением, чтобы не плодить дубликаты
+
 			for(unsigned long i = 0 ; i < m_hotkeys.size(); ++i)
 				m_ptr_hotkeys.push_back(&m_hotkeys[i]);
 			
@@ -491,6 +498,7 @@ class CSettings : public ISerializable, public IObjectFactory
 	bool		m_ins_clear_image;
 
 	bool		m_show_words_excls;
+	bool		m_disable_words_stats;
 
 	WINDOWPLACEMENT m_words_dlg_placement;
 	WINDOWPLACEMENT m_wnd_placement;
@@ -511,7 +519,6 @@ public:
 	CSettings();
 	~CSettings();
 
-	void Init();
 	void InitHotkeyGroups();
 	void Close();
 
@@ -591,6 +598,7 @@ public:
 	bool	GetInsImageAsking()const;
 	bool	GetIsInsClearImage()const;
 	bool	GetShowWordsExcls()const;
+	bool	GetDisableWordsStats()const;
 	bool	GetWordsDlgPosition(WINDOWPLACEMENT &wpl)const;
 
 	bool	GetDocTreeItemState(const CString& item, bool default_state);
@@ -617,11 +625,11 @@ public:
 	void	SetWindowPosition(const WINDOWPLACEMENT& wpl,  bool apply = false);
 	void	SetRestoreFilePosition(bool restore, bool apply = false);	
 	void	SetInterfaceLanguage(DWORD Language, bool apply = false);
-	void	SetScriptsFolder(const CString fullpath, bool apply = false);
 	void	SetInsImageAsking(const bool value, bool apply = false);
 	void	SetIsInsClearImage(const bool value, bool apply = false);
 	void	SetDocTreeItemState(const CString& item, bool state);
 	void	SetShowWordsExcls(const bool value, bool apply = false);
+	void	SetDisableWordsStats(const bool value, bool apply = false);
 	void	SetWordsDlgPosition(const WINDOWPLACEMENT& wpl,  bool apply = false);
 
 	void	SetNeedRestart();
@@ -648,3 +656,153 @@ public:
 	HWND	GetMainWindow() { return m_hMainWindow; }
 
 };
+
+// НАЧАЛО КЛАССА ИСТОРИИ (PORTABLE)
+#include <map>
+
+class CHistory
+{
+public:
+    CSimpleArray<CString> m_mru_list;
+    CSimpleArray<CString> m_search_list;
+    CSimpleArray<CString> m_replace_list;
+    std::map<CString, int> m_documents;
+
+    // Вспомогательная функция для экранирования спецсимволов в путях и словах
+    CString EscapeXML(const CString& str) {
+        CString res = str;
+        res.Replace(L"&", L"&amp;"); 
+        res.Replace(L"<", L"&lt;");
+        res.Replace(L">", L"&gt;");  
+        res.Replace(L"\"", L"&quot;");
+        res.Replace(L"\'", L"&apos;");
+        return res;
+    }
+
+    void Load() {
+        m_mru_list.RemoveAll(); m_search_list.RemoveAll(); m_replace_list.RemoveAll(); m_documents.clear();
+        
+        CString path = U::GetSettingsDir() + L"History.xml";
+        if (::GetFileAttributes(path) == INVALID_FILE_ATTRIBUTES) return;
+
+        MSXML2::IXMLDOMDocument2Ptr pXMLDoc;
+        if (FAILED(pXMLDoc.CreateInstance(L"Msxml2.DOMDocument.6.0"))) return;
+        
+        pXMLDoc->async = VARIANT_FALSE; // Выключаем асинхронную загрузку
+        if (pXMLDoc->load(_variant_t(path)) == VARIANT_TRUE) {
+            
+            // 1. Загружаем позиции курсора (Documents)
+            MSXML2::IXMLDOMNodeListPtr docNodes = pXMLDoc->selectNodes(L"//FBE/History/Documents/Document");
+            if (docNodes) {
+                for (int i = 0; i < docNodes->length; i++) {
+                    MSXML2::IXMLDOMElementPtr elem = docNodes->item[i];
+                    if (elem) {
+                        _variant_t vPath = elem->getAttribute(L"path");
+                        _variant_t vPos = elem->getAttribute(L"pos");
+                        if (vPath.vt == VT_BSTR && vPos.vt == VT_BSTR)
+                            m_documents[(const wchar_t*)vPath.bstrVal] = _wtoi(vPos.bstrVal);
+                    }
+                }
+            }
+            
+            // 2. Загружаем недавние файлы (Recent Document List)
+            MSXML2::IXMLDOMNodeListPtr mruNodes = pXMLDoc->selectNodes(L"//FBE/History/RecentDocumentList/Document");
+            if (mruNodes) {
+                for (int i = 0; i < mruNodes->length; i++) {
+                    MSXML2::IXMLDOMElementPtr elem = mruNodes->item[i];
+                    if (elem) {
+                        _variant_t vPath = elem->getAttribute(L"path");
+                        if (vPath.vt == VT_BSTR) m_mru_list.Add((const wchar_t*)vPath.bstrVal);
+                    }
+                }
+            }
+
+            // 3. Загружаем историю замены (ReplaceHistory)
+            MSXML2::IXMLDOMNodeListPtr replaceNodes = pXMLDoc->selectNodes(L"//FBE/History/ReplaceHistory/Item");
+            if (replaceNodes) {
+                for (int i = 0; i < replaceNodes->length; i++) {
+                    MSXML2::IXMLDOMElementPtr elem = replaceNodes->item[i];
+                    if (elem && elem->text.length() > 0) m_replace_list.Add((const wchar_t*)elem->text);
+                }
+            }
+
+            // 4. Загружаем историю поиска (SearchHistory)
+            MSXML2::IXMLDOMNodeListPtr searchNodes = pXMLDoc->selectNodes(L"//FBE/History/SearchHistory/Item");
+            if (searchNodes) {
+                for (int i = 0; i < searchNodes->length; i++) {
+                    MSXML2::IXMLDOMElementPtr elem = searchNodes->item[i];
+                    if (elem && elem->text.length() > 0) m_search_list.Add((const wchar_t*)elem->text);
+                }
+            }
+        }
+    }
+
+    void Save() {
+        CString path = U::GetSettingsDir() + L"History.xml";
+        CString xml = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
+        xml += L"<FBE>\r\n\t<History>\r\n";
+        
+        // 1. Ветка Documents
+        xml += L"\t\t<Documents>\r\n";
+        std::map<CString, int>::iterator it;
+        for (it = m_documents.begin(); it != m_documents.end(); ++it) {
+            CString entry;
+            entry.Format(L"\t\t\t<Document path=\"%s\" pos=\"%d\"/>\r\n", EscapeXML(it->first), it->second);
+            xml += entry;
+        }
+        xml += L"\t\t</Documents>\r\n";
+
+        // 2. Ветка Recent Document List (Нумерация начинается с 1)
+        CString mruCount;
+        mruCount.Format(L"\t\t<RecentDocumentList DocumentCount=\"%d\">\r\n", m_mru_list.GetSize());
+        xml += mruCount;
+        for (int i = 0; i < m_mru_list.GetSize(); i++) {
+            CString entry;
+            entry.Format(L"\t\t\t<Document id=\"%d\" path=\"%s\"/>\r\n", i + 1, EscapeXML(m_mru_list[i]));
+            xml += entry;
+        }
+        xml += L"\t\t</RecentDocumentList>\r\n";
+
+        // 3. Ветка ReplaceHistory (Нумерация начинается с 0, идет перед поиском)
+        CString repCount;
+        repCount.Format(L"\t\t<ReplaceHistory Count=\"%d\">\r\n", m_replace_list.GetSize());
+        xml += repCount;
+        for (int i = 0; i < m_replace_list.GetSize(); i++) {
+            CString entry;
+            entry.Format(L"\t\t\t<Item id=\"%d\">%s</Item>\r\n", i, EscapeXML(m_replace_list[i]));
+            xml += entry;
+        }
+        xml += L"\t\t</ReplaceHistory>\r\n";
+
+        // 4. Ветка SearchHistory (Нумерация начинается с 0)
+        CString searchCount;
+        searchCount.Format(L"\t\t<SearchHistory Count=\"%d\">\r\n", m_search_list.GetSize());
+        xml += searchCount;
+        for (int i = 0; i < m_search_list.GetSize(); i++) {
+            CString entry;
+            entry.Format(L"\t\t\t<Item id=\"%d\">%s</Item>\r\n", i, EscapeXML(m_search_list[i]));
+            xml += entry;
+        }
+        xml += L"\t\t</SearchHistory>\r\n";
+
+        xml += L"\t</History>\r\n</FBE>";
+
+        // Сохраняем в UTF-8
+        HANDLE hFile = ::CreateFile(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (hFile != INVALID_HANDLE_VALUE) {
+            // Узнаем размер буфера для конвертации
+            int utf8Len = ::WideCharToMultiByte(CP_UTF8, 0, xml, -1, NULL, 0, NULL, NULL);
+            if (utf8Len > 0) {
+                char* utf8Buf = new char[utf8Len];
+                ::WideCharToMultiByte(CP_UTF8, 0, xml, -1, utf8Buf, utf8Len, NULL, NULL);
+                DWORD written = 0;
+                // utf8Len - 1 чтобы не писать завершающий нулевой байт в текстовый файл
+                ::WriteFile(hFile, utf8Buf, utf8Len - 1, &written, NULL);
+                delete[] utf8Buf;
+            }
+            ::CloseHandle(hFile);
+        }
+    }
+};
+
+extern CHistory _History;
