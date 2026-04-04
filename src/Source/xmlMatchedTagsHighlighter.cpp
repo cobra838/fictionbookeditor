@@ -20,6 +20,7 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "xmlMatchedTagsHighlighter.h"
+#include <string>
 
 int XmlMatchedTagsHighlighter::getFirstTokenPosFrom(int targetStart, int targetEnd, const char *token, pair<int, int> & foundPos)
 {
@@ -287,11 +288,11 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos & tagsPos
 
 			_pEditView->getText(tagName, startPos, endPos);
 
-			basic_string<char> closeTag = "</";
+			std::string closeTag = "</";
 			closeTag += tagName;
 			closeTag += "[ 	]*>";
 			
-			basic_string<char> openTag = "<";
+			std::string openTag = "<";
 			openTag += tagName;
 			openTag += "[ 	>]";
 
@@ -311,11 +312,11 @@ bool XmlMatchedTagsHighlighter::getXmlMatchedTagsPos(XmlMatchedTagsPos & tagsPos
 			char * tagName = new char[endPos-startPos+1];
 			_pEditView->getText(tagName, startPos, endPos);
 
-			basic_string<char> openTag = "<";
+			std::string openTag = "<";
 			openTag += tagName;
 			openTag += "[ 	>]";
 
-			basic_string<char> closeTag = "</";
+			std::string closeTag = "</";
 			closeTag += tagName;
 			closeTag += "[ 	]*>";
 			
