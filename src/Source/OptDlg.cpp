@@ -24,7 +24,9 @@ static int __stdcall EnumFontProc(const ENUMLOGFONTEX *lfe,
 				 LPARAM data)
 {
   CSimpleArray<CString>	*stringList=(CSimpleArray<CString>*)data;
-  stringList->Add(lfe->elfLogFont.lfFaceName);
+  if (stringList->Find(lfe->elfLogFont.lfFaceName) == -1) {
+      stringList->Add(lfe->elfLogFont.lfFaceName);
+  }
   return TRUE;
 }
 
@@ -65,32 +67,85 @@ LRESULT COptDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
   else
 	m_lang.SetCurSel(0);
 
+
+
   // get font list
   CSimpleArray<CString> installedFonts;
   HDC	hDC=::CreateDC(_T("DISPLAY"),NULL,NULL,NULL);
   LOGFONT lf;
   memset(&lf,0,sizeof(lf));
-  lf.lfCharSet=ANSI_CHARSET;
+  lf.lfCharSet=DEFAULT_CHARSET;
   ::EnumFontFamiliesEx(hDC,&lf,(FONTENUMPROC)&EnumFontProc,(LPARAM)&installedFonts,0);
   ::DeleteDC(hDC);
-
-  for (int i=0; i<installedFonts.GetSize(); i++)
-  {
-	m_fonts.AddString(installedFonts[i]);
-	m_srcfonts.AddString(installedFonts[i]);
+  // sort the fonts alphabetically
+  std::vector<CString> sortedFonts;
+  for (int i = 0; i < installedFonts.GetSize(); i++) {
+      sortedFonts.push_back(installedFonts[i]);
   }
+  std::sort(sortedFonts.begin(), sortedFonts.end(), [](const CString& a, const CString& b) {
+      return a.CompareNoCase(b) < 0;
+  });
 
+  for (auto& font : sortedFonts)
+  {
+	m_fonts.AddString(font);
+	m_srcfonts.AddString(font);
+  }
   // get body font name
   CString     fnt(_Settings.GetFont());
-  int	      idx=m_fonts.FindStringExact(0,fnt);
-  if (idx<0) idx=0;
+  int idx = -1;
+  for (int i = 0; i < m_fonts.GetCount(); i++) {
+      CString item;
+      m_fonts.GetLBText(i, item);
+      if (item.CompareNoCase(fnt) == 0) {
+          idx = i;
+          break;
+      }
+  }
+  if (idx == -1) {
+      // insert in alphabetical order
+      int pos = 0;
+      for (int i = 0; i < m_fonts.GetCount(); i++) {
+          CString item;
+          m_fonts.GetLBText(i, item);
+          if (item.CompareNoCase(fnt) > 0) {
+              pos = i;
+              break;
+          }
+          pos = i + 1;
+      }
+      m_fonts.InsertString(pos, fnt);
+      idx = pos;
+  }
   m_fonts.SetCurSel(idx);
-
   // get source font name
   fnt.SetString(_Settings.GetSrcFont());
-  idx=m_srcfonts.FindStringExact(0,fnt);
-  if (idx<0) idx=0;
+  idx = -1;
+  for (int i = 0; i < m_srcfonts.GetCount(); i++) {
+      CString item;
+      m_srcfonts.GetLBText(i, item);
+      if (item.CompareNoCase(fnt) == 0) {
+          idx = i;
+          break;
+      }
+  }
+  if (idx == -1) {
+      // insert in alphabetical order
+      int pos = 0;
+      for (int i = 0; i < m_srcfonts.GetCount(); i++) {
+          CString item;
+          m_srcfonts.GetLBText(i, item);
+          if (item.CompareNoCase(fnt) > 0) {
+              pos = i;
+              break;
+          }
+          pos = i + 1;
+      }
+      m_srcfonts.InsertString(pos, fnt);
+      idx = pos;
+  }
   m_srcfonts.SetCurSel(idx);
+
 
 
   // init zoom
@@ -194,12 +249,12 @@ LRESULT COptDlg::OnOK(WORD, WORD wID, HWND, BOOL&)
 //	case 2: new_lang = LANG_UKRAINIAN; break;
   }
 
-  // если пользователь сменил язык интерфейса....
+  // РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃРјРµРЅРёР» СЏР·С‹Рє РёРЅС‚РµСЂС„РµР№СЃР°....
   if(new_lang != _Settings.GetInterfaceLanguageID())
   {
-  	// выдаем предупреждение, о том, что надо перезапустить программу.
+  	// РІС‹РґР°РµРј РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ, Рѕ С‚РѕРј, С‡С‚Рѕ РЅР°РґРѕ РїРµСЂРµР·Р°РїСѓСЃС‚РёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ.
 	//...
-	// выставляем флаг перезагрузки программы.
+	// РІС‹СЃС‚Р°РІР»СЏРµРј С„Р»Р°Рі РїРµСЂРµР·Р°РіСЂСѓР·РєРё РїСЂРѕРіСЂР°РјРјС‹.
 	_Settings.SetNeedRestart();
 	_Settings.SetInterfaceLanguage(new_lang);
   }
