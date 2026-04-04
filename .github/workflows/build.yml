@@ -1,0 +1,45 @@
+name: Build FBE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3
+
+    - name: Build Solution
+      run: msbuild FictionBookEditorPortable.sln /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v143
+
+    - name: Copy artifacts to Release folder
+      shell: pwsh
+      run: |
+        $dest = "${{github.workspace}}\src\Release"
+        
+        # Копируем все из папки Files
+        Write-Host "Copying Files folder..."
+        Copy-Item -Path "${{github.workspace}}\Files\*" -Destination $dest -Recurse -Force
+        
+        # Копируем русскую локализацию
+        Write-Host "Copying res_rus.dll..."
+        Copy-Item -Path "${{github.workspace}}\Locales\res_rus\Package\res_rus.dll" -Destination $dest -Force
+        
+        # Копируем библиотеки
+        Write-Host "Copying lib..."
+        Copy-Item -Path "${{github.workspace}}\Lib\Pcre\Release\pcre.dll" -Destination $dest -Force
+        Copy-Item -Path "${{github.workspace}}\Lib\Scintilla\Release\SciLexer.dll" -Destination $dest -Force
+        
+        Write-Host "All files copied successfully!"
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: FBE_Portable_Win32
+        path: src\Release\*
+        if-no-files-found: error
