@@ -209,7 +209,7 @@ div.epigraph{
 	font-size: 80%;
 	/*font-style: italic;*/
 	border-color: #00FFFF;
-	color: #0000F0;
+	color: #FF0066;
 }
 
 div.epigraph p{
@@ -218,7 +218,7 @@ div.epigraph p{
 }
 div.annotation{
 	border-color: #00CC99;
-	color: #2C6B7B;
+	color: #6633FF;
 }
 div.history{
 	border-color: #FF1515;
