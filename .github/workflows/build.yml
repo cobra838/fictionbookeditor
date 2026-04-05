@@ -1,16 +1,62 @@
-name: Build FBE
+name: Build & Release FBE
 
 on:
   workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Pre-release (beta)?'
+        type: boolean
+        default: false
+      release_notes:
+        description: 'Краткое описание релиза (появится вверху changelog)'
+        type: string
+        default: ''
 
 jobs:
   build:
     runs-on: windows-latest
     name: "Build Win32"
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      tag: ${{ steps.ver.outputs.tag }}
+      artifact: ${{ steps.ver.outputs.artifact }}
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Read version
+      id: ver
+      shell: pwsh
+      run: |
+        $v = (Get-Content src/version.txt).Trim()
+        echo "version=$v"   >> $env:GITHUB_OUTPUT
+        echo "tag=v$v"      >> $env:GITHUB_OUTPUT
+        echo "artifact=FBE_$v.zip" >> $env:GITHUB_OUTPUT
+        Write-Host "Building version $v"
+
+    - name: Patch FBE.rc
+      shell: pwsh
+      run: |
+        $v = "${{ steps.ver.outputs.version }}"
+        $p = $v.Split('.')
+        $rc = Get-Content src/Source/FBE.rc -Raw -Encoding Unicode
+        $rc = $rc -replace 'FILEVERSION \d+,\d+,\d+,\d+',    "FILEVERSION $($p[0]),$($p[1]),$($p[2]),0"
+        $rc = $rc -replace 'PRODUCTVERSION \d+,\d+,\d+,\d+', "PRODUCTVERSION $($p[0]),$($p[1]),$($p[2]),0"
+        $rc = $rc -replace '"FileVersion", "\d+\.\d+\.\d+"',    '"FileVersion", "' + $v + '"'
+        $rc = $rc -replace '"ProductVersion", "\d+\.\d+\.\d+"', '"ProductVersion", "' + $v + '"'
+        Set-Content src/Source/FBE.rc $rc -Encoding Unicode
+
+    - name: Generate buildstamp.c
+      shell: pwsh
+      run: |
+        $v = "${{ steps.ver.outputs.version }}"
+        $content = "const char *build_timestamp=__DATE__`" `"__TIME__;`r`n"
+        $content += "const char *build_name=`"FictionBook Editor Release $v`";`r`n"
+        $content += "const char *build_version=`"$v`";`r`n"
+        Set-Content src/buildstamp.c $content -Encoding ASCII
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.3
@@ -18,41 +64,81 @@ jobs:
     - name: Build Solution
       run: msbuild FictionBookEditorPortable.sln /p:Configuration=Release /p:Platform=Win32 /p:PlatformToolset=v143
 
-    - name: Upload Build Artifact
+    - name: Package as ZIP
+      shell: pwsh
+      run: |
+        $v   = "${{ steps.ver.outputs.version }}"
+        $out = "FBE_$v.zip"
+        Compress-Archive -Path "src\Package\*" -DestinationPath $out -CompressionLevel Optimal
+        Write-Host "Created $out ($('{0:N0}' -f (Get-Item $out).Length) bytes)"
+
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: FBE_Portable_Win32
-        path: src\Package\*
+        name: FBE_${{ steps.ver.outputs.version }}
+        path: FBE_${{ steps.ver.outputs.version }}.zip
         if-no-files-found: error
 
   release:
-    needs: [build]
+    needs: build
     if: needs.build.result == 'success'
     runs-on: ubuntu-latest
-    name: "Release"
+    name: "Create Release"
     permissions:
       contents: write
 
     steps:
-    - name: Download Artifact
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate changelog
+      id: log
+      run: |
+        PREV=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        if [ -n "$PREV" ]; then
+          ITEMS=$(git log "${PREV}..HEAD" --pretty=format:"<li>%s</li>" --no-merges)
+        else
+          ITEMS=$(git log --pretty=format:"<li>%s</li>" --no-merges | head -30)
+        fi
+        echo "items<<EOF" >> $GITHUB_OUTPUT
+        echo "$ITEMS"     >> $GITHUB_OUTPUT
+        echo "EOF"        >> $GITHUB_OUTPUT
+
+    - name: Download artifact
       uses: actions/download-artifact@v4
       with:
-        path: ./release-files
-
-    - name: Package files into ZIP
-      run: |
-        cd release-files
-        zip -r ../FBE_Portable_2.8.0.zip .
+        name: FBE_${{ needs.build.outputs.version }}
 
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2.6.1
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: FBE-Portable-2.8.0
-        body: "Тест 2.8.0"
-        draft: false
-        prerelease: false
-        overwrite_files: true
-        fail_on_unmatched_files: false
-        files: "*.zip"
+        tag_name: ${{ needs.build.outputs.tag }}
+        name: "FictionBook Editor ${{ needs.build.outputs.version }}"
+        prerelease: ${{ inputs.prerelease }}
+        files: ${{ needs.build.outputs.artifact }}
+        body: |
+          <h2>FictionBook Editor ${{ needs.build.outputs.version }}</h2>
+
+          ${{ inputs.release_notes != '' && format('<blockquote>{0}</blockquote>', inputs.release_notes) || '' }}
+
+          <h3>Изменения</h3>
+          <ul>
+          ${{ steps.log.outputs.items }}
+          </ul>
+
+          <h3>Установка / Обновление</h3>
+          <p>
+            Скачайте <b>${{ needs.build.outputs.artifact }}</b> и распакуйте содержимое
+            в папку с программой.<br>
+            Или воспользуйтесь встроенным обновлением: <b>Справка → О программе</b>.
+          </p>
+
+          <h3>Системные требования</h3>
+          <ul>
+            <li>Windows 7 / 8 / 10 / 11</li>
+            <li>32-bit (работает и на 64-bit)</li>
+          </ul>
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

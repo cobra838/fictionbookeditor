@@ -7,7 +7,6 @@
 #include <math.h>
 #include "ModelessDialog.h"
 #include "extras/http_download.h"
-#include "extras/MD5.h"
 #include "GLLogo.h"
 
 extern "C"
@@ -15,6 +14,16 @@ extern "C"
 	extern const char* build_timestamp;
 	extern const char* build_name;
 };
+
+static int CompareVersions(const char* a, const char* b)
+{
+	int a1=0,a2=0,a3=0, b1=0,b2=0,b3=0;
+	sscanf(a, "%d.%d.%d", &a1,&a2,&a3);
+	sscanf(b, "%d.%d.%d", &b1,&b2,&b3);
+	if (a1 != b1) return a1 - b1;
+	if (a2 != b2) return a2 - b2;
+	return a3 - b3;
+}
 
 using namespace std;
 
@@ -92,6 +101,8 @@ public:
 		MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColor)
 		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		MESSAGE_HANDLER(WM_TIMER, OnAnimTimer)
+		MESSAGE_HANDLER(WM_UPDATE_CHECK_DONE, OnUpdateCheckDone)
 		MESSAGE_HANDLER(UIS_WM_UPDATE_PROGRESS_UI, OnUpdateProgressUI)
 		MESSAGE_HANDLER(WM_RESIZE_OPENGL_WINDOW, OnResizeOpenGLWindow)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
@@ -104,12 +115,11 @@ private:
 	RECT m_SaveRect, m_LogoRect;
 	CGLLogoView m_glLogo;
 	auto_ptr<CDownloadMonitor> m_monitor;
+	HANDLE m_hCheckThread;
 	stringstream m_file;
 	CEdit m_Contributors;
 	bool m_UpdateReady;
 	CString m_UpdateURL;
-	CString m_UpdateMD5;
-	CString m_DownloadedMD5;
 	int m_AnimIdx;
 	CButton m_UpdateButton;
 	CBitmap m_AnimBitmaps[ANIM_SIZE];
@@ -129,6 +139,7 @@ private:
     void CheckUpdate();
 	CString GetUpdateFileName();
 	void RunUpdate(CString filename);
+	static DWORD WINAPI CheckUpdateProc(LPVOID pParam);
 
 	LRESULT OnInitDialog(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCloseCmd(WORD, WORD wID, HWND, BOOL&);
@@ -136,6 +147,8 @@ private:
 	LRESULT OnSize(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnCtlColor(UINT, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnNMClickSyslinkAbLinks(int /*idCtrl*/, LPNMHDR pNMHDR, BOOL&);
+	LRESULT OnAnimTimer(UINT, WPARAM, LPARAM, BOOL&);
+	LRESULT OnUpdateCheckDone(UINT, WPARAM wParam, LPARAM lParam, BOOL&);
     LRESULT OnUpdateProgressUI(UINT, WPARAM, LPARAM, BOOL&);
 	LRESULT OnResizeOpenGLWindow(UINT, WPARAM, LPARAM, BOOL&);
 
@@ -143,7 +156,7 @@ private:
 	HTTP_SEND_HEADER PrepareHeader(const CString url);
 
     void AcceptReceivedData (FCHttpDownload* pTask) ;
-    void FinishUpdateStatus (FCHttpDownload* pTask) ;
+    bool FinishUpdateStatus (FCHttpDownload* pTask) ;
     virtual void OnAfterDownloadConnected (FCHttpDownload* pTask) ;
     virtual void OnAfterDownloadFinish (FCHttpDownload* pTask) ;
 };

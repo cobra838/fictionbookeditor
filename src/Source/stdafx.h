@@ -101,6 +101,10 @@ using namespace _com_util;
 
 #define  UIS_WM_UPDATE_PROGRESS_UI	(WM_APP + 0x100)
 #define  WM_RESIZE_OPENGL_WINDOW	(WM_APP + 0x101)
+#define  WM_CHECK_UPDATE_RESULT		(WM_APP + 0x102)
+#define  WM_UPDATE_CHECK_DONE		(WM_APP + 0x103)
+
+#define  FBE_GITHUB_ACCEPT   L"Accept: application/vnd.github.v3+json\r\n"
 
 // scripting support
 #include <activscp.h>

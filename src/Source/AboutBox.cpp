@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "Utils.h"
 #include "AboutBox.h"
+#include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
 
 LRESULT CAboutDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 {
 	m_bAllowResize = false;
+	m_hCheckThread = NULL;
 
 	SetIcon(LoadIcon(_Module.GetResourceInstance(),MAKEINTRESOURCE(IDR_MAINFRAME)));
 
@@ -65,7 +68,7 @@ LRESULT CAboutDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	m_sHaveLatestVersion.LoadString(IDS_UPDATE_HAVELATESTVERSION);
 	m_sLogoCaption.LoadString(IDS_ABOUT_LOGOCAPTION);
 
-	// check FBE update
+	// check FBE update via GitHub API
 	CheckUpdate();
 
 	return 0;
@@ -73,7 +76,14 @@ LRESULT CAboutDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 
 LRESULT CAboutDlg::OnCloseCmd(WORD, WORD wID, HWND, BOOL&)
 {
+	KillTimer(1);
 	DeleteAllDownload();
+	if (m_hCheckThread)
+	{
+		// don't wait — thread will PostMessage to dead HWND (safe, ignored)
+		CloseHandle(m_hCheckThread);
+		m_hCheckThread = NULL;
+	}
 	EndDialog(wID);
 	return 0;
 }
@@ -103,20 +113,165 @@ LRESULT CAboutDlg::OnNMClickSyslinkAbLinks(int /*idCtrl*/, LPNMHDR pNMHDR, BOOL&
 
 void CAboutDlg::CheckUpdate()
 {
-    DeleteAllDownload();
+    m_UpdateReady = false;
+    m_UpdateURL = L"";
     SetDlgItemText(IDC_TEXT_STATUS, m_sCheckingUpdate);
-    
-	HTTP_SEND_HEADER ht = PrepareHeader(L"https://raw.githubusercontent.com/cobra838/fictionbookeditor/vs2026/src/update.xml");
-	
-	m_UpdateReady = false;
-	m_UpdateURL = L"";
-	m_UpdateMD5 = L"";
+    m_AnimIdx = 0;
+    SetTimer(1, 100, NULL); // animation timer
+    m_hCheckThread = CreateThread(NULL, 0, CheckUpdateProc, (LPVOID)m_hWnd, 0, NULL);
+}
 
-	// clear stringstream
-	m_file.str("");
+// Static thread: WinHTTP GET to GitHub API, posts WM_UPDATE_CHECK_DONE
+DWORD WINAPI CAboutDlg::CheckUpdateProc(LPVOID pParam)
+{
+    HWND hwnd = (HWND)pParam;
 
-	int   nTaskID = AddDownload(ht);
-    m_monitor.reset (new CDownloadMonitor(m_hWnd, nTaskID));
+    HINTERNET hSession = WinHttpOpen(L"FBE/1.0",
+        WINHTTP_ACCESS_TYPE_NO_PROXY,
+        WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    if (!hSession) { ::PostMessage(hwnd, WM_UPDATE_CHECK_DONE, 0, (LPARAM)GetLastError()); return 0; }
+
+    HINTERNET hConn = WinHttpConnect(hSession, L"api.github.com",
+        INTERNET_DEFAULT_HTTPS_PORT, 0);
+    if (!hConn) {
+        DWORD err = GetLastError();
+        WinHttpCloseHandle(hSession);
+        ::PostMessage(hwnd, WM_UPDATE_CHECK_DONE, 0, (LPARAM)err);
+        return 0;
+    }
+
+    HINTERNET hReq = WinHttpOpenRequest(hConn, L"GET",
+        L"/repos/cobra838/fictionbookeditor/releases?per_page=1",
+        NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+
+    if (hReq)
+    {
+        if (WinHttpSendRequest(hReq, FBE_GITHUB_ACCEPT, (DWORD)-1,
+                WINHTTP_NO_REQUEST_DATA, 0, 0, 0) &&
+            WinHttpReceiveResponse(hReq, NULL))
+        {
+            string* pJson = new string();
+            char buf[8192]; DWORD nRead;
+            while (WinHttpReadData(hReq, buf, sizeof(buf), &nRead) && nRead > 0)
+                pJson->append(buf, nRead);
+            ::PostMessage(hwnd, WM_UPDATE_CHECK_DONE, 1, (LPARAM)pJson);
+        }
+        else ::PostMessage(hwnd, WM_UPDATE_CHECK_DONE, 0, (LPARAM)GetLastError());
+        WinHttpCloseHandle(hReq);
+    }
+    else ::PostMessage(hwnd, WM_UPDATE_CHECK_DONE, 0, (LPARAM)GetLastError());
+
+    WinHttpCloseHandle(hConn);
+    WinHttpCloseHandle(hSession);
+    return 0;
+}
+
+LRESULT CAboutDlg::OnAnimTimer(UINT, WPARAM, LPARAM, BOOL&)
+{
+    if (m_AnimIdx >= ANIM_SIZE) m_AnimIdx = 0;
+    m_UpdatePict.SetBitmap(m_AnimBitmaps[m_AnimIdx++]);
+    return 0;
+}
+
+LRESULT CAboutDlg::OnUpdateCheckDone(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
+{
+    KillTimer(1);
+    m_UpdatePict.SetBitmap(m_StatusBitmaps[2]); // default: error
+
+    if (!wParam)
+    {
+        CString s;
+        if (lParam)
+            s.Format(L"%s (err %lu)", (LPCWSTR)m_sCantConnect, (DWORD)lParam);
+        else
+            s = m_sCantConnect;
+        SetDlgItemText(IDC_TEXT_STATUS, s);
+        return 0;
+    }
+    if (!lParam)
+    {
+        SetDlgItemText(IDC_TEXT_STATUS, m_sCantConnect);
+        return 0;
+    }
+
+    string* pJson = (string*)lParam;
+    const string& json = *pJson;
+
+    // extract local version from build_name ("FictionBook Editor Release 2.8.0") -> "2.8.0"
+    // same N.N.N scan used for remote tag — avoids build_version LTCG link issues
+    string localVer;
+    for (size_t i = 0; build_name[i]; i++)
+    {
+        if (!isdigit((unsigned char)build_name[i])) continue;
+        int a, b, c;
+        if (sscanf(build_name + i, "%d.%d.%d", &a, &b, &c) == 3)
+        {
+            localVer = build_name + i;
+            break;
+        }
+    }
+
+    // extract "tag_name": "FBE-Portable-2.8.0" -> "2.8.0"
+    // handles any prefix (v, FBE-Portable-, etc.) by finding first N.N.N pattern
+    string remoteVer;
+    size_t pos = json.find("\"tag_name\"");
+    if (pos != string::npos)
+    {
+        pos = json.find('"', pos + 10) + 1;
+        size_t end = json.find('"', pos);
+        string tag = json.substr(pos, end - pos);
+        // scan tag for first position that parses as N.N.N
+        for (size_t i = 0; i < tag.size(); i++)
+        {
+            if (!isdigit((unsigned char)tag[i])) continue;
+            int a, b, c;
+            if (sscanf(tag.c_str() + i, "%d.%d.%d", &a, &b, &c) == 3)
+            {
+                remoteVer = tag.substr(i);
+                break;
+            }
+        }
+    }
+
+    // extract first browser_download_url (any extension)
+    string dlUrl;
+    size_t upos = json.find("browser_download_url");
+    if (upos != string::npos)
+    {
+        upos = json.find('"', upos + 20) + 1; // after closing " of field name → ':'
+        upos = json.find('"', upos) + 1;       // after opening " of URL value → 'h' in https
+        size_t uend = json.find('"', upos);    // closing " of URL
+        dlUrl = json.substr(upos, uend - upos);
+    }
+
+    delete pJson;
+
+    if (!remoteVer.empty() && !dlUrl.empty())
+    {
+        int cmp = CompareVersions(remoteVer.c_str(), localVer.c_str());
+        if (cmp > 0)
+        {
+            m_UpdateReady = true;
+            m_UpdateURL = CString(dlUrl.c_str());
+            SetDlgItemText(IDC_TEXT_STATUS, m_sNewVersionAvailable);
+            m_UpdatePict.SetBitmap(m_StatusBitmaps[1]);
+            m_UpdateButton.ShowWindow(SW_SHOW);
+        }
+        else
+        {
+            CString dbg;
+            dbg.Format(L"%s [remote:%S local:%S]", (LPCWSTR)m_sHaveLatestVersion, remoteVer.c_str(), localVer.c_str());
+            SetDlgItemText(IDC_TEXT_STATUS, dbg);
+            m_UpdatePict.SetBitmap(m_StatusBitmaps[0]);
+        }
+    }
+    else
+    {
+        CString dbg;
+        dbg.Format(L"%s [rv:%S dl:%d]", (LPCWSTR)m_sCantConnect, remoteVer.c_str(), (int)dlUrl.size());
+        SetDlgItemText(IDC_TEXT_STATUS, dbg);
+    }
+    return 0;
 }
 
 LRESULT CAboutDlg::OnUpdate(WORD, WORD wID, HWND, BOOL&)
@@ -129,29 +284,9 @@ LRESULT CAboutDlg::OnUpdate(WORD, WORD wID, HWND, BOOL&)
 		CString filename = GetUpdateFileName();
 		if (ATLPath::FileExists(filename))
 		{
-			// calculate MD5 checksum
-			char* p;
-			ifstream inFile(filename.GetBuffer(), ios::in | ios::binary);
-			inFile.seekg(0, ios::end);
-			int nLength = inFile.tellg();
-			if (nLength)
+			if (U::MessageBox(MB_YESNO | MB_ICONEXCLAMATION, IDR_MAINFRAME, IDS_UPDATEEXISTS, filename) == IDYES)
 			{
-				CString readMD5;
-				p = new char[nLength + 2];
-				inFile.seekg(0, ios::beg);
-				inFile.read (p, nLength);
-				inFile.close();
-				if (p)
-				{
-					readMD5 = FCCrypt::Get_MD5(p, nLength);
-					delete[] p;
-				}
-				// if checksums are equal
-				if (readMD5.CompareNoCase (m_UpdateMD5) == 0)
-					if (U::MessageBox(MB_YESNO | MB_ICONEXCLAMATION, IDR_MAINFRAME, IDS_UPDATEEXISTS, filename) == IDYES)
-					{
-						RunUpdate(filename);
-					}
+				RunUpdate(filename);
 			}
 		}
 
@@ -251,147 +386,76 @@ LRESULT CAboutDlg::OnUpdateProgressUI (UINT, WPARAM wParam, LPARAM lParam, BOOL&
     return 0;
 }
 
-void CAboutDlg::FinishUpdateStatus (FCHttpDownload* pTask)
+bool CAboutDlg::FinishUpdateStatus (FCHttpDownload* pTask)
 {
 	bool bStatus = false;
-    const HTTP_RESPONSE_INFO   & resp = pTask->GetResponseInfo();
+    const HTTP_RESPONSE_INFO& resp = pTask->GetResponseInfo();
 	int nDownload = m_file.tellp();
 
     CString s = m_sDownloadError;
     switch (resp.m_status_code)
     {
-         case HTTP_STATUS_OK :
-         case HTTP_STATUS_PARTIAL_CONTENT :
-             if (resp.m_content_length)
-             {
-				 if (resp.m_content_length == nDownload) bStatus = true;
-             }
-             else
-             {
-                 if (resp.m_final_read_result) bStatus = true;
-             }
+        case HTTP_STATUS_OK:
+        case HTTP_STATUS_PARTIAL_CONTENT:
+            if (resp.m_content_length)
+                bStatus = (resp.m_content_length == nDownload);
+            else
+                bStatus = resp.m_final_read_result != 0;
 
-             // range request
-             if (pTask->GetSendHeader().m_start && (resp.m_status_code == HTTP_STATUS_OK))
-             {
-                 s += m_sNotSupportRange;
-             }
-             break;
+            if (pTask->GetSendHeader().m_start && (resp.m_status_code == HTTP_STATUS_OK))
+                s += m_sNotSupportRange;
+            break;
 
-        case HTTP_STATUS_NOT_FOUND :
+        case HTTP_STATUS_NOT_FOUND:
             s = m_sError404;
             break;
 
-        case HTTP_STATUS_FORBIDDEN :
-            s = m_sError403; 
+        case HTTP_STATUS_FORBIDDEN:
+            s = m_sError403;
             break;
 
-        case HTTP_STATUS_PROXY_AUTH_REQ :
+        case HTTP_STATUS_PROXY_AUTH_REQ:
             s = m_sError407;
             break;
 
-        default :
-			s.Format(m_sDownloadErrorStatus, resp.m_status_code);
+        default:
+            s.Format(m_sDownloadErrorStatus, resp.m_status_code);
             break;
     }
 
-    // calculate MD5 checksum
-	if (bStatus)
-	{
-		char* p;
-		int nLength = m_file.tellp();
-		if (nLength)
-		{
-			p = new char[nLength + 2];
-			m_file.read (p, nLength);
-			if (p)
-			{
-				m_DownloadedMD5 = FCCrypt::Get_MD5(p, nLength);
-				delete[] p;
-			}
-		}
-	}
-	else 
+	if (!bStatus)
 	{
 		m_UpdatePict.SetBitmap(m_StatusBitmaps[2]);
-		SetDlgItemText (IDC_TEXT_STATUS, s);
+		SetDlgItemText(IDC_TEXT_STATUS, s);
 	}
+	return bStatus;
 }
 
 void CAboutDlg::OnAfterDownloadFinish (FCHttpDownload* pTask)
 {
 	BOOL b;
-    OnUpdateProgressUI (0, (WPARAM)pTask->GetTaskID(), 0, b);
+    OnUpdateProgressUI(0, (WPARAM)pTask->GetTaskID(), 0, b);
 
-    FinishUpdateStatus (pTask);
+    bool bStatus = FinishUpdateStatus(pTask);
 
-	// process XML update file
-	if ((WPARAM)pTask->GetURL().Right(3).CompareNoCase(L"XML")==0)
+	// FCHttpDownload is only used for downloading the update .exe
 	{
-		MSXML2::IXMLDOMDocument2Ptr xmlDoc(U::CreateDocument(false));
-		_bstr_t str(m_file.str().c_str());
-		if (xmlDoc->loadXML(str))
-		{
-			MSXML2::IXMLDOMElementPtr root = xmlDoc->GetdocumentElement();
-			if (root)
-			{
-				// check update date
-				MSXML2::IXMLDOMNodePtr node = root->selectSingleNode(L"Date");
-				if (node)
-				{
-					COleDateTime updateDate, buildDate;
-					updateDate.ParseDateTime(CString(node->lastChild->nodeValue), VAR_DATEVALUEONLY, 1033); 
-					buildDate.ParseDateTime(CString(build_timestamp), VAR_DATEVALUEONLY, 1033);
-					if (updateDate > buildDate)
-					{
-						m_UpdateReady = true;
-						node = root->selectSingleNode(L"DownloadUrl");
-						if (node) m_UpdateURL = node->lastChild->nodeValue;
-						node = root->selectSingleNode(L"MD5");
-						if (node) m_UpdateMD5 = node->lastChild->nodeValue;
-					    
-						SetDlgItemText (IDC_TEXT_STATUS, m_sNewVersionAvailable);
-						m_UpdatePict.SetBitmap(m_StatusBitmaps[1]);
-						m_UpdateButton.ShowWindow(SW_SHOW);
-					}
-					else 
-					{
-						SetDlgItemText (IDC_TEXT_STATUS, m_sHaveLatestVersion);
-						m_UpdatePict.SetBitmap(m_StatusBitmaps[0]);
-					}
-				}
-			}
-		}
-	}
-	// else process downloaded executable
-	else
-	{
-		if (m_DownloadedMD5.CompareNoCase(m_UpdateMD5) == 0)
+		if (bStatus)
 		try
 		{
-			SetDlgItemText (IDC_TEXT_STATUS, m_sDownloadCompleted);
+			SetDlgItemText(IDC_TEXT_STATUS, m_sDownloadCompleted);
 			m_UpdatePict.SetBitmap(m_StatusBitmaps[0]);
 			DeleteAllDownload();
 
-			// save memory stream to the file
 			CString filename = GetUpdateFileName();
 			ofstream outFile(filename.GetBuffer(), ios::out | ios::binary);
 			outFile << m_file.str();
 			outFile.close();
-			SetDlgItemText (IDC_TEXT_STATUS, m_sDownloadReady);
+			SetDlgItemText(IDC_TEXT_STATUS, m_sDownloadReady);
 
-			// run new installation
 			RunUpdate(filename);
 		}
-		catch (...)
-		{
-		}
-		// wrong checksum
-		else
-		{
-			m_UpdatePict.SetBitmap(m_StatusBitmaps[2]);
-			SetDlgItemText (IDC_TEXT_STATUS, m_sIncorrectChecksum);
-		}
+		catch (...) {}
 	}
 }
 
@@ -525,7 +589,62 @@ void CAboutDlg::RunUpdate(CString filename)
 {
 	if (U::MessageBox(MB_YESNO | MB_ICONEXCLAMATION, IDR_MAINFRAME, IDS_UPDATE_CLOSE, filename) == IDYES)
 	{
-		HINSTANCE hInst = ShellExecute(0, L"open", filename, 0, 0, SW_SHOW);
+		wchar_t appPath[MAX_PATH];
+		GetModuleFileName(NULL, appPath, MAX_PATH);
+		CString appExe(appPath);
+		CString appDir(appPath);
+		int slash = appDir.ReverseFind(L'\\');
+		if (slash >= 0) appDir = appDir.Left(slash);
+
+		// Detect format by extension
+		int dot = filename.ReverseFind(L'.');
+		CString ext = (dot >= 0) ? filename.Mid(dot).MakeLower() : L"";
+
+		if (ext == L".zip")
+		{
+			// Extract via PowerShell: wait for app to exit, expand, relaunch
+			wchar_t tempDir[MAX_PATH];
+			GetTempPath(MAX_PATH, tempDir);
+			CString ps1(tempDir);
+			ps1 += L"fbe_update.ps1";
+
+			CString script;
+			script.Format(
+				L"Start-Sleep -Seconds 2\r\n"
+				L"$tmp = Join-Path $env:TEMP 'fbe_update_extract'\r\n"
+				L"Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue\r\n"
+				L"Expand-Archive -LiteralPath '%s' -DestinationPath $tmp -Force\r\n"
+				L"$items = Get-ChildItem $tmp\r\n"
+				L"if ($items.Count -eq 1 -and $items[0].PSIsContainer) { $src = $items[0].FullName } else { $src = $tmp }\r\n"
+				L"Copy-Item -Path \"$src\\*\" -Destination '%s' -Recurse -Force\r\n"
+				L"Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue\r\n"
+				L"Remove-Item -LiteralPath '%s' -Force -ErrorAction SilentlyContinue\r\n"
+				L"Start-Process '%s'\r\n",
+				(LPCWSTR)filename,
+				(LPCWSTR)appDir,
+				(LPCWSTR)filename,
+				(LPCWSTR)appExe);
+
+			HANDLE hf = CreateFile(ps1, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			if (hf != INVALID_HANDLE_VALUE)
+			{
+				BYTE bom[] = { 0xFF, 0xFE };
+				DWORD dw;
+				WriteFile(hf, bom, 2, &dw, NULL);
+				WriteFile(hf, (LPCWSTR)script, script.GetLength() * sizeof(wchar_t), &dw, NULL);
+				CloseHandle(hf);
+			}
+
+			CString args;
+			args.Format(L"-ExecutionPolicy Bypass -WindowStyle Hidden -File \"%s\"", (LPCWSTR)ps1);
+			ShellExecute(0, L"open", L"powershell.exe", args, NULL, SW_HIDE);
+		}
+		else
+		{
+			// .exe or other: run directly (self-extracting or installer)
+			ShellExecute(0, L"open", filename, NULL, NULL, SW_SHOW);
+		}
+
 		::PostMessage(GetParent().m_hWnd, WM_CLOSE, 0, 0);
 	}
 }

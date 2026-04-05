@@ -10,23 +10,23 @@
 #include "xmlMatchedTagsHighlighter.h"
 #include <fstream>
 
-// БЛОК PORTABLE ТУЛБАРОВ
+// пїЅпїЅпїЅпїЅ PORTABLE пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 #include <vector>
 
 static bool g_bToolbarsChanged = false;
 static CSimpleMap<DWORD, TBBUTTON> g_ScriptBtnCache;
 
-// Алгоритм FNV-1a для 32-битного хэша
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ FNV-1a пїЅпїЅпїЅ 32-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 static DWORD CalculateFNV1aHash(const CString& str) {
-    DWORD hash = 0x811C9DC5; // Стартовое число (Offset Basis)
+    DWORD hash = 0x811C9DC5; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (Offset Basis)
     for (int i = 0; i < str.GetLength(); ++i) {
-        hash ^= (DWORD)str[i]; // Перемешиваем символ
-        hash *= 0x01000193;    // Умножаем на FNV Prime
+        hash ^= (DWORD)str[i]; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        hash *= 0x01000193;    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ FNV Prime
     }
     return hash;
 }
 
-// --- 1. Обычная панель: сохраняем и читаем прямые ID ---
+// --- 1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ID ---
 static CString GetCommandHex(CToolBarCtrl& tb) {
     CString hexStr;
     for (int i = 0; i < tb.GetButtonCount(); ++i) {
@@ -74,7 +74,7 @@ static void SetCommandHex(CToolBarCtrl& tb, const CString& hexStr) {
     tb.AutoSize();
 }
 
-// --- 2. Панель скриптов: сохраняем и читаем ХЭШИ ---
+// --- 2. пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ ---
 static CString GetScriptsHex(CToolBarCtrl& tb, CSimpleArray<CMainFrame::ScrInfo>& scripts) {
     CString hexStr;
     for (int i = 0; i < tb.GetButtonCount(); ++i) {
@@ -83,13 +83,13 @@ static CString GetScriptsHex(CToolBarCtrl& tb, CSimpleArray<CMainFrame::ScrInfo>
         DWORD val = 0;
 
         if (btn.fsStyle & BTNS_SEP) {
-            val = 0xFFFFFFFF; // 1. Это честный разделитель
+            val = 0xFFFFFFFF; // 1. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         } 
         else if (btn.idCommand == ID_LAST_SCRIPT) {
-            val = 0xFFFFFFFE; // 2. Наш уникальный маркер для "Последний скрипт"
+            val = 0xFFFFFFFE; // 2. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         } 
         else if (btn.idCommand >= ID_SCRIPT_BASE) {
-            // 3. Это динамический скрипт — ищем его хэш
+            // 3. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ
             int wID = btn.idCommand - ID_SCRIPT_BASE; 
             bool found = false;
             for (int j = 0; j < scripts.GetSize(); ++j) {
@@ -99,15 +99,15 @@ static CString GetScriptsHex(CToolBarCtrl& tb, CSimpleArray<CMainFrame::ScrInfo>
                     break;
                 }
             }
-            // Если скрипт был удален с диска, но кнопка осталась в памяти - игнорируем (не пишем мусор)
+            // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
             if (!found) continue; 
         }
         else {
-            // 4. Любая другая стандартная команда редактора (сохраняем её родной ID)
+            // 4. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ID)
             val = btn.idCommand; 
         }
 
-        // Формируем hex-строку по байтам
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ hex-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         CString byteStr;
         byteStr.Format(L"%02x,%02x,%02x,%02x", 
                        (val & 0xFF), 
@@ -126,20 +126,20 @@ static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<
     if (hexStr.IsEmpty())
         return;
 
-    // 1. Сохраняем эталонные кнопки, которые уже есть на панели (включая ID_LAST_SCRIPT)
+    // 1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ID_LAST_SCRIPT)
     CSimpleMap<DWORD, TBBUTTON> defaultBtnMap;
     for (int i = 0; i < tb.GetButtonCount(); ++i)
     {
         TBBUTTON btn = { 0 };
         if (tb.GetButton(i, &btn) && !(btn.fsStyle & BTNS_SEP))
         {
-            // На случай повторов сохраняем только первую найденную кнопку
+            // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             if (defaultBtnMap.FindKey(btn.idCommand) == -1)
                 defaultBtnMap.Add(btn.idCommand, btn);
         }
     }
 
-    // 2. Парсим hex-строку в массив байтов
+    // 2. пїЅпїЅпїЅпїЅпїЅпїЅ hex-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     CString cleanHex = hexStr;
     cleanHex.Replace(L"hex:", L"");
 
@@ -153,13 +153,13 @@ static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<
         bytes.push_back((BYTE)(value & 0xFF));
     }
 
-    // 3. Полностью очищаем панель
+    // 3. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     while (tb.GetButtonCount() > 0)
     {
         tb.DeleteButton(0);
     }
 
-    // 4. Восстанавливаем панель по XML
+    // 4. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ XML
     for (size_t i = 0; i + 3 < bytes.size(); i += 4)
     {
         DWORD hash_or_id =
@@ -168,19 +168,19 @@ static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<
             ((DWORD)bytes[i + 2] << 16) |
             ((DWORD)bytes[i + 3] << 24);
 
-        // --- РАЗДЕЛИТЕЛЬ ---
+        // --- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ---
         if (hash_or_id == 0xFFFFFFFF)
         {
             TBBUTTON sep = { 0 };
             sep.fsState = TBSTATE_ENABLED;
             sep.fsStyle = BTNS_SEP;
-            sep.iBitmap = 8; // ширина разделителя
+            sep.iBitmap = 8; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
             tb.AddButtons(1, &sep);
             continue;
         }
 
-        // --- КНОПКА "ПОСЛЕДНИЙ СКРИПТ" ---
+        // --- пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" ---
         if (hash_or_id == 0xFFFFFFFE)
         {
             int defIdx = defaultBtnMap.FindKey(ID_LAST_SCRIPT);
@@ -193,8 +193,8 @@ static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<
             continue;
         }
 
-        // --- ИЩЕМ: ЭТО СКРИПТ ИЛИ ОБЫЧНАЯ КОМАНДА ---
-        DWORD target_id = hash_or_id; // по умолчанию считаем, что это обычная команда
+        // --- пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ---
+        DWORD target_id = hash_or_id; // пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         int min_wID = INT_MAX;
         bool isScript = false;
         int bestIdx = -1;
@@ -213,7 +213,7 @@ static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<
             }
         }
 
-        // --- ВОССТАНАВЛИВАЕМ КНОПКУ СКРИПТА ---
+        // --- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ---
         if (isScript && bestIdx != -1)
         {
             int cacheIdx = g_ScriptBtnCache.FindKey(target_id);
@@ -228,7 +228,7 @@ static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<
             continue;
         }
 
-        // --- ВОССТАНАВЛИВАЕМ ОБЫЧНУЮ КНОПКУ ---
+        // --- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ---
         int defIdx = defaultBtnMap.FindKey(target_id);
         if (defIdx != -1)
         {
@@ -241,7 +241,7 @@ static void SetScriptsHex(CToolBarCtrl& tb, const CString& hexStr, CSimpleArray<
     tb.AutoSize();
 }
 
-// --- 3. Главные функции чтения и записи XML ---
+// --- 3. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ XML ---
 static void SaveToolbarsToXML(CToolBarCtrl& cmdTb, CToolBarCtrl& scrTb, CSimpleArray<CMainFrame::ScrInfo>& scripts) {
     CString path = U::GetSettingsDir() + L"Toolbars.xml";
     CString xml;
@@ -1010,7 +1010,7 @@ BOOL CMainFrame::OnIdle()
 					m_image_title_caption.SetEnabled(false);
 				}
 		
-				// отображение ID для тегов <section>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ID пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <section>
 				MSHTML::IHTMLElementPtr scstn(m_doc->m_body.SelectionStructSection());
 				if(scstn)
 				{
@@ -1026,7 +1026,7 @@ BOOL CMainFrame::OnIdle()
 					m_section_box.EnableWindow(FALSE);
 					m_section_id_caption.SetEnabled(false);
 				}	
-				// отображение ID для тегов <table>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ID пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <table>
 				MSHTML::IHTMLElementPtr sct(m_doc->m_body.SelectionStructTable());
 				if(sct)
 				{
@@ -1043,7 +1043,7 @@ BOOL CMainFrame::OnIdle()
 					m_table_id_caption.SetEnabled(false);
 				}
 
-				// отображение ID для тегов <tr>, <th>, <td>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ID пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <tr>, <th>, <td>
 				MSHTML::IHTMLElementPtr sctc(m_doc->m_body.SelectionStructTableCon());
 				if (sctc) {
 					m_id_table_box.EnableWindow(TRUE);
@@ -1059,7 +1059,7 @@ BOOL CMainFrame::OnIdle()
 					m_id_table_caption.SetEnabled(false);
 				}
 
-				// отображение style для тегов <table>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ style пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <table>
 				_bstr_t	styleT("");
 				MSHTML::IHTMLElementPtr scsT(m_doc->m_body.SelectionsStyleTB(styleT));
 				if(scsT)
@@ -1086,7 +1086,7 @@ BOOL CMainFrame::OnIdle()
 					m_styleT_table_box.EnableWindow(FALSE);
 				}
 
-				// отображение style для тегов <th>, <td>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ style пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <th>, <td>
 				_bstr_t	style("");
 				MSHTML::IHTMLElementPtr scs(m_doc->m_body.SelectionsStyleB(style));
 				if(scs)
@@ -1113,7 +1113,7 @@ BOOL CMainFrame::OnIdle()
 					m_style_caption.SetEnabled(false);
 				}
 
-				// отображение colspan для тегов <th>, <td>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ colspan пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <th>, <td>
 				_bstr_t colspan("");
 				MSHTML::IHTMLElementPtr scc(m_doc->m_body.SelectionsColspanB(colspan));
 				if(scc)
@@ -1140,7 +1140,7 @@ BOOL CMainFrame::OnIdle()
 					m_colspan_caption.SetEnabled(false);
 				}
 
-				// отображение rowspan для тегов <th>, <td>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ rowspan пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <th>, <td>
 				_bstr_t rowspan("");
 				MSHTML::IHTMLElementPtr scr(m_doc->m_body.SelectionsRowspanB(rowspan));
 				if(scr)
@@ -1167,7 +1167,7 @@ BOOL CMainFrame::OnIdle()
 					m_rowspan_caption.SetEnabled(false);
 				}
 
-				// отображение align для тегов <tr>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ align пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <tr>
 				_bstr_t alignTR("");
 				MSHTML::IHTMLElementPtr scaTR(m_doc->m_body.SelectionsAlignTRB(alignTR));
 				if(scaTR)
@@ -1194,7 +1194,7 @@ BOOL CMainFrame::OnIdle()
 					m_tr_allign_caption.SetEnabled(false);
 				}
 
-				// отображение align для тегов <th>, <td>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ align пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <th>, <td>
 				_bstr_t align("");
 				MSHTML::IHTMLElementPtr sca(m_doc->m_body.SelectionsAlignB(align));
 				if(sca)
@@ -1221,7 +1221,7 @@ BOOL CMainFrame::OnIdle()
 					m_th_allign_caption.SetEnabled(false);
 				}
 
-				// отображение valign для тегов <th>, <td>
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ valign пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <th>, <td>
 				_bstr_t valign("");
 				MSHTML::IHTMLElementPtr scva(m_doc->m_body.SelectionsVAlignB(valign));
 				if(scva)
@@ -1383,7 +1383,7 @@ void CMainFrame::AddTbButton(HWND hWnd, const TCHAR* text, const int idCommand, 
     int iImage = I_IMAGENONE;
     bool imageAdded = false;
 
-    // Если передана иконка, пытаемся добавить её в image list тулбара
+    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅ image list пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     if (icon != NULL)
     {
         CImageList iList = tb.GetImageList();
@@ -1398,7 +1398,7 @@ void CMainFrame::AddTbButton(HWND hWnd, const TCHAR* text, const int idCommand, 
         }
     }
 
-    // Для TB_ADDSTRING строка должна быть в формате "text\0\0"
+    // пїЅпїЅпїЅ TB_ADDSTRING пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ "text\0\0"
     int stringIndex = -1;
     int strLen = lstrlen(safeText);
     if (strLen > 0)
@@ -1422,8 +1422,8 @@ void CMainFrame::AddTbButton(HWND hWnd, const TCHAR* text, const int idCommand, 
 
     if (!tb.AddButtons(1, &btn))
     {
-        // Если кнопку добавить не удалось, убираем только что добавленную иконку,
-        // чтобы не засорять image list.
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ,
+        // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ image list.
         if (imageAdded)
         {
             CImageList iList = tb.GetImageList();
@@ -1434,8 +1434,8 @@ void CMainFrame::AddTbButton(HWND hWnd, const TCHAR* text, const int idCommand, 
     }
 
     // custom added command
-    // Добавляем в "unassigned" и кэшируем реальную структуру кнопки только
-    // для кнопок с иконкой, как и в исходной логике.
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ "unassigned" пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
     if (icon != NULL)
     {
         int idx = tb.CommandToIndex(idCommand);
@@ -1486,11 +1486,11 @@ void CMainFrame::AddStaticText(CCustomStatic &st, HWND toolbarHwnd, int id, cons
 	st.SetEnabled(true);
 }
 
-// ПРЯМАЯ ЗАГРУЗКА COM-ОБЪЕКТОВ БЕЗ РЕЕСТРА ---
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ COM-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ---
 HRESULT CreateInstanceFromDll(const CString& dllPath, REFCLSID rclsid, REFIID riid, void** ppv)
 {
     *ppv = NULL;
-    HMODULE hDll = ::LoadLibrary(dllPath); // Грузим DLL напрямую из папки!
+    HMODULE hDll = ::LoadLibrary(dllPath); // пїЅпїЅпїЅпїЅпїЅпїЅ DLL пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ!
     if (!hDll) return HRESULT_FROM_WIN32(::GetLastError());
 
     typedef HRESULT (STDAPICALLTYPE *DllGetClassObject_t)(REFCLSID, REFIID, LPVOID*);
@@ -1512,7 +1512,7 @@ void CMainFrame::InitPluginsType(HMENU hMenu, const TCHAR* type, UINT cmdbase, C
     CString pluginsDir = U::GetProgDir() + L"Plugins\\";
     CString iniPath = pluginsDir + L"Plugins.ini";
 
-    // Получаем список всех секций [Плагинов] в INI-файле
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ [пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ] пїЅ INI-пїЅпїЅпїЅпїЅпїЅ
     wchar_t sections[4096] = {0};
     ::GetPrivateProfileSectionNames(sections, 4096, iniPath);
 
@@ -1539,14 +1539,14 @@ void CMainFrame::InitPluginsType(HMENU hMenu, const TCHAR* type, UINT cmdbase, C
         {
             PluginInfo pi;
             pi.clsid = clsid;
-            pi.dllPath = pluginsDir + dllName; // Собираем полный путь к DLL в папке Plugins
+            pi.dllPath = pluginsDir + dllName; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ DLL пїЅ пїЅпїЅпїЅпїЅпїЅ Plugins
             plist.Add(pi);
 
             ::AppendMenu(hMenu, MF_STRING, cmdbase + ncmd, ms);
             CString hs = ms; hs.Remove(L'&');
             InitPluginHotkey(guidStr, cmdbase + ncmd, CString(pt) + L" | " + hs);
 
-            // Читаем иконку
+            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             wchar_t iconStr[MAX_PATH] = {0};
             ::GetPrivateProfileString(pSection, L"Icon", L"", iconStr, MAX_PATH, iniPath);
             CString icon(iconStr);
@@ -1568,7 +1568,7 @@ void CMainFrame::InitPluginsType(HMENU hMenu, const TCHAR* type, UINT cmdbase, C
         pSection += wcslen(pSection) + 1;
     }
 
-    if (ncmd > 0) ::RemoveMenu(hMenu, 0, MF_BYPOSITION); // Удаляем заглушку из меню
+    if (ncmd > 0) ::RemoveMenu(hMenu, 0, MF_BYPOSITION); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
 }
 
 void CMainFrame::InitPlugins()
@@ -1590,7 +1590,7 @@ void CMainFrame::InitPlugins()
 	sub = ::GetSubMenu(file, 9);
 	m_mru.SetMenuHandle(sub);
 
-	// ПОРТАТИВНАЯ ЗАГРУЗКА ИСТОРИИ
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	m_mru.SetMaxEntries(m_mru.m_nMaxEntries_Max - 1);
 
     _History.Load();
@@ -2000,7 +2000,7 @@ LRESULT CMainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
     GetWindowPlacement(&wpl);
 	_Settings.SetWindowPosition(wpl);
 
-	// ПОРТАТИВНОЕ СОХРАНЕНИЕ ИСТОРИИ
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     _History.m_mru_list.RemoveAll();
     for (int i = 0; i < m_mru.m_arrDocs.GetSize(); ++i) {
         _History.m_mru_list.Add(m_mru.m_arrDocs[i].szDocName);
@@ -2056,7 +2056,7 @@ LRESULT CMainFrame::OnPostCreate(UINT, WPARAM, LPARAM, BOOL&)
 		{
 			const ACCEL& accel = group.m_hotkeys[j].m_accel;
 
-			// Отбрасываем пустые / неинициализированные акселераторы
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			if (accel.fVirt != 0 && accel.key != 0 && accel.cmd != 0)
 				accels.push_back(accel);
 		}
@@ -2808,9 +2808,9 @@ LRESULT CMainFrame::OnToolsScript(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL
 	if(IsSourceActive())
 		return 0;
 
-  // скрипты от FBE и от FBW запускаются по разному. В FBE скрипты исполняются через Active Scripting
-  // и документ в него передаетяся через параметры. 
-  // В FBW скрипты выполняются в самом HTML документе
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ FBE пїЅ пїЅпїЅ FBW пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅ FBE пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ Active Scripting
+  // пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. 
+  // пїЅ FBW пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ HTML пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	for(int i = 0; i < m_scripts.GetSize(); ++i)
 	{
 		if(m_scripts[i].wID == -1) continue;
@@ -3306,18 +3306,18 @@ LRESULT CMainFrame::OnTreeMoveLeftElement(WORD, WORD, HWND, BOOL&)
 
 LRESULT CMainFrame::OnTreeMoveElementSmart(WORD, WORD, HWND, BOOL&)
 {
-	// если выделен только один элемент, то двигаем его вправо
-	// если несколько, то проверяем братья они или нет
-	// если братья, то делаем такую фичу
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 	// ----------
 	// ----------
-	//   ----------    первый выделенный элемент
+	//   ----------    пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	//   ----------
 	// ----------
-	//   ----------    второй выделенный элемент
+	//   ----------    пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	//   ----------
 
-	// для небратьев делаем то же что и для одного
+	// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
 	m_doc->m_body.BeginUndoUnit(L"structure editing");
 	CTreeItem item = m_document_tree.m_tree.m_tree.GetFirstSelectedItem();
@@ -3581,17 +3581,17 @@ bool  CMainFrame::SourceToHTML()
 	int end_char = 0;
 	int bodies_count = 0;
 	
-	// берем текст
+	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	textlen = m_source.SendMessage(SCI_GETLENGTH);
 	buffer = new char[textlen + 1];
 	m_source.SendMessage(SCI_GETTEXT, textlen+1, (LPARAM)buffer);
-	// конвертим в UTF16
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ UTF16
 	DWORD   ulen=::MultiByteToWideChar(CP_UTF8,0,buffer,textlen,NULL,0);
 
 	BSTR    ustr=::SysAllocStringLen(NULL,ulen);
 	::MultiByteToWideChar(CP_UTF8,0,buffer,textlen,ustr,ulen);
 	
-	//	смотрим выделенную позицию	
+	//	пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ	
 	int	  selectedPosBegin = m_source.SendMessage(SCI_GETSELECTIONSTART);    
 	int	  selectedPosEnd = m_source.SendMessage(SCI_GETSELECTIONEND);    
 	bool one_pos = selectedPosEnd == selectedPosBegin;
@@ -3605,7 +3605,7 @@ bool  CMainFrame::SourceToHTML()
 		selectedPosEnd = MultiByteToWideChar(CP_UTF8,0,buffer,selectedPosEnd,NULL,0);
 	}	
 
-	//	перегоняем в XML
+	//	пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ XML
 	U::DomPath path_begin;
 	U::DomPath path_end;
 
@@ -3639,7 +3639,7 @@ bool  CMainFrame::SourceToHTML()
 			if(ret.vt == VT_DISPATCH)
 			{
 				m_saved_xml = ret.pdispVal;
-				// если вернулся не xml, значит вернулась ошибка
+				// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ xml, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 				if(!(bool)m_saved_xml)
 				{
 					MSXML2::IXMLDOMParseErrorPtr err = ret.pdispVal;
@@ -3692,7 +3692,7 @@ bool  CMainFrame::SourceToHTML()
 		}
 	}
 	
-	// строим относительный путь. Относительно секции body
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ body
 	path_begin.CreatePathFromXMLDOM(body, selectedElementBegin);
 	MSXML2::IXMLDOMElementPtr selectedElementEnd;
 	if(one_pos)
@@ -3706,23 +3706,23 @@ bool  CMainFrame::SourceToHTML()
 	}	
 	
 
-	// если документ был изменен, то перегоняем его в HTML
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ HTML
 	if(needReload)
 	{
-		// перегоняем в HTML
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ HTML
 		CComDispatchDriver	body(m_doc->m_body.Script());
 		CComVariant		    args[2];
 		args[1] = m_saved_xml.GetInterfacePtr();
 		args[0] = _Settings.GetInterfaceLanguageName();
 		CheckError(body.InvokeN(L"LoadFromDOM", args, 2));
 		m_doc->m_body.Init();
-		// у нас совершенно новый HTML и указатели на элементы старого теперь невалидны.
+		// пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ HTML пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 		ClearSelection();
 
 		m_force_source_rebuild = false;
 	}
 
-	//	В HTML по пути находим нужный элемент
+	//	пїЅ HTML пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	MSHTML::IHTMLElementPtr selectedHTMLElementBegin;	
 	MSHTML::IHTMLElementPtr selectedHTMLElementEnd;	
 	
@@ -3781,8 +3781,8 @@ bool CMainFrame::ShowSource(bool saveSelection)
 	if (saveSelection)
 		m_force_source_rebuild = true;
 
-	// берем HTML
-	// запоминаем путь до выделенного элемента
+	// пїЅпїЅпїЅпїЅпїЅ HTML
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	if(saveSelection)
 	{
 		MSHTML::IHTMLElementPtr selectedBeginElement;
@@ -3827,7 +3827,7 @@ bool CMainFrame::ShowSource(bool saveSelection)
 		}while(root = root->nextSibling);
 	}
 
-	// если документ изменился, то заново строим XMLDOM
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ XMLDOM
 	{
 		if(m_doc->DocRelChanged() || !(bool)m_saved_xml)
 		{
@@ -3845,7 +3845,7 @@ bool CMainFrame::ShowSource(bool saveSelection)
 
 	MSXML2::IXMLDOMNodePtr xml_selected_begin;
 	MSXML2::IXMLDOMNodePtr xml_selected_end;
-	//	по пути находим нужный элемент в XML
+	//	пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ XML
 	{
 		MSXML2::IXMLDOMNodePtr xml_body = m_saved_xml->firstChild->firstChild;		
 		while(xml_body)
@@ -3860,7 +3860,7 @@ bool CMainFrame::ShowSource(bool saveSelection)
 				}
 				xml_selected_begin = selection_begin_path.GetNodeFromXMLDOM(xml_body);
 				
-				// строим абсолютный путь до него.
+				// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ.
 				selection_begin_path.CreatePathFromXMLDOM(m_saved_xml, xml_selected_begin);
 				path = selection_begin_path;
 
@@ -3880,7 +3880,7 @@ bool CMainFrame::ShowSource(bool saveSelection)
 		}
 	}
 
-	// перегоняем XML в текст
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ XML пїЅ пїЅпїЅпїЅпїЅпїЅ
 	_bstr_t   src(m_saved_xml->xml);
 
 	int savedPosBegin = 0;
@@ -3902,7 +3902,7 @@ bool CMainFrame::ShowSource(bool saveSelection)
 
 	DWORD nch=::WideCharToMultiByte(CP_UTF8,0,src,src.length(),	NULL,0,NULL,NULL);
 
-	//	загоняем текст в сцинтиллу
+	//	пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	if(m_doc->DocRelChanged())
 	{
 		m_source.SendMessage(SCI_CLEARALL);
@@ -3916,7 +3916,7 @@ bool CMainFrame::ShowSource(bool saveSelection)
 		}
 	}
 
-	//	переходим на позицию
+	//	пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	m_source.SendMessage(SCI_SETSELECTIONSTART,savedPosBegin);
 	m_source.SendMessage(SCI_SETSELECTIONEND,savedPosEnd);
 	m_source.SendMessage(SCI_SCROLLCARET);	
@@ -3991,7 +3991,7 @@ void  CMainFrame::ShowView(VIEW_TYPE vt)
 	  {
 			int col,line;
 			bool fv;
-			fv=m_doc->SetXMLAndValidate(m_source,true,line,col);// Из режима Source
+			fv=m_doc->SetXMLAndValidate(m_source,true,line,col);// пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Source
 			if (!fv) 
 			{
 				U::MessageBox(MB_OK|MB_ICONERROR, IDR_MAINFRAME, IDS_BAD_XML_MSG);
@@ -4180,9 +4180,9 @@ LRESULT CMainFrame::OnFileValidate(WORD, WORD, HWND, BOOL&) {
   int col,line;
   bool fv;
   if (IsSourceActive())
-    fv=m_doc->SetXMLAndValidate(m_source,true,line,col);// Из режима Source
+    fv=m_doc->SetXMLAndValidate(m_source,true,line,col);// пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Source
   else
-    fv=m_doc->Validate(line,col);						// Из режима Body
+    fv=m_doc->Validate(line,col);						// пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Body
   if (!fv) {
     ShowView(SOURCE);
     // have to jump through the hoops to move to required column
@@ -4430,8 +4430,8 @@ MSHTML::IHTMLDOMNodePtr CMainFrame::MoveRightElementWithoutChildren(MSHTML::IHTM
 	MSHTML::IHTMLDOMNodePtr move_to;
 	MSHTML::IHTMLDOMNodePtr insert_before;
 	MSHTML::IHTMLDOMNodePtr ret;
-	// делаем себя ребенком своего предыдущего брата
-	// потом всех своих детей делаем своими братьями	
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+	// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ	
 
 	if(!(bool)(ret = MoveRightElement(node)))
 		return 0;
@@ -4462,16 +4462,16 @@ MSHTML::IHTMLDOMNodePtr CMainFrame::MoveRightElement(MSHTML::IHTMLDOMNodePtr nod
 	MSHTML::IHTMLDOMNodePtr move_from;
 	MSHTML::IHTMLDOMNodePtr move_to;
 	MSHTML::IHTMLDOMNodePtr insert_before;
-	// делаем себя ребенком своего предыдущего брата
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	
 	if(!(bool)node)
 		return 0;
 
-	// пока будем таскать только секции
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	if(!IsNodeSection(node))
 		return 0;
 
-	// если не можем переместить себя, то не дклаем ничего
+	// пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	MSHTML::IHTMLDOMNodePtr prev_sibling = GetPrevSiblingSection(node);
 	
 	if(!(bool)prev_sibling)
@@ -4479,7 +4479,7 @@ MSHTML::IHTMLDOMNodePtr CMainFrame::MoveRightElement(MSHTML::IHTMLDOMNodePtr nod
 
 	MSHTML::IHTMLDOMNodePtr child = GetLastChildSection(prev_sibling);
 
-	// делаем себя последним ребенком своего предыдущего брата
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	move_to = prev_sibling;
 	insert_before = 0;		
 	move_from = node;		
@@ -4495,17 +4495,17 @@ MSHTML::IHTMLDOMNodePtr CMainFrame::MoveRightElement(MSHTML::IHTMLDOMNodePtr nod
 MSHTML::IHTMLDOMNodePtr CMainFrame::MoveLeftElement(MSHTML::IHTMLDOMNodePtr node)
 {
 	MSHTML::IHTMLDOMNodePtr ret;
-	// делаем себя  ближайшим братом своего отца
-	// а своих следующих братьев своими детьми
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+	// пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	
 	if(!(bool)node)
 		return 0;
 
-	// пока будем таскать только секции
+	// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	if(!IsNodeSection(node))
 		return 0;
 
-	// если не можем переместить себя, то не делаем ничего
+	// пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	MSHTML::IHTMLDOMNodePtr parent = node->parentNode;
 	if(!(bool)parent || !IsNodeSection(parent->parentNode))
 		return 0;
@@ -4518,7 +4518,7 @@ MSHTML::IHTMLDOMNodePtr CMainFrame::MoveLeftElement(MSHTML::IHTMLDOMNodePtr node
 		m_doc->MoveNode(sibling, node, 0);	
 		sibling = next_sibling;
 	}	
-	// делаем себя ближайшим братом своего отца	
+	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ	
 	ret = m_doc->MoveNode(node, parent->parentNode, parent->nextSibling);	
 	
 	return ret;			
@@ -4639,12 +4639,12 @@ LRESULT CMainFrame::OnSciExpand(WORD cose, WORD wID, HWND, BOOL&)
 //////////////////////////////////////////////////////////////////////
 /// @fn CMainFrame::IsEmptySection
 ///
-/// Функция проверяет есть ли реальный текст внутри нее. Текстом считается
-/// любая последовательность символов, содержащая хотябы один символ, отличный 
-/// от пробелов, переносов строк, переводов каретки и символов табуляции
-///	@param MSHTML::IHTMLDOMNodePtr section [in, out] проверяемая секция
-/// @return bool true - если секция пустая
-/// @date 17.12.07 @author Ильин Иван
+/// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+/// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
+/// пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+///	@param MSHTML::IHTMLDOMNodePtr section [in, out] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+/// @return bool true - пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+/// @date 17.12.07 @author пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 //////////////////////////////////////////////////////////////////////
 bool CMainFrame::IsEmptySection(MSHTML::IHTMLDOMNodePtr section)
 {
@@ -5142,11 +5142,11 @@ int CMainFrame::GrabScripts(CString path, TCHAR* mask, CString refid)
 						script.name = Name;
 						script.path = path + fd.cFileName;
 
-						// ВЫЧИСЛЯЕМ ХЭШ СКРИПТА
+						// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                         CString fullBaseName(fd.cFileName);
-                        fullBaseName.Delete(fullBaseName.GetLength() - 3, 3); // Отрезаем ".js"
-                        fullBaseName.MakeLower(); // В нижний регистр для 100% совпадения
-                        script.hash = CalculateFNV1aHash(fullBaseName); // Записываем в структуру
+                        fullBaseName.Delete(fullBaseName.GetLength() - 3, 3); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ".js"
+                        fullBaseName.MakeLower(); // пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ 100% пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                        script.hash = CalculateFNV1aHash(fullBaseName); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                         
 						script.picture = NULL;
 						script.pictType = CMainFrame::NO_PICT;
@@ -5266,23 +5266,23 @@ void CMainFrame::AddScriptsSubMenu(HMENU parentItem, CString refid, CSimpleArray
 			mi.dwTypeData = scripts[i].name.GetBuffer();
 			mi.cch = wcslen(scripts[i].name);
 
-			// Всегда вставляем пункт в конец меню, чтобы сохранить правильную сортировку
+			// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             ::InsertMenuItem(parentItem, ::GetMenuItemCount(parentItem), TRUE, &mi);
 
             if(!scripts[i].isFolder)
             {
-                // Проверяем, не регистрировали ли мы уже кнопку с таким хэшем
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                 bool isDuplicate = false;
                 for (int k = 0; k < scripts.GetSize(); ++k) {
-                    // Если находим скрипт с таким же хэшем, который УЖЕ получил свой ID 
-                    // (то есть был обработан алгоритмом раньше текущего)
+                    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ ID 
+                    // (пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
                     if (k != i && !scripts[k].isFolder && scripts[k].hash == scripts[i].hash && scripts[k].wID > 0 && scripts[k].wID < scripts[i].wID) {
                         isDuplicate = true;
                         break;
                     }
                 }
 
-                // Регистрируем кнопку для диалога настройки только если это первый уникальный скрипт
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                 if (!isDuplicate && scripts[i].pictType == CMainFrame::ICON) {
                     AddTbButton(m_ScriptsToolbar, scripts[i].name, mi.wID, TBSTATE_ENABLED, (HICON)scripts[i].picture);
                 }
@@ -5306,11 +5306,11 @@ void CMainFrame::QuickScriptsSort(CSimpleArray<ScrInfo>& scripts, int min, int m
     if (min >= max) return;
 
     int i = min, j = max;
-    // Берем опорный элемент из середины
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     ScrInfo mid = scripts[min + (max - min) / 2]; 
 
     while (i <= j) {
-        // Ищем элемент слева, который должен стоять после mid
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ mid
         while (true) {
             bool less = false;
             if (scripts[i].isFolder && !mid.isFolder) less = true;
@@ -5319,7 +5319,7 @@ void CMainFrame::QuickScriptsSort(CSimpleArray<ScrInfo>& scripts, int min, int m
 
             if (less) i++; else break;
         }
-        // Ищем элемент справа, который должен стоять перед mid
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ mid
         while (true) {
             bool greater = false;
             if (!scripts[j].isFolder && mid.isFolder) greater = true;
@@ -5344,11 +5344,11 @@ void CMainFrame::QuickScriptsSort(CSimpleArray<ScrInfo>& scripts, int min, int m
 
 void CMainFrame::InitScriptHotkey(CMainFrame::ScrInfo& script)
 {
-    // Вычисляем относительный путь для сохранения отображения
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     CString relativePath = script.path;
     CString baseFolder = _Settings.GetScriptsFolder();
     
-    // Отрезаем базовую папку (без учета регистра)
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
     if (relativePath.GetLength() >= baseFolder.GetLength())
     {
         CString prefix = relativePath.Left(baseFolder.GetLength());
@@ -5363,7 +5363,7 @@ void CMainFrame::InitScriptHotkey(CMainFrame::ScrInfo& script)
     {
         if(hotkey_groups.at(i).m_reg_name == L"Scripts")
         {
-            // Передаем relativePath и как системное имя (для XML), и как описание (для отображения в окне настроек)
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ relativePath пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (пїЅпїЅпїЅ XML), пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
             CHotkey ScriptsHotkey(relativePath, 
                 script.name,
                 NULL,
@@ -5614,10 +5614,10 @@ void CMainFrame::DisplayCharCode()
 	else m_status.SetPaneText(ID_PANE_CHAR, L"");
 }
 
-// ПЕРЕХВАТ ИЗМЕНЕНИЙ ПАНЕЛИ
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 LRESULT CMainFrame::OnToolbarChange(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& bHandled) {
-    g_bToolbarsChanged = true; // Поднимаем флаг: пользователь что-то изменил
-    bHandled = FALSE; // Разрешаем WTL обрабатывать сообщение дальше
+    g_bToolbarsChanged = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    bHandled = FALSE; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ WTL пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     return 0;
 }
 
@@ -5636,18 +5636,18 @@ LRESULT CMainFrame::OnInitCustomize(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& bHan
 
 LRESULT CMainFrame::OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-    // Ищем CHM-файл в папке Help
+    // пїЅпїЅпїЅпїЅ CHM-пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ Help
     CString helpPath = U::GetProgDir() + L"Help\\Help_FBE.chm"; 
     
     if (::GetFileAttributes(helpPath) != INVALID_FILE_ATTRIBUTES) 
     {
-        // Запускаем CHM-файл стандартным просмотрщиком Windows
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ CHM-пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Windows
         ::ShellExecute(m_hWnd, L"open", helpPath, NULL, NULL, SW_SHOWNORMAL);
     } 
     else 
     {
-        // Выдаем точное сообщение, если файла на месте не оказалось
-        ::MessageBox(m_hWnd, L"Файл справки не найден!\n\nУбедитесь, что файл Help_FBE.chm находится в папке Help рядом с программой.", L"Справка FictionBook Editor", MB_OK | MB_ICONWARNING);
+        // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        ::MessageBox(m_hWnd, L"пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!\n\nпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ Help_FBE.chm пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ Help пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", L"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ FictionBook Editor", MB_OK | MB_ICONWARNING);
     }
     
     return 0;
