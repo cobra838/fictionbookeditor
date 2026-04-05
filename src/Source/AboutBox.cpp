@@ -610,15 +610,20 @@ void CAboutDlg::RunUpdate(CString filename)
 
 			CString script;
 			script.Format(
-				L"Start-Sleep -Seconds 2\r\n"
+				// L"Start-Sleep -Milliseconds 500\r\n"
+				L"Write-Host 'Extracting update...'\r\n"
+				L"Add-Type -AssemblyName System.IO.Compression.FileSystem\r\n"
 				L"$tmp = Join-Path $env:TEMP 'fbe_update_extract'\r\n"
 				L"Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue\r\n"
-				L"Expand-Archive -LiteralPath '%s' -DestinationPath $tmp -Force\r\n"
+				L"[System.IO.Compression.ZipFile]::ExtractToDirectory('%s', $tmp)\r\n"
 				L"$items = Get-ChildItem $tmp\r\n"
 				L"if ($items.Count -eq 1 -and $items[0].PSIsContainer) { $src = $items[0].FullName } else { $src = $tmp }\r\n"
+				L"Write-Host 'Installing...'\r\n"
 				L"Copy-Item -Path \"$src\\*\" -Destination '%s' -Recurse -Force\r\n"
 				L"Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue\r\n"
 				L"Remove-Item -LiteralPath '%s' -Force -ErrorAction SilentlyContinue\r\n"
+				L"Write-Host 'Done. Starting FBE...'\r\n"
+				// L"Start-Sleep -Milliseconds 500\r\n"
 				L"Start-Process '%s'\r\n",
 				(LPCWSTR)filename,
 				(LPCWSTR)appDir,
@@ -636,8 +641,8 @@ void CAboutDlg::RunUpdate(CString filename)
 			}
 
 			CString args;
-			args.Format(L"-ExecutionPolicy Bypass -WindowStyle Hidden -File \"%s\"", (LPCWSTR)ps1);
-			ShellExecute(0, L"open", L"powershell.exe", args, NULL, SW_HIDE);
+			args.Format(L"-ExecutionPolicy Bypass -File \"%s\"", (LPCWSTR)ps1);
+			ShellExecute(0, L"open", L"powershell.exe", args, NULL, SW_SHOWDEFAULT);
 		}
 		else
 		{
