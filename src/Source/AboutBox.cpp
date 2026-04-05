@@ -106,7 +106,7 @@ void CAboutDlg::CheckUpdate()
     DeleteAllDownload();
     SetDlgItemText(IDC_TEXT_STATUS, m_sCheckingUpdate);
     
-	HTTP_SEND_HEADER ht = PrepareHeader(L"https://raw.githubusercontent.com/cobra838/fictionbookeditor/vs2026/src/Source/update.xml");
+	HTTP_SEND_HEADER ht = PrepareHeader(L"https://raw.githubusercontent.com/cobra838/fictionbookeditor/vs2026/src/update.xml");
 	
 	m_UpdateReady = false;
 	m_UpdateURL = L"";

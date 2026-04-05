@@ -1,14 +1,14 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "resource.h"
+#include "..\..\src\Source\resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "..\..\wtl\atlres.h"
-#include "..\..\res1.h"
+#include "..\..\src\Source\wtl\atlres.h"
+#include "..\..\src\Source\res1.h"
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -127,6 +127,8 @@ BEGIN
     END
     POPUP "&Довідка"
     BEGIN
+        MENUITEM "&Помощь",                     ID_HELP
+        MENUITEM SEPARATOR
         MENUITEM "&Про програму...",            ID_APP_ABOUT
     END
 END
@@ -168,8 +170,8 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""..\\..\\wtl\\atlres.h""\r\n"
-    "#include ""..\\..\\res1.h""\0"
+    "#include ""..\\..\\src\\Source\\wtl\\atlres.h""\r\n"
+    "#include ""..\\..\\src\\Source\\res1.h""\0"
 END
 
 3 TEXTINCLUDE 
@@ -401,12 +403,14 @@ BEGIN
     EDITTEXT        IDC_EDIT_NEW,16,169,165,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Додати",IDC_BUTTON_ADD,192,169,50,14
     GROUPBOX        "Список слів-виключень",IDC_STATIC_WORDS_CHEVRON,7,8,247,183
-    CONTROL         "",IDC_LIST_WORDS,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_SORTDESCENDING | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,15,25,230,115,WS_EX_CLIENTEDGE
+    CONTROL         "",IDC_LIST_WORDS,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,15,25,230,115,WS_EX_CLIENTEDGE
     CONTROL         "Показувати слова-виключення у вікні «Слова»",IDC_CHECK_SHOW_EXCLUSIONS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,201,187,10
     CONTROL         "Виділити усі",IDC_CHECK_SELALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,151,63,10
     PUSHBUTTON      "Видалити виділене",IDC_BUTTON_REMOVESEL,104,148,78,14
     EDITTEXT        IDC_EDIT_LV,202,7,43,14,ES_AUTOHSCROLL | NOT WS_VISIBLE | NOT WS_TABSTOP,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+    CONTROL         "Не вести статистику",IDC_CHECK_DISABLE_WORDS_STATS,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,22,210,110,10
+    PUSHBUTTON      "Сбросить статистику",IDC_BUTTON_RESET_WORDS_STATS,150,208,90,14
 END
 
 IDD_WORDS DIALOGEX 0, 0, 366, 323
@@ -599,6 +603,9 @@ BEGIN
     BUTTON      ID_STYLE_TEXTAUTHOR
     SEPARATOR
     BUTTON      ID_TOOLS_SPELLCHECK
+    SEPARATOR
+    BUTTON      ID_EDIT_INS_POEM
+    BUTTON      ID_EDIT_INS_CITE
 END
 
 IDR_MAINFRAME_SMALL TOOLBAR 16, 16
@@ -715,19 +722,12 @@ IDR_MAINFRAME           ICON                    "res\\FBE2.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RT_MANIFEST
-//
-
-1                       RT_MANIFEST             "res\\FBE.exe.manifest"
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // String Table
 //
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "FB Editor"
+    IDR_MAINFRAME           "FBE"
     IDS_SB_NO_ERR           "Помилок не виявлено."
     IDS_DMS_TI              "Інформація про твір"
     IDS_LANG_ENGLISH        "Англійська"
@@ -783,14 +783,13 @@ STRINGTABLE
 BEGIN
     IDS_UPDATE_DOWNLOADCOMPLETE "Завантаження завершено, записую файл ..."
     IDS_UPDATE_DOWNLOADERROR "Помилка завантаження"
-    IDS_UPDATE_404ERROR     "Помилка 404: файл не знайден"
+    IDS_UPDATE_404ERROR     "Помилка 404: файл update.xml не знайден"
     IDS_UPDATE_403ERROR     "Помилка 403: доступ заборонений"
     IDS_UPDATE_407ERROR     "Помилка 407: потрібна аутентифікація проксі-сервера"
     IDS_UPDATE_NOTSUPPORTEDRANGE " (не підтримувана область)"
     IDS_UPDATE_DOWNLOADERRORSTATUS "Помилка завантаження, код статусу: %d"
     IDS_UPDATE_INCORRECTMD5 "Помилка, не вірна контрольна сума."
-    IDS_UPDATE_NEWVERSIONAVAILABLE 
-                            "Нова версія FBE доступна для завантаження."
+    IDS_UPDATE_NEWVERSIONAVAILABLE "Нова версія FBE доступна для завантаження."
     IDS_UPDATE_HAVELATESTVERSION "У Вас встановлена остання версія FBE."
     IDS_ABOUT_LOGOCAPTION   "Анімоване FB2 лого  »  Натисніть клавішу ? для довідки "
     IDS_UPDATE_CLOSE        "FBE повинен бути закритий для продовження встановлення.\r\n\r\nВи можете пізніше видалити інсталяційний файл, що знаходиться у ""%s"".\r\n\r\nЗакрити FBE і продовжити інсталяцію нової версії?"
@@ -1139,6 +1138,11 @@ BEGIN
     IDS_HOTKEY_EDIT_SUP     "Суперскріпт"
 END
 
+STRINGTABLE
+BEGIN
+    IDS_HOTKEY_HELP         "Помощь"
+END
+
 #endif    // Ukrainian (Ukraine) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1163,9 +1167,9 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""..\\..\\wtl\\atlres.h""\r\n"
-    "#include ""..\\..\\res1.h""\r\n"
-    "#include ""..\\..\\resource.h""\r\n"
+    "#include ""..\\..\\src\\Source\\wtl\\atlres.h""\r\n"
+    "#include ""..\\..\\src\\Source\\res1.h""\0"
+    "#include ""..\\..\\src\\Source\\resource.h""\r\n"
     "\r\n"
     "\0"
 END

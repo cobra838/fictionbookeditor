@@ -246,7 +246,7 @@ LRESULT COptDlg::OnOK(WORD, WORD wID, HWND, BOOL&)
   {
 	case 0: new_lang = LANG_ENGLISH; break;
 	case 1: new_lang = LANG_RUSSIAN; break;
-//	case 2: new_lang = LANG_UKRAINIAN; break;
+	case 2: new_lang = LANG_UKRAINIAN; break;
   }
 
   // если пользователь сменил язык интерфейса....

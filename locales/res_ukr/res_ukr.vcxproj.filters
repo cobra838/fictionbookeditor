@@ -15,171 +15,175 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="res_ukr.cpp">
+    <ClCompile Include="Source\res_ukr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Source\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Source\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Source\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\center.bmp">
+    <None Include="Source\res\center.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\doc.bmp">
+    <None Include="Source\res\doc.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\document.bmp">
+    <None Include="Source\res\document.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\error.bmp">
+    <None Include="Source\res\Fb2-shema.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Fb2-shema.bmp">
+    <None Include="Source\res\FBE.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\FBE.ico">
+    <None Include="Source\res\FBE2.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\FBE2.ico">
+    <None Include="Source\res\green.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\green.bmp">
+    <None Include="Source\res\html.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\html.bmp">
+    <None Include="Source\res\orange.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_02.bmp">
+    <None Include="Source\res\other.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_03.bmp">
+    <None Include="Source\res\prc.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_04.bmp">
+    <None Include="Source\res\Scripts.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_05.bmp">
+    <None Include="Source\res\Strikthr.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_06.bmp">
+    <None Include="Source\res\struct.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_07.bmp">
+    <None Include="Source\res\text.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_08.bmp">
+    <None Include="Source\res\Toolbar.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_09.bmp">
+    <None Include="Source\res\Toolbar_small.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_10.bmp">
+    <None Include="Source\res\toolimg.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_11.bmp">
+    <None Include="Source\res\wordstat.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_12.bmp">
+    <None Include="Source\res\xml.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_13.bmp">
+    <None Include="Source\res\imgph.png">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\Icon_14.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_15.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_16.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_17.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_18.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_19.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_20.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_21.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_22.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_23.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_24.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Icon_25.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\ok.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\orange.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\other.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\prc.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Scripts.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Strikthr.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\struct.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\text.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Toolbar.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\Toolbar_small.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\toolimg.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\update.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\wordstat.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\xml.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\imgph.png" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="FBE.rc">
+    <Manifest Include="..\src\Source\res\FBE.exe.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Source\FBE.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="res\FBE.exe.manifest" />
+    <Image Include="Source\res\update.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\ok.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_25.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_23.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_22.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_21.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_20.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_19.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_18.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_17.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_16.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_15.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_14.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_13.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_12.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_11.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_10.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_09.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_08.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_07.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_06.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_05.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_04.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_03.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_02.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\error.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

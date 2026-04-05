@@ -476,8 +476,11 @@
 #define IDC_FAST_MODE                   1110
 #define IDC_IDT                         1111
 #define IDC_AB_STATIC_BANNER            1112
+#define IDC_CHECK_DISABLE_WORDS_STATS   1113
+#define IDC_BUTTON_RESET_WORDS_STATS    1114
 #define ID_SCRIPT_BASE                  9000
 #define ID_EDIT_INS_SYMBOL              10000
+#define IDS_HOTKEY_HELP                 32700
 #define ID_NEXT_ITEM                    32772
 #define ID_SELECT_TREE                  32773
 #define ID_EDIT_BOLD                    32779
