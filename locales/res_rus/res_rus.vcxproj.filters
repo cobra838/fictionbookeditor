@@ -96,13 +96,94 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="Source\res\FBE.exe.manifest">
-      <Filter>Resource Files</Filter>
-    </Manifest>
+    <Manifest Include="..\src\Source\res\FBE.exe.manifest" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\FBE.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Source\res\update.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\ok.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_25.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_23.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_22.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_21.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_20.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_19.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_18.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_17.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_16.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_15.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_14.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_13.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_12.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_11.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_10.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_09.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_08.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_07.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_06.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_05.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_04.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_03.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\Icon_02.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Source\res\error.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -57,13 +57,13 @@ LRESULT COptDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
  	m_lang.AddString(buf);
   if(::LoadString(_Module.GetResourceInstance(), IDS_LANG_RUSSIAN, buf, MAX_LOAD_STRING))
 	m_lang.AddString(buf);
-//  if(::LoadString(_Module.GetResourceInstance(), IDS_LANG_UKRAINIAN, buf, MAX_LOAD_STRING))
-//	m_lang.AddString(buf);
+  if(::LoadString(_Module.GetResourceInstance(), IDS_LANG_UKRAINIAN, buf, MAX_LOAD_STRING))
+	m_lang.AddString(buf);
 
   if(LANG_RUSSIAN == _Settings.GetInterfaceLanguageID())
 	m_lang.SetCurSel(1);
-//  else if(LANG_UKRAINIAN == _Settings.GetInterfaceLanguageID())
-//	m_lang.SetCurSel(2);
+  else if(LANG_UKRAINIAN == _Settings.GetInterfaceLanguageID())
+	m_lang.SetCurSel(2);
   else
 	m_lang.SetCurSel(0);
 
