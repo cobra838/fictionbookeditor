@@ -8,6 +8,7 @@ LRESULT CAboutDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 {
 	m_bAllowResize = false;
 	m_hCheckThread = NULL;
+	GetWindowRect(&m_InitialRect);
 
 	SetIcon(LoadIcon(_Module.GetResourceInstance(),MAKEINTRESOURCE(IDR_MAINFRAME)));
 
@@ -477,13 +478,9 @@ LRESULT CAboutDlg::OnGetMinMaxInfo(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
 	if (!m_bAllowResize)
 	{
-		RECT rect;
-		GetWindowRect(&rect);
 		LPMINMAXINFO pMMI = (LPMINMAXINFO)lParam;
-		pMMI->ptMaxTrackSize.x = rect.right - rect.left;
-		pMMI->ptMaxTrackSize.y = rect.bottom - rect.top;
-		pMMI->ptMinTrackSize.x = rect.right - rect.left;
-		pMMI->ptMinTrackSize.y = rect.bottom - rect.top;
+		pMMI->ptMinTrackSize.x = m_InitialRect.right - m_InitialRect.left;
+		pMMI->ptMinTrackSize.y = m_InitialRect.bottom - m_InitialRect.top;
 	}
 	return TRUE;
 }
@@ -495,7 +492,60 @@ LRESULT CAboutDlg::OnSize(UINT, WPARAM, LPARAM, BOOL&)
 		RECT rect;
 		GetClientRect(&rect);
 		m_glLogo.SetWindowPos(0, &rect, 0);
+		return FALSE;
 	}
+
+	// normal mode: stretch contributors text, anchor buttons to bottom-right
+	RECT client;
+	GetClientRect(&client);
+	int cw = client.right - client.left;
+	int ch = client.bottom - client.top;
+
+	// margins (pixels)
+	const int margin = 7;
+
+	// OK button — bottom-right corner
+	HWND hOK = GetDlgItem(IDOK);
+	RECT rOK;
+	::GetWindowRect(hOK, &rOK);
+	ScreenToClient(&rOK);
+	int btnW = rOK.right - rOK.left;
+	int btnH = rOK.bottom - rOK.top;
+	::SetWindowPos(hOK, NULL, cw - margin - btnW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+	// Update button — left of OK
+	HWND hUpd = GetDlgItem(IDC_UPDATE);
+	RECT rUpd;
+	::GetWindowRect(hUpd, &rUpd);
+	ScreenToClient(&rUpd);
+	int updW = rUpd.right - rUpd.left;
+	::SetWindowPos(hUpd, NULL, cw - margin - btnW - margin - updW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+	// Contributors text — stretch to fill space above buttons
+	HWND hContribs = GetDlgItem(IDC_CONTRIBS);
+	RECT rContribs;
+	::GetWindowRect(hContribs, &rContribs);
+	ScreenToClient(&rContribs);
+	int newContribsW = cw - rContribs.left - margin;
+	int newContribsH = ch - margin - btnH - margin - rContribs.top;
+	::SetWindowPos(hContribs, NULL, 0, 0, newContribsW, newContribsH, SWP_NOMOVE | SWP_NOZORDER);
+
+	// Status text + icon — above buttons, stretch width
+	HWND hStatus = GetDlgItem(IDC_TEXT_STATUS);
+	RECT rStatus;
+	::GetWindowRect(hStatus, &rStatus);
+	ScreenToClient(&rStatus);
+	int statusX = rStatus.left;
+	int statusY = ch - margin - btnH + (btnH - (rStatus.bottom - rStatus.top)) / 2;
+	int statusW = cw - margin - btnW - margin - updW - margin - statusX;
+	::SetWindowPos(hStatus, NULL, statusX, statusY, statusW, rStatus.bottom - rStatus.top, SWP_NOZORDER);
+
+	HWND hPic = GetDlgItem(IDC_PIC_UPDATE);
+	RECT rPic;
+	::GetWindowRect(hPic, &rPic);
+	ScreenToClient(&rPic);
+	::SetWindowPos(hPic, NULL, rPic.left, statusY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
 	return FALSE;
 }
 

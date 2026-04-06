@@ -112,7 +112,7 @@ public:
 	END_MSG_MAP()
 
 private:
-	RECT m_SaveRect, m_LogoRect;
+	RECT m_SaveRect, m_LogoRect, m_InitialRect;
 	CGLLogoView m_glLogo;
 	auto_ptr<CDownloadMonitor> m_monitor;
 	HANDLE m_hCheckThread;
