@@ -8,7 +8,7 @@ LRESULT CAboutDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 {
 	m_bAllowResize = false;
 	m_hCheckThread = NULL;
-	GetWindowRect(&m_InitialRect);
+	memset(&m_InitialRect, 0, sizeof(m_InitialRect));
 
 	SetIcon(LoadIcon(_Module.GetResourceInstance(),MAKEINTRESOURCE(IDR_MAINFRAME)));
 
@@ -257,6 +257,9 @@ LRESULT CAboutDlg::OnUpdateCheckDone(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
             SetDlgItemText(IDC_TEXT_STATUS, m_sNewVersionAvailable);
             m_UpdatePict.SetBitmap(m_StatusBitmaps[1]);
             m_UpdateButton.ShowWindow(SW_SHOW);
+            // reposition immediately in case window was resized before update check finished
+            BOOL bHandled = FALSE;
+            OnSize(WM_SIZE, 0, 0, bHandled);
         }
         else
         {
@@ -476,7 +479,7 @@ HTTP_SEND_HEADER CAboutDlg::PrepareHeader(const CString url)
 
 LRESULT CAboutDlg::OnGetMinMaxInfo(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
-	if (!m_bAllowResize)
+	if (!m_bAllowResize && m_InitialRect.right > 0)
 	{
 		LPMINMAXINFO pMMI = (LPMINMAXINFO)lParam;
 		pMMI->ptMinTrackSize.x = m_InitialRect.right - m_InitialRect.left;
@@ -495,56 +498,61 @@ LRESULT CAboutDlg::OnSize(UINT, WPARAM, LPARAM, BOOL&)
 		return FALSE;
 	}
 
+	// capture initial layout on first WM_SIZE (window fully shown, all controls visible)
+	if (m_InitialRect.right == 0)
+	{
+		GetWindowRect(&m_InitialRect);
+		auto getRC = [&](int id, RECT& rc) {
+			::GetWindowRect(GetDlgItem(id), &rc);
+			ScreenToClient(&rc);
+		};
+		getRC(IDOK,        m_rcOK);
+		getRC(IDC_UPDATE,  m_rcUpdate);
+		getRC(IDC_CONTRIBS,m_rcContribs);
+		getRC(IDC_TEXT_STATUS, m_rcStatus);
+		getRC(IDC_PIC_UPDATE,  m_rcPic);
+	}
+
 	// normal mode: stretch contributors text, anchor buttons to bottom-right
 	RECT client;
 	GetClientRect(&client);
 	int cw = client.right - client.left;
 	int ch = client.bottom - client.top;
 
-	// margins (pixels)
 	const int margin = 7;
+	int btnW  = m_rcOK.right     - m_rcOK.left;
+	int btnH  = m_rcOK.bottom    - m_rcOK.top;
+	int updW  = m_rcUpdate.right  - m_rcUpdate.left;
+	int statH = m_rcStatus.bottom - m_rcStatus.top;
 
-	// OK button — bottom-right corner
-	HWND hOK = GetDlgItem(IDOK);
-	RECT rOK;
-	::GetWindowRect(hOK, &rOK);
-	ScreenToClient(&rOK);
-	int btnW = rOK.right - rOK.left;
-	int btnH = rOK.bottom - rOK.top;
-	::SetWindowPos(hOK, NULL, cw - margin - btnW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	// OK — bottom-right
+	::SetWindowPos(GetDlgItem(IDOK), NULL,
+		cw - margin - btnW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
-	// Update button — left of OK
-	HWND hUpd = GetDlgItem(IDC_UPDATE);
-	RECT rUpd;
-	::GetWindowRect(hUpd, &rUpd);
-	ScreenToClient(&rUpd);
-	int updW = rUpd.right - rUpd.left;
-	::SetWindowPos(hUpd, NULL, cw - margin - btnW - margin - updW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	// Update — always reposition (hidden window doesn't paint, but stays in correct place)
+	::SetWindowPos(GetDlgItem(IDC_UPDATE), NULL,
+		cw - margin - btnW - margin - updW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
-	// Contributors text — stretch to fill space above buttons
-	HWND hContribs = GetDlgItem(IDC_CONTRIBS);
-	RECT rContribs;
-	::GetWindowRect(hContribs, &rContribs);
-	ScreenToClient(&rContribs);
-	int newContribsW = cw - rContribs.left - margin;
-	int newContribsH = ch - margin - btnH - margin - rContribs.top;
-	::SetWindowPos(hContribs, NULL, 0, 0, newContribsW, newContribsH, SWP_NOMOVE | SWP_NOZORDER);
+	// Contributors — stretch width and height
+	::SetWindowPos(GetDlgItem(IDC_CONTRIBS), NULL, 0, 0,
+		cw - m_rcContribs.left - margin,
+		ch - margin - btnH - margin - m_rcContribs.top,
+		SWP_NOMOVE | SWP_NOZORDER);
 
-	// Status text + icon — above buttons, stretch width
-	HWND hStatus = GetDlgItem(IDC_TEXT_STATUS);
-	RECT rStatus;
-	::GetWindowRect(hStatus, &rStatus);
-	ScreenToClient(&rStatus);
-	int statusX = rStatus.left;
-	int statusY = ch - margin - btnH + (btnH - (rStatus.bottom - rStatus.top)) / 2;
-	int statusW = cw - margin - btnW - margin - updW - margin - statusX;
-	::SetWindowPos(hStatus, NULL, statusX, statusY, statusW, rStatus.bottom - rStatus.top, SWP_NOZORDER);
+	// Status text + pic — anchored to bottom-left, above buttons
+	int statusY = ch - margin - btnH + (btnH - statH) / 2;
+	bool updateVisible = GetDlgItem(IDC_UPDATE).IsWindowVisible() != FALSE;
+	int rightEdge = updateVisible
+		? (cw - margin - btnW - margin - updW - margin)
+		: (cw - margin - btnW - margin);
+	int statusW = rightEdge - m_rcStatus.left;
+	::SetWindowPos(GetDlgItem(IDC_TEXT_STATUS), NULL,
+		m_rcStatus.left, statusY, statusW, statH, SWP_NOZORDER);
+	::SetWindowPos(GetDlgItem(IDC_PIC_UPDATE), NULL,
+		m_rcPic.left, statusY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
-	HWND hPic = GetDlgItem(IDC_PIC_UPDATE);
-	RECT rPic;
-	::GetWindowRect(hPic, &rPic);
-	ScreenToClient(&rPic);
-	::SetWindowPos(hPic, NULL, rPic.left, statusY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	// force full repaint so hidden controls don't leave ghost artifacts
+	InvalidateRect(NULL, TRUE);
 
 	return FALSE;
 }

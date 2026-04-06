@@ -113,6 +113,7 @@ public:
 
 private:
 	RECT m_SaveRect, m_LogoRect, m_InitialRect;
+	RECT m_rcOK, m_rcUpdate, m_rcContribs, m_rcStatus, m_rcPic;
 	CGLLogoView m_glLogo;
 	auto_ptr<CDownloadMonitor> m_monitor;
 	HANDLE m_hCheckThread;
