@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="windows-1251"?>
+<?xml version="1.0" encoding="utf-8"?>
 <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
 	<description>
 		<title-info>
@@ -10,7 +10,7 @@
 			</author>
 			<book-title/>
 			<annotation>
-				<p>Введите сюда краткую аннотацию</p>
+				<p>Р’РІРµРґРёС‚Рµ СЃСЋРґР° РєСЂР°С‚РєСѓСЋ Р°РЅРЅРѕС‚Р°С†РёСЋ</p>
 			</annotation>
 			<date/>
 			<coverpage>
@@ -29,7 +29,7 @@
 			<id/>
 			<version/>
 			<history>
-				<p>1.0 — создание файла</p>
+				<p>1.0 вЂ” СЃРѕР·РґР°РЅРёРµ С„Р°Р№Р»Р°</p>
 			</history>
 		</document-info>
 		<publish-info>
@@ -42,7 +42,7 @@
 	</description>
 	<body>
 		<section>
-			<p>Чтобы изменить документ по умолчанию, отредактируйте файл &quot;blank.fb2&quot; вручную.</p>
+			<p>Р§С‚РѕР±С‹ РёР·РјРµРЅРёС‚СЊ РґРѕРєСѓРјРµРЅС‚ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, РѕС‚СЂРµРґР°РєС‚РёСЂСѓР№С‚Рµ С„Р°Р№Р» &quot;blank.fb2&quot; РІСЂСѓС‡РЅСѓСЋ.</p>
 			<empty-line/>
 		</section>
 	</body>

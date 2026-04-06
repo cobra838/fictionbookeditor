@@ -13,11 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Русский (Россия) resources
+// Р СѓСЃСЃРєРёР№ (Р РѕСЃСЃРёСЏ) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-#pragma code_page(1251)
+#pragma code_page(65001)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -26,110 +26,110 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 IDR_MAINFRAME MENU
 BEGIN
-    POPUP "&Файл"
+    POPUP "&Р¤Р°Р№Р»"
     BEGIN
-        MENUITEM "&Создать",                    ID_FILE_NEW
-        MENUITEM "&Открыть...",                 ID_FILE_OPEN
-        MENUITEM "Со&хранить",                  ID_FILE_SAVE
-        MENUITEM "Сохранить &как...",           ID_FILE_SAVE_AS
-        MENUITEM "&Проверить",                  ID_FILE_VALIDATE
+        MENUITEM "&РЎРѕР·РґР°С‚СЊ",                    ID_FILE_NEW
+        MENUITEM "&РћС‚РєСЂС‹С‚СЊ...",                 ID_FILE_OPEN
+        MENUITEM "РЎРѕ&С…СЂР°РЅРёС‚СЊ",                  ID_FILE_SAVE
+        MENUITEM "РЎРѕС…СЂР°РЅРёС‚СЊ &РєР°Рє...",           ID_FILE_SAVE_AS
+        MENUITEM "&РџСЂРѕРІРµСЂРёС‚СЊ",                  ID_FILE_VALIDATE
         MENUITEM SEPARATOR
-        POPUP "&Импорт"
+        POPUP "&РРјРїРѕСЂС‚"
         BEGIN
-            MENUITEM "Не установлено ни одного плагина", IDCANCEL
+            MENUITEM "РќРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РЅРё РѕРґРЅРѕРіРѕ РїР»Р°РіРёРЅР°", IDCANCEL
         END
-        POPUP "&Экспорт"
+        POPUP "&Р­РєСЃРїРѕСЂС‚"
         BEGIN
-            MENUITEM "Не установлено ни одного плагина", IDCANCEL
-        END
-        MENUITEM SEPARATOR
-        POPUP "П&редыдущие документы"
-        BEGIN
-            MENUITEM "Пусто",                       ID_FILE_MRU_FIRST, INACTIVE
+            MENUITEM "РќРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РЅРё РѕРґРЅРѕРіРѕ РїР»Р°РіРёРЅР°", IDCANCEL
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Выход",                      ID_APP_EXIT
+        POPUP "Рџ&СЂРµРґС‹РґСѓС‰РёРµ РґРѕРєСѓРјРµРЅС‚С‹"
+        BEGIN
+            MENUITEM "РџСѓСЃС‚Рѕ",                       ID_FILE_MRU_FIRST, INACTIVE
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "&Р’С‹С…РѕРґ",                      ID_APP_EXIT
     END
-    POPUP "&Правка"
+    POPUP "&РџСЂР°РІРєР°"
     BEGIN
-        MENUITEM "&Отменить",                   ID_EDIT_UNDO
-        MENUITEM "&Вернуть",                    ID_EDIT_REDO
+        MENUITEM "&РћС‚РјРµРЅРёС‚СЊ",                   ID_EDIT_UNDO
+        MENUITEM "&Р’РµСЂРЅСѓС‚СЊ",                    ID_EDIT_REDO
         MENUITEM SEPARATOR
-        MENUITEM "В&ырезать",                   ID_EDIT_CUT
-        MENUITEM "&Копировать",                 ID_EDIT_COPY
-        MENUITEM "В&ставить",                   ID_EDIT_PASTE
+        MENUITEM "Р’&С‹СЂРµР·Р°С‚СЊ",                   ID_EDIT_CUT
+        MENUITEM "&РљРѕРїРёСЂРѕРІР°С‚СЊ",                 ID_EDIT_COPY
+        MENUITEM "Р’&СЃС‚Р°РІРёС‚СЊ",                   ID_EDIT_PASTE
         MENUITEM SEPARATOR
-        MENUITEM "&Найти...",                   ID_EDIT_FIND
-        MENUITEM "Н&айти далее",                ID_EDIT_FINDNEXT
-        MENUITEM "&Заменить...",                ID_EDIT_REPLACE
+        MENUITEM "&РќР°Р№С‚Рё...",                   ID_EDIT_FIND
+        MENUITEM "Рќ&Р°Р№С‚Рё РґР°Р»РµРµ",                ID_EDIT_FINDNEXT
+        MENUITEM "&Р—Р°РјРµРЅРёС‚СЊ...",                ID_EDIT_REPLACE
         MENUITEM SEPARATOR
-        MENUITEM "&Перейти к сноске или к ссылке", ID_GOTO_FOOTNOTE
-        MENUITEM "Перейти к парному &тегу",     ID_GOTO_MATCHTAG
-        MENUITEM "Перейти к о&шибочному тегу",  ID_GOTO_WRONGTAG
+        MENUITEM "&РџРµСЂРµР№С‚Рё Рє СЃРЅРѕСЃРєРµ РёР»Рё Рє СЃСЃС‹Р»РєРµ", ID_GOTO_FOOTNOTE
+        MENUITEM "РџРµСЂРµР№С‚Рё Рє РїР°СЂРЅРѕРјСѓ &С‚РµРіСѓ",     ID_GOTO_MATCHTAG
+        MENUITEM "РџРµСЂРµР№С‚Рё Рє Рѕ&С€РёР±РѕС‡РЅРѕРјСѓ С‚РµРіСѓ",  ID_GOTO_WRONGTAG
         MENUITEM SEPARATOR
-        MENUITEM "К&лонировать",                ID_EDIT_CLONE
-        MENUITEM "Разр&езать",                  ID_EDIT_SPLIT
-        MENUITEM "Ск&леить",                    ID_EDIT_MERGE
-        MENUITEM "&Убрать внешний",             ID_EDIT_REMOVE_OUTER_SECTION
+        MENUITEM "Рљ&Р»РѕРЅРёСЂРѕРІР°С‚СЊ",                ID_EDIT_CLONE
+        MENUITEM "Р Р°Р·СЂ&РµР·Р°С‚СЊ",                  ID_EDIT_SPLIT
+        MENUITEM "РЎРє&Р»РµРёС‚СЊ",                    ID_EDIT_MERGE
+        MENUITEM "&РЈР±СЂР°С‚СЊ РІРЅРµС€РЅРёР№",             ID_EDIT_REMOVE_OUTER_SECTION
     END
-    POPUP "&Вид"
+    POPUP "&Р’РёРґ"
     BEGIN
-        MENUITEM "&Панель инструментов",        60161
-        MENUITEM "Панель скриптов",             60162
-        MENUITEM "Па&нель ссылок",              60163
-        MENUITEM "П&анель таблиц",              60164
-        MENUITEM "&Строка состояния",           ID_VIEW_STATUS_BAR
-        MENUITEM "С&труктура книги",            ID_VIEW_TREE
+        MENUITEM "&РџР°РЅРµР»СЊ РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ",        60161
+        MENUITEM "РџР°РЅРµР»СЊ СЃРєСЂРёРїС‚РѕРІ",             60162
+        MENUITEM "РџР°&РЅРµР»СЊ СЃСЃС‹Р»РѕРє",              60163
+        MENUITEM "Рџ&Р°РЅРµР»СЊ С‚Р°Р±Р»РёС†",              60164
+        MENUITEM "&РЎС‚СЂРѕРєР° СЃРѕСЃС‚РѕСЏРЅРёСЏ",           ID_VIEW_STATUS_BAR
+        MENUITEM "РЎ&С‚СЂСѓРєС‚СѓСЂР° РєРЅРёРіРё",            ID_VIEW_TREE
         MENUITEM SEPARATOR
-        MENUITEM "&Описание документа",         ID_VIEW_DESC
-        MENUITEM "&Дизайн",                     ID_VIEW_BODY
-        MENUITEM "&Код",                        ID_VIEW_SOURCE
+        MENUITEM "&РћРїРёСЃР°РЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°",         ID_VIEW_DESC
+        MENUITEM "&Р”РёР·Р°Р№РЅ",                     ID_VIEW_BODY
+        MENUITEM "&РљРѕРґ",                        ID_VIEW_SOURCE
         MENUITEM SEPARATOR
-        MENUITEM "&Ускоренный режим",           ID_VIEW_FASTMODE
+        MENUITEM "&РЈСЃРєРѕСЂРµРЅРЅС‹Р№ СЂРµР¶РёРј",           ID_VIEW_FASTMODE
     END
-    POPUP "В&ставка"
+    POPUP "Р’&СЃС‚Р°РІРєР°"
     BEGIN
-        MENUITEM "&Тело",                       ID_EDIT_ADD_BODY
-        MENUITEM "&Заголовок",                  ID_EDIT_ADD_TITLE
-        MENUITEM "&Эпиграф",                    ID_EDIT_ADD_EPIGRAPH
-        MENUITEM "&Аннотация",                  ID_EDIT_ADD_ANN
+        MENUITEM "&РўРµР»Рѕ",                       ID_EDIT_ADD_BODY
+        MENUITEM "&Р—Р°РіРѕР»РѕРІРѕРє",                  ID_EDIT_ADD_TITLE
+        MENUITEM "&Р­РїРёРіСЂР°С„",                    ID_EDIT_ADD_EPIGRAPH
+        MENUITEM "&РђРЅРЅРѕС‚Р°С†РёСЏ",                  ID_EDIT_ADD_ANN
         MENUITEM SEPARATOR
-        MENUITEM "А&втор",                      ID_EDIT_ADD_TA
-        MENUITEM "&Рисунок",                    ID_EDIT_INS_IMAGE
-        MENUITEM "Рисунок в т&екст",            ID_EDIT_INS_INLINEIMAGE
-        MENUITEM "&Стихи",                      ID_EDIT_INS_POEM
-        MENUITEM "&Цитата",                     ID_EDIT_INS_CITE
-        MENUITEM "Та&блица",                    ID_INSERT_TABLE
-        MENUITEM "Р&исунок секции",             ID_EDIT_ADD_IMAGE
+        MENUITEM "Рђ&РІС‚РѕСЂ",                      ID_EDIT_ADD_TA
+        MENUITEM "&Р РёСЃСѓРЅРѕРє",                    ID_EDIT_INS_IMAGE
+        MENUITEM "Р РёСЃСѓРЅРѕРє РІ С‚&РµРєСЃС‚",            ID_EDIT_INS_INLINEIMAGE
+        MENUITEM "&РЎС‚РёС…Рё",                      ID_EDIT_INS_POEM
+        MENUITEM "&Р¦РёС‚Р°С‚Р°",                     ID_EDIT_INS_CITE
+        MENUITEM "РўР°&Р±Р»РёС†Р°",                    ID_INSERT_TABLE
+        MENUITEM "Р &РёСЃСѓРЅРѕРє СЃРµРєС†РёРё",             ID_EDIT_ADD_IMAGE
         MENUITEM SEPARATOR
-        MENUITEM "&Прикрепить",                 ID_EDIT_ADDBINARY
+        MENUITEM "&РџСЂРёРєСЂРµРїРёС‚СЊ",                 ID_EDIT_ADDBINARY
     END
-    POPUP "С&тиль"
+    POPUP "РЎ&С‚РёР»СЊ"
     BEGIN
-        MENUITEM "&Обычный",                    ID_STYLE_NORMAL
-        MENUITEM "&Автор",                      ID_STYLE_TEXTAUTHOR
-        MENUITEM "&Подзаголовок",               ID_STYLE_SUBTITLE
+        MENUITEM "&РћР±С‹С‡РЅС‹Р№",                    ID_STYLE_NORMAL
+        MENUITEM "&РђРІС‚РѕСЂ",                      ID_STYLE_TEXTAUTHOR
+        MENUITEM "&РџРѕРґР·Р°РіРѕР»РѕРІРѕРє",               ID_STYLE_SUBTITLE
         MENUITEM SEPARATOR
-        MENUITEM "&Ссылка...",                  ID_STYLE_LINK
-        MENUITEM "С&носка...",                  ID_STYLE_NOTE
-        MENUITEM "&Удалить ссылку",             ID_STYLE_NOLINK
+        MENUITEM "&РЎСЃС‹Р»РєР°...",                  ID_STYLE_LINK
+        MENUITEM "РЎ&РЅРѕСЃРєР°...",                  ID_STYLE_NOTE
+        MENUITEM "&РЈРґР°Р»РёС‚СЊ СЃСЃС‹Р»РєСѓ",             ID_STYLE_NOLINK
     END
-    POPUP "Се&рвис"
+    POPUP "РЎРµ&СЂРІРёСЃ"
     BEGIN
-        MENUITEM "&Слова...",                   ID_TOOLS_WORDS
-        MENUITEM "&Настройки...",               ID_VIEW_OPTIONS
+        MENUITEM "&РЎР»РѕРІР°...",                   ID_TOOLS_WORDS
+        MENUITEM "&РќР°СЃС‚СЂРѕР№РєРё...",               ID_VIEW_OPTIONS
         MENUITEM SEPARATOR
-        MENUITEM "Орфография...",               ID_TOOLS_SPELLCHECK
+        MENUITEM "РћСЂС„РѕРіСЂР°С„РёСЏ...",               ID_TOOLS_SPELLCHECK
     END
-    POPUP "С&крипты"
+    POPUP "РЎ&РєСЂРёРїС‚С‹"
     BEGIN
-        MENUITEM "Пусто",                       IDCANCEL, INACTIVE
+        MENUITEM "РџСѓСЃС‚Рѕ",                       IDCANCEL, INACTIVE
     END
-    POPUP "Спр&авка"
+    POPUP "РЎРїСЂ&Р°РІРєР°"
     BEGIN
-        MENUITEM "&Помощь",                     ID_HELP
+        MENUITEM "&РџРѕРјРѕС‰СЊ",                     ID_HELP
         MENUITEM SEPARATOR
-        MENUITEM "&О программе...",             ID_APP_ABOUT
+        MENUITEM "&Рћ РїСЂРѕРіСЂР°РјРјРµ...",             ID_APP_ABOUT
     END
 END
 
@@ -137,14 +137,14 @@ IDR_DOCUMENT_TREE MENU
 BEGIN
     POPUP "DT"
     BEGIN
-        MENUITEM "&Перейти к элементу",         ID_DT_VIEW
-        MENUITEM "П&ерейти к коду",             ID_DT_VIEWSOURCE
+        MENUITEM "&РџРµСЂРµР№С‚Рё Рє СЌР»РµРјРµРЅС‚Сѓ",         ID_DT_VIEW
+        MENUITEM "Рџ&РµСЂРµР№С‚Рё Рє РєРѕРґСѓ",             ID_DT_VIEWSOURCE
         MENUITEM SEPARATOR
-        MENUITEM "Сдвинуть вправо",             ID_DT_RIGHT_ONE
-        MENUITEM "Сделать дочерним элементом",  ID_DT_RIGHT_SMART
-        MENUITEM "Сдвинуть влево",              ID_DT_LEFT
+        MENUITEM "РЎРґРІРёРЅСѓС‚СЊ РІРїСЂР°РІРѕ",             ID_DT_RIGHT_ONE
+        MENUITEM "РЎРґРµР»Р°С‚СЊ РґРѕС‡РµСЂРЅРёРј СЌР»РµРјРµРЅС‚РѕРј",  ID_DT_RIGHT_SMART
+        MENUITEM "РЎРґРІРёРЅСѓС‚СЊ РІР»РµРІРѕ",              ID_DT_LEFT
         MENUITEM SEPARATOR
-        MENUITEM "Удалить",                     ID_DT_DELETE
+        MENUITEM "РЈРґР°Р»РёС‚СЊ",                     ID_DT_DELETE
     END
 END
 
@@ -152,7 +152,7 @@ IDR_TOOLBAR_MENU MENU
 BEGIN
     POPUP "CUSTOMIZE"
     BEGIN
-        MENUITEM "Настройка панели...",         ID_TOOLS_CUSTOMIZE
+        MENUITEM "РќР°СЃС‚СЂРѕР№РєР° РїР°РЅРµР»Рё...",         ID_TOOLS_CUSTOMIZE
     END
 END
 
@@ -197,46 +197,46 @@ IDD_SETTING_OTHER DIALOGEX 0, 0, 231, 226
 STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
 FONT 9, "Tahoma", 400, 0, 0xCC
 BEGIN
-    GROUPBOX        "Опции сохранения",IDC_STATIC,6,11,124,46
-    LTEXT           "Кодировка:",IDC_STATIC,11,23,60,9
-    CONTROL         "Сохранять оригинальную кодировку",IDC_KEEP,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,37,110,18
+    GROUPBOX        "РћРїС†РёРё СЃРѕС…СЂР°РЅРµРЅРёСЏ",IDC_STATIC,6,11,124,46
+    LTEXT           "РљРѕРґРёСЂРѕРІРєР°:",IDC_STATIC,11,23,60,9
+    CONTROL         "РЎРѕС…СЂР°РЅСЏС‚СЊ РѕСЂРёРіРёРЅР°Р»СЊРЅСѓСЋ РєРѕРґРёСЂРѕРІРєСѓ",IDC_KEEP,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,37,110,18
     COMBOBOX        IDC_DEFAULT_ENC,57,21,69,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Опции открытия",IDC_STATIC,134,11,85,47
-    CONTROL         "Восстанавливать позицию курсора",IDC_RESTORE_POS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,144,25,69,24
-    GROUPBOX        "Папка скриптов",IDC_STATIC,6,60,213,42
-    CONTROL         "Папка по-умолчанию",IDC_DEFAULT_SCRIPTS_FOLDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,70,80,10
+    GROUPBOX        "РћРїС†РёРё РѕС‚РєСЂС‹С‚РёСЏ",IDC_STATIC,134,11,85,47
+    CONTROL         "Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР°",IDC_RESTORE_POS,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,144,25,69,24
+    GROUPBOX        "РџР°РїРєР° СЃРєСЂРёРїС‚РѕРІ",IDC_STATIC,6,60,213,42
+    CONTROL         "РџР°РїРєР° РїРѕ-СѓРјРѕР»С‡Р°РЅРёСЋ",IDC_DEFAULT_SCRIPTS_FOLDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,70,80,10
     EDITTEXT        IDC_SCRIPTS_FOLDER_PATH,10,82,170,13,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_SELECT_SCRIPTS_FOLDER_BUTTON,194,82,17,13
-    GROUPBOX        "Диалоги",IDC_STATIC,6,104,116,33
-    CONTROL         "Спрашивать о вставке непустого изображения",IDC_SETTINGS_ASKIMAGE,
+    GROUPBOX        "Р”РёР°Р»РѕРіРё",IDC_STATIC,6,104,116,33
+    CONTROL         "РЎРїСЂР°С€РёРІР°С‚СЊ Рѕ РІСЃС‚Р°РІРєРµ РЅРµРїСѓСЃС‚РѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ",IDC_SETTINGS_ASKIMAGE,
                     "Button",BS_AUTOCHECKBOX | BS_VCENTER | BS_MULTILINE | WS_TABSTOP,15,115,99,17
-    GROUPBOX        "Изображения",IDC_STATIC,126,104,93,33
-    CONTROL         "Вставлять пустые изображения",IDC_OPTIONS_CLEARIMGS,
+    GROUPBOX        "РР·РѕР±СЂР°Р¶РµРЅРёСЏ",IDC_STATIC,126,104,93,33
+    CONTROL         "Р’СЃС‚Р°РІР»СЏС‚СЊ РїСѓСЃС‚С‹Рµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ",IDC_OPTIONS_CLEARIMGS,
                     "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,133,116,76,16
-    GROUPBOX        "Неразрывные пробелы",IDC_STATIC,6,173,84,44
-    LTEXT           "Использовать символ:",IDC_STATIC,12,190,47,19
+    GROUPBOX        "РќРµСЂР°Р·СЂС‹РІРЅС‹Рµ РїСЂРѕР±РµР»С‹",IDC_STATIC,6,173,84,44
+    LTEXT           "РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃРёРјРІРѕР»:",IDC_STATIC,12,190,47,19
     COMBOBOX        IDC_NBSP_CHAR,59,193,27,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Раскладка клавиатуры",IDC_STATIC,94,173,125,44
-    CONTROL         "Менять при старте",IDC_CHANGE_KEYB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,185,76,8
-    GROUPBOX        "Вставлять изображения, как",IDC_STATIC,6,139,213,32
-    LTEXT           "Формат:",IDC_STATIC,14,154,28,8
+    GROUPBOX        "Р Р°СЃРєР»Р°РґРєР° РєР»Р°РІРёР°С‚СѓСЂС‹",IDC_STATIC,94,173,125,44
+    CONTROL         "РњРµРЅСЏС‚СЊ РїСЂРё СЃС‚Р°СЂС‚Рµ",IDC_CHANGE_KEYB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,185,76,8
+    GROUPBOX        "Р’СЃС‚Р°РІР»СЏС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, РєР°Рє",IDC_STATIC,6,139,213,32
+    LTEXT           "Р¤РѕСЂРјР°С‚:",IDC_STATIC,14,154,28,8
     COMBOBOX        IDC_IMAGETYPE,59,152,40,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_JPEGQUALITY,180,151,26,13,ES_AUTOHSCROLL | ES_NUMBER
     CONTROL         "",IDC_JPEGSPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,205,151,7,14
-    LTEXT           "Качество JPEG:",IDC_STATIC,119,154,51,8
+    LTEXT           "РљР°С‡РµСЃС‚РІРѕ JPEG:",IDC_STATIC,119,154,51,8
     COMBOBOX        IDC_KEYB_LAYOUT,141,198,73,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Менять на:",IDC_STATIC,101,200,37,8
+    LTEXT           "РњРµРЅСЏС‚СЊ РЅР°:",IDC_STATIC,101,200,37,8
 END
 
 IDD_TABLE DIALOGEX 0, 0, 260, 46
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Параметры таблицы"
+CAPTION "РџР°СЂР°РјРµС‚СЂС‹ С‚Р°Р±Р»РёС†С‹"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,203,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,203,24,50,14
-    LTEXT           "Число строк таблицы <tr><td></td></tr>:",IDC_STATIC,7,22,150,8
-    CONTROL         "Вставить строку заголовков <tr><th></th></tr>",IDC_CHECK_TABLE_TITLE,
+    LTEXT           "Р§РёСЃР»Рѕ СЃС‚СЂРѕРє С‚Р°Р±Р»РёС†С‹ <tr><td></td></tr>:",IDC_STATIC,7,22,150,8
+    CONTROL         "Р’СЃС‚Р°РІРёС‚СЊ СЃС‚СЂРѕРєСѓ Р·Р°РіРѕР»РѕРІРєРѕРІ <tr><th></th></tr>",IDC_CHECK_TABLE_TITLE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,187,10
     EDITTEXT        IDC_EDIT_TABLE_ROWS,157,19,35,14,ES_AUTOHSCROLL | ES_NUMBER
     CONTROL         "",IDC_SPIN_TABLE_ROWS,"msctls_updown32",UDS_WRAP | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,192,19,11,14
@@ -245,17 +245,17 @@ END
 IDD_TOOLS_SETTINGS DIALOGEX 0, 0, 266, 282
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "Настройки"
+CAPTION "РќР°СЃС‚СЂРѕР№РєРё"
 FONT 8, "Microsoft Sans Serif", 400, 0, 0xCC
 BEGIN
     CONTROL         "",IDC_TAB_CTRL,"SysTabControl32",0x0,0,0,266,257
     PUSHBUTTON      "OK",IDOK,142,259,55,15
-    PUSHBUTTON      "Отмена",IDCANCEL,205,259,55,15
+    PUSHBUTTON      "РћС‚РјРµРЅР°",IDCANCEL,205,259,55,15
 END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 308, 151
 STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
-CAPTION "О программе"
+CAPTION "Рћ РїСЂРѕРіСЂР°РјРјРµ"
 FONT 9, "Tahoma", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,257,133,44,14
@@ -263,117 +263,117 @@ BEGIN
     CONTROL         "",IDC_AB_BANNER,"Static",SS_OWNERDRAW | SS_NOTIFY | NOT WS_VISIBLE,6,6,57,123,WS_EX_CLIENTEDGE
     ICON            IDR_MAINFRAME,IDC_STATIC_AB_APPICON,73,8,20,20
     EDITTEXT        IDC_STATIC_AB_APPNAMEVER,99,8,199,12,ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
-    LTEXT           "Сборка",IDC_STATIC_BUILD,101,20,28,8
+    LTEXT           "РЎР±РѕСЂРєР°",IDC_STATIC_BUILD,101,20,28,8
     EDITTEXT        IDC_BUILDSTAMP,130,20,154,12,ES_READONLY | NOT WS_BORDER | NOT WS_TABSTOP
     CONTROL         "<a href=""http://code.google.com/p/fictionbookeditor/"">http://code.google.com/p/fictionbookeditor/</a>",IDC_SYSLINK_AB_LINKS,
                     "SysLink",0x0,101,32,196,8
     EDITTEXT        IDC_CONTRIBS,70,51,231,77,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | ES_WANTRETURN | NOT WS_BORDER | WS_VSCROLL | NOT WS_TABSTOP,WS_EX_STATICEDGE
     CONTROL         "Static",IDC_TEXT_STATUS,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,24,137,222,8
     CONTROL         400,IDC_PIC_UPDATE,"Static",SS_BITMAP,9,136,9,9
-    PUSHBUTTON      "Обновить",IDC_UPDATE,203,133,49,14,NOT WS_VISIBLE
+    PUSHBUTTON      "РћР±РЅРѕРІРёС‚СЊ",IDC_UPDATE,203,133,49,14,NOT WS_VISIBLE
 END
 
 IDD_INPUTBOX DIALOGEX 0, 0, 290, 70
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Ввод"
+CAPTION "Р’РІРѕРґ"
 FONT 9, "Tahoma", 0, 0, 0x0
 BEGIN
-    LTEXT           "Текст:",IDC_PROMPT,7,7,273,18
+    LTEXT           "РўРµРєСЃС‚:",IDC_PROMPT,7,7,273,18
     EDITTEXT        IDC_INPUT,7,31,273,12,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "&Да",IDYES,155,49,39,14
-    PUSHBUTTON      "&Нет",IDNO,198,49,39,14
-    PUSHBUTTON      "&Отмена",IDCANCEL,241,49,39,14
+    DEFPUSHBUTTON   "&Р”Р°",IDYES,155,49,39,14
+    PUSHBUTTON      "&РќРµС‚",IDNO,198,49,39,14
+    PUSHBUTTON      "&РћС‚РјРµРЅР°",IDCANCEL,241,49,39,14
 END
 
 IDD_OPTIONS DIALOGEX 0, 0, 226, 233
 STYLE DS_SETFONT | WS_CHILD | WS_SYSMENU
 FONT 9, "Tahoma", 0, 0, 0x0
 BEGIN
-    LTEXT           "Цвет текста:",IDC_STATIC,13,66,42,8
+    LTEXT           "Р¦РІРµС‚ С‚РµРєСЃС‚Р°:",IDC_STATIC,13,66,42,8
     PUSHBUTTON      "",IDC_FG,57,64,20,12
-    LTEXT           "Цвет фона:",IDC_STATIC,82,66,37,8
-    LTEXT           "Шрифт:",IDC_STATIC,13,49,42,8
+    LTEXT           "Р¦РІРµС‚ С„РѕРЅР°:",IDC_STATIC,82,66,37,8
+    LTEXT           "РЁСЂРёС„С‚:",IDC_STATIC,13,49,42,8
     COMBOBOX        IDC_FONT,48,47,164,70,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Размер шрифта:",IDC_STATIC,121,21,53,8
+    LTEXT           "Р Р°Р·РјРµСЂ С€СЂРёС„С‚Р°:",IDC_STATIC,121,21,53,8
     COMBOBOX        IDC_FONT_SIZE,179,18,33,70,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Общее",IDC_STATIC,7,9,211,28
-    GROUPBOX        "Тело",IDC_STATIC,7,37,211,45
-    GROUPBOX        "Редактор кода",IDC_STATIC,7,82,211,84
-    CONTROL         "Перенос строк",IDC_WRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,116,63,10
-    CONTROL         "Подсветка синтаксиса",IDC_SYNTAXHL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,132,84,10
-    CONTROL         "Показывать символы конца строк",IDC_SHOWEOL,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,145,96,17
-    CONTROL         "Быстрый режим",IDC_FAST_MODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,66,62,10
-    LTEXT           "Язык:",IDC_STATIC,14,21,24,8
+    GROUPBOX        "РћР±С‰РµРµ",IDC_STATIC,7,9,211,28
+    GROUPBOX        "РўРµР»Рѕ",IDC_STATIC,7,37,211,45
+    GROUPBOX        "Р РµРґР°РєС‚РѕСЂ РєРѕРґР°",IDC_STATIC,7,82,211,84
+    CONTROL         "РџРµСЂРµРЅРѕСЃ СЃС‚СЂРѕРє",IDC_WRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,116,63,10
+    CONTROL         "РџРѕРґСЃРІРµС‚РєР° СЃРёРЅС‚Р°РєСЃРёСЃР°",IDC_SYNTAXHL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,132,84,10
+    CONTROL         "РџРѕРєР°Р·С‹РІР°С‚СЊ СЃРёРјРІРѕР»С‹ РєРѕРЅС†Р° СЃС‚СЂРѕРє",IDC_SHOWEOL,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,145,96,17
+    CONTROL         "Р‘С‹СЃС‚СЂС‹Р№ СЂРµР¶РёРј",IDC_FAST_MODE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,66,62,10
+    LTEXT           "РЇР·С‹Рє:",IDC_STATIC,14,21,24,8
     COMBOBOX        IDC_LANG,49,18,67,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Проверка орфографии",IDC_STATIC,7,168,211,53
-    CONTROL         "Выделять ошибки",IDC_BACKGROUNDSPELLCHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,124,183,77,10
-    CONTROL         "Проверять орфографию",IDC_USESPELLCHECKER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,180,98,14
+    GROUPBOX        "РџСЂРѕРІРµСЂРєР° РѕСЂС„РѕРіСЂР°С„РёРё",IDC_STATIC,7,168,211,53
+    CONTROL         "Р’С‹РґРµР»СЏС‚СЊ РѕС€РёР±РєРё",IDC_BACKGROUNDSPELLCHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,124,183,77,10
+    CONTROL         "РџСЂРѕРІРµСЂСЏС‚СЊ РѕСЂС„РѕРіСЂР°С„РёСЋ",IDC_USESPELLCHECKER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,180,98,14
     EDITTEXT        IDC_CUSTOM_DICT,83,201,115,12,ES_AUTOHSCROLL
-    LTEXT           "Пользовательский словарь:",IDS_SPELL_CUSTOM_DICT,15,198,61,15
+    LTEXT           "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ СЃР»РѕРІР°СЂСЊ:",IDS_SPELL_CUSTOM_DICT,15,198,61,15
     PUSHBUTTON      "..",IDC_DICTPATH,201,201,12,12
     PUSHBUTTON      "",IDC_BG,122,64,20,12
-    CONTROL         "Показывать номера строк",IDC_SHOWLINENUMBERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,113,132,95,11
-    CONTROL         "Подсветка парных тегов",IDC_TAGHL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,113,147,93,11
-    LTEXT           "Шрифт:",IDC_STATIC,13,99,42,8
+    CONTROL         "РџРѕРєР°Р·С‹РІР°С‚СЊ РЅРѕРјРµСЂР° СЃС‚СЂРѕРє",IDC_SHOWLINENUMBERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,113,132,95,11
+    CONTROL         "РџРѕРґСЃРІРµС‚РєР° РїР°СЂРЅС‹С… С‚РµРіРѕРІ",IDC_TAGHL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,113,147,93,11
+    LTEXT           "РЁСЂРёС„С‚:",IDC_STATIC,13,99,42,8
     COMBOBOX        IDC_SRCFONT,48,97,164,70,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Показывать пробелы",IDC_SHOWWHITESPACE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,113,116,82,11
+    CONTROL         "РџРѕРєР°Р·С‹РІР°С‚СЊ РїСЂРѕР±РµР»С‹",IDC_SHOWWHITESPACE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,113,116,82,11
 END
 
 IDD_REPLACE DIALOGEX 0, 0, 295, 87
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-CAPTION "Заменить"
+CAPTION "Р—Р°РјРµРЅРёС‚СЊ"
 FONT 9, "Tahoma", 0, 0, 0x0
 BEGIN
-    LTEXT           "Найти:",IDC_STATIC,7,9,45,8,NOT WS_GROUP
-    LTEXT           "Заменить:",IDC_STATIC,7,25,45,8,NOT WS_GROUP
+    LTEXT           "РќР°Р№С‚Рё:",IDC_STATIC,7,9,45,8,NOT WS_GROUP
+    LTEXT           "Р—Р°РјРµРЅРёС‚СЊ:",IDC_STATIC,7,25,45,8,NOT WS_GROUP
     COMBOBOX        IDC_TEXT,53,7,179,62,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_REPLACE,53,23,179,62,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "&Только слова целиком",IDC_WHOLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,41,98,13
-    CONTROL         "&Учитывать регистр",IDC_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,54,98,13
-    CONTROL         "&Регулярное выражение",IDC_REGEXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,67,98,13
-    GROUPBOX        "Направление",IDC_STATIC,171,40,60,38,WS_GROUP
-    CONTROL         "&Вверх",IDC_UP,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,178,51,44,11
-    CONTROL         "В&низ",IDC_DOWN,"Button",BS_AUTORADIOBUTTON,178,62,44,11
-    DEFPUSHBUTTON   "&Искать далее",ID_FIND_NEXT,238,7,50,14,WS_GROUP
-    PUSHBUTTON      "&Заменить",IDC_REPLACE_ONE,238,25,50,14
-    PUSHBUTTON      "Заменить &все",IDC_REPLACE_ALL,238,43,50,14
-    PUSHBUTTON      "Отмена",IDCANCEL,238,61,50,14
+    CONTROL         "&РўРѕР»СЊРєРѕ СЃР»РѕРІР° С†РµР»РёРєРѕРј",IDC_WHOLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,41,98,13
+    CONTROL         "&РЈС‡РёС‚С‹РІР°С‚СЊ СЂРµРіРёСЃС‚СЂ",IDC_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,54,98,13
+    CONTROL         "&Р РµРіСѓР»СЏСЂРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ",IDC_REGEXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,67,98,13
+    GROUPBOX        "РќР°РїСЂР°РІР»РµРЅРёРµ",IDC_STATIC,171,40,60,38,WS_GROUP
+    CONTROL         "&Р’РІРµСЂС…",IDC_UP,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,178,51,44,11
+    CONTROL         "Р’&РЅРёР·",IDC_DOWN,"Button",BS_AUTORADIOBUTTON,178,62,44,11
+    DEFPUSHBUTTON   "&РСЃРєР°С‚СЊ РґР°Р»РµРµ",ID_FIND_NEXT,238,7,50,14,WS_GROUP
+    PUSHBUTTON      "&Р—Р°РјРµРЅРёС‚СЊ",IDC_REPLACE_ONE,238,25,50,14
+    PUSHBUTTON      "Р—Р°РјРµРЅРёС‚СЊ &РІСЃРµ",IDC_REPLACE_ALL,238,43,50,14
+    PUSHBUTTON      "РћС‚РјРµРЅР°",IDCANCEL,238,61,50,14
 END
 
 IDD_FIND DIALOGEX 0, 0, 295, 76
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
-CAPTION "Поиск"
+CAPTION "РџРѕРёСЃРє"
 FONT 9, "Tahoma", 0, 0, 0x0
 BEGIN
-    LTEXT           "Что искать:",IDC_STATIC,7,9,40,8
+    LTEXT           "Р§С‚Рѕ РёСЃРєР°С‚СЊ:",IDC_STATIC,7,9,40,8
     COMBOBOX        IDC_TEXT,49,7,183,62,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_GROUP | WS_TABSTOP
-    DEFPUSHBUTTON   "&Искать далее",ID_FIND_NEXT,238,7,50,14,WS_GROUP
-    CONTROL         "&Только целые слова",IDC_WHOLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,30,98,13
-    CONTROL         "&Учитывать регистр",IDC_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,43,98,13
-    CONTROL         "&Регулярное выражение",IDC_REGEXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,56,98,13
-    GROUPBOX        "Направление",IDC_STATIC,172,30,60,38,WS_GROUP
-    CONTROL         "&Вверх",IDC_UP,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,179,41,44,11
-    CONTROL         "В&низ",IDC_DOWN,"Button",BS_AUTORADIOBUTTON,179,52,44,11
-    PUSHBUTTON      "Отмена",IDCANCEL,238,24,50,14
+    DEFPUSHBUTTON   "&РСЃРєР°С‚СЊ РґР°Р»РµРµ",ID_FIND_NEXT,238,7,50,14,WS_GROUP
+    CONTROL         "&РўРѕР»СЊРєРѕ С†РµР»С‹Рµ СЃР»РѕРІР°",IDC_WHOLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,30,98,13
+    CONTROL         "&РЈС‡РёС‚С‹РІР°С‚СЊ СЂРµРіРёСЃС‚СЂ",IDC_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,43,98,13
+    CONTROL         "&Р РµРіСѓР»СЏСЂРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ",IDC_REGEXP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,56,98,13
+    GROUPBOX        "РќР°РїСЂР°РІР»РµРЅРёРµ",IDC_STATIC,172,30,60,38,WS_GROUP
+    CONTROL         "&Р’РІРµСЂС…",IDC_UP,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,179,41,44,11
+    CONTROL         "Р’&РЅРёР·",IDC_DOWN,"Button",BS_AUTORADIOBUTTON,179,52,44,11
+    PUSHBUTTON      "РћС‚РјРµРЅР°",IDCANCEL,238,24,50,14
 END
 
 IDD_CUSTOMSAVEDLG DIALOGEX 0, 0, 415, 18
 STYLE DS_SETFONT | DS_3DLOOK | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "Tahoma", 0, 0, 0x0
 BEGIN
-    LTEXT           "Кодировка:",IDC_STATIC,68,2,41,10
+    LTEXT           "РљРѕРґРёСЂРѕРІРєР°:",IDC_STATIC,68,2,41,10
     COMBOBOX        IDC_ENCODING,130,0,164,104,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_ADDIMAGE DIALOGEX 0, 0, 147, 66
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
-CAPTION "Сделайте выбор"
+CAPTION "РЎРґРµР»Р°Р№С‚Рµ РІС‹Р±РѕСЂ"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Да",IDYES,21,31,49,14
-    PUSHBUTTON      "Нет",IDCANCEL,77,31,49,14
-    CONTROL         "Больше не спрашивать",IDC_ADDIMAGE_ASKAGAIN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,28,53,91,10
-    LTEXT           "Вставить пустое изображение?",IDS_ADD_CLEARIMG_TEXT,29,11,110,10
+    DEFPUSHBUTTON   "Р”Р°",IDYES,21,31,49,14
+    PUSHBUTTON      "РќРµС‚",IDCANCEL,77,31,49,14
+    CONTROL         "Р‘РѕР»СЊС€Рµ РЅРµ СЃРїСЂР°С€РёРІР°С‚СЊ",IDC_ADDIMAGE_ASKAGAIN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,28,53,91,10
+    LTEXT           "Р’СЃС‚Р°РІРёС‚СЊ РїСѓСЃС‚РѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ?",IDS_ADD_CLEARIMG_TEXT,29,11,110,10
     ICON            IDR_MAINFRAME,IDC_ADDIMAGE_ICON,3,6,20,20
 END
 
@@ -383,17 +383,17 @@ FONT 9, "Tahoma", 400, 0, 0xCC
 BEGIN
     LISTBOX         IDC_LIST_HOTKEYS_GROUPS,7,21,70,88,LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_VSCROLL | WS_TABSTOP,WS_EX_STATICEDGE
     LISTBOX         IDC_LIST_HOTKEYS,83,21,132,88,LBS_NOINTEGRALHEIGHT | NOT WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,WS_EX_STATICEDGE
-    GROUPBOX        "Описание",IDC_STATIC_HOTKEY_DESCRIPTION,7,180,208,33,WS_TABSTOP
+    GROUPBOX        "РћРїРёСЃР°РЅРёРµ",IDC_STATIC_HOTKEY_DESCRIPTION,7,180,208,33,WS_TABSTOP
     EDITTEXT        IDC_EDIT_HOTKEY,41,121,94,14,ES_MULTILINE | ES_AUTOHSCROLL
-    LTEXT           "Группы:",IDC_STATIC_HOTKEYS_GROUPS,9,11,27,8,WS_TABSTOP
-    LTEXT           "Команды:",IDC_STATIC_HOTKEYS,85,11,32,8,WS_TABSTOP
-    LTEXT           "Клавиши:",IDC_STATIC,10,124,31,8,WS_TABSTOP
-    PUSHBUTTON      "По умолчанию",IDC_BUTTON_DEFAULT,151,125,55,14
+    LTEXT           "Р“СЂСѓРїРїС‹:",IDC_STATIC_HOTKEYS_GROUPS,9,11,27,8,WS_TABSTOP
+    LTEXT           "РљРѕРјР°РЅРґС‹:",IDC_STATIC_HOTKEYS,85,11,32,8,WS_TABSTOP
+    LTEXT           "РљР»Р°РІРёС€Рё:",IDC_STATIC,10,124,31,8,WS_TABSTOP
+    PUSHBUTTON      "РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ",IDC_BUTTON_DEFAULT,151,125,55,14
     EDITTEXT        IDC_EDIT_HOTKEY_DESCRIPTION,9,189,202,22,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL
-    PUSHBUTTON      "Удалить",IDC_BUTTON_HOTKEY_DELETE,151,143,54,14
-    GROUPBOX        "Действия",IDC_STATIC,143,114,72,65
-    GROUPBOX        "Присвоено",IDC_STATIC_HOTKEY_COLLISION,7,138,129,41
-    PUSHBUTTON      "Присвоить",IDC_BUTTON_HOTKEY_ASSIGN,151,161,54,14,WS_DISABLED
+    PUSHBUTTON      "РЈРґР°Р»РёС‚СЊ",IDC_BUTTON_HOTKEY_DELETE,151,143,54,14
+    GROUPBOX        "Р”РµР№СЃС‚РІРёСЏ",IDC_STATIC,143,114,72,65
+    GROUPBOX        "РџСЂРёСЃРІРѕРµРЅРѕ",IDC_STATIC_HOTKEY_COLLISION,7,138,129,41
+    PUSHBUTTON      "РџСЂРёСЃРІРѕРёС‚СЊ",IDC_BUTTON_HOTKEY_ASSIGN,151,161,54,14,WS_DISABLED
     EDITTEXT        IDC_EDIT_HOTKEY_COLLISION,14,150,115,24,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL
 END
 
@@ -402,65 +402,65 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT_NEW,22,164,145,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Добавить",IDC_BUTTON_ADD,176,164,50,14
-    GROUPBOX        "Список слов-исключений",IDC_STATIC_WORDS_CHEVRON,7,8,245,179
+    PUSHBUTTON      "Р”РѕР±Р°РІРёС‚СЊ",IDC_BUTTON_ADD,176,164,50,14
+    GROUPBOX        "РЎРїРёСЃРѕРє СЃР»РѕРІ-РёСЃРєР»СЋС‡РµРЅРёР№",IDC_STATIC_WORDS_CHEVRON,7,8,245,179
     CONTROL         "",IDC_LIST_WORDS,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,22,25,222,108,WS_EX_CLIENTEDGE
-    CONTROL         "Показывать слова-исключения в диалоге ""Слова""",IDC_CHECK_SHOW_EXCLUSIONS,
+    CONTROL         "РџРѕРєР°Р·С‹РІР°С‚СЊ СЃР»РѕРІР°-РёСЃРєР»СЋС‡РµРЅРёСЏ РІ РґРёР°Р»РѕРіРµ ""РЎР»РѕРІР°""",IDC_CHECK_SHOW_EXCLUSIONS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,194,187,10
-    CONTROL         "Выделить всё",IDC_CHECK_SELALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,146,63,10
-    PUSHBUTTON      "Убрать выделенное",IDC_BUTTON_REMOVESEL,91,143,78,14
+    CONTROL         "Р’С‹РґРµР»РёС‚СЊ РІСЃС‘",IDC_CHECK_SELALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,146,63,10
+    PUSHBUTTON      "РЈР±СЂР°С‚СЊ РІС‹РґРµР»РµРЅРЅРѕРµ",IDC_BUTTON_REMOVESEL,91,143,78,14
     EDITTEXT        IDC_EDIT_LV,196,7,47,14,ES_AUTOHSCROLL | NOT WS_VISIBLE | NOT WS_TABSTOP,WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
-    CONTROL         "Не вести статистику",IDC_CHECK_DISABLE_WORDS_STATS,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,22,210,110,10
-    PUSHBUTTON      "Сбросить статистику",IDC_BUTTON_RESET_WORDS_STATS,150,208,90,14
+    CONTROL         "РќРµ РІРµСЃС‚Рё СЃС‚Р°С‚РёСЃС‚РёРєСѓ",IDC_CHECK_DISABLE_WORDS_STATS,"Button",BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,22,210,110,10
+    PUSHBUTTON      "РЎР±СЂРѕСЃРёС‚СЊ СЃС‚Р°С‚РёСЃС‚РёРєСѓ",IDC_BUTTON_RESET_WORDS_STATS,150,208,90,14
 END
 
 IDD_WORDS DIALOGEX 0, 0, 366, 323
 STYLE DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
-CAPTION "Слова"
+CAPTION "РЎР»РѕРІР°"
 FONT 9, "Tahoma", 0, 0, 0x1
 BEGIN
     CONTROL         "List1",IDC_WLIST,"SysListView32",LVS_REPORT | LVS_OWNERDATA | WS_TABSTOP,7,7,354,208,WS_EX_CLIENTEDGE
     DEFPUSHBUTTON   "OK",IDOK,301,233,40,14
     PUSHBUTTON      "Cancel",IDCANCEL,301,253,40,14
     EDITTEXT        IDC_REDIT,7,270,41,12,NOT WS_VISIBLE | NOT WS_TABSTOP
-    CONTROL         "Показать/скрыть исключения",IDC_CHECK_SHOWHIDE_EXCLS,
+    CONTROL         "РџРѕРєР°Р·Р°С‚СЊ/СЃРєСЂС‹С‚СЊ РёСЃРєР»СЋС‡РµРЅРёСЏ",IDC_CHECK_SHOWHIDE_EXCLS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,223,108,10
-    GROUPBOX        "Обработка",IDC_STATIC,287,220,70,55
-    GROUPBOX        "Выделенные",IDC_STATIC,14,237,250,37
-    PUSHBUTTON      "Обратить",IDC_BUTTON_DESEL,138,251,50,14
-    PUSHBUTTON      "Не заменять",IDC_BUTTON_REMOVEHLREPL,197,251,55,14
-    PUSHBUTTON      "В исключения",IDC_BUTTON_ADDHLTOEXCLS,21,251,51,14
-    PUSHBUTTON      "Выбрать все",IDC_BUTTON_SELALL,133,221,51,14
-    PUSHBUTTON      "В заменяемые",IDC_BUTTON_SETHLREPL,77,251,53,14
-    PUSHBUTTON      "Замена для всех",IDC_BUTTON_SELALLREPL,192,221,61,14
-    GROUPBOX        "Текущее слово",IDC_WORDS_FR_GBOX_CURWORD,14,282,343,34
+    GROUPBOX        "РћР±СЂР°Р±РѕС‚РєР°",IDC_STATIC,287,220,70,55
+    GROUPBOX        "Р’С‹РґРµР»РµРЅРЅС‹Рµ",IDC_STATIC,14,237,250,37
+    PUSHBUTTON      "РћР±СЂР°С‚РёС‚СЊ",IDC_BUTTON_DESEL,138,251,50,14
+    PUSHBUTTON      "РќРµ Р·Р°РјРµРЅСЏС‚СЊ",IDC_BUTTON_REMOVEHLREPL,197,251,55,14
+    PUSHBUTTON      "Р’ РёСЃРєР»СЋС‡РµРЅРёСЏ",IDC_BUTTON_ADDHLTOEXCLS,21,251,51,14
+    PUSHBUTTON      "Р’С‹Р±СЂР°С‚СЊ РІСЃРµ",IDC_BUTTON_SELALL,133,221,51,14
+    PUSHBUTTON      "Р’ Р·Р°РјРµРЅСЏРµРјС‹Рµ",IDC_BUTTON_SETHLREPL,77,251,53,14
+    PUSHBUTTON      "Р—Р°РјРµРЅР° РґР»СЏ РІСЃРµС…",IDC_BUTTON_SELALLREPL,192,221,61,14
+    GROUPBOX        "РўРµРєСѓС‰РµРµ СЃР»РѕРІРѕ",IDC_WORDS_FR_GBOX_CURWORD,14,282,343,34
     EDITTEXT        IDC_WORDS_FR_EDIT_WORD,46,296,67,14,ES_AUTOHSCROLL | ES_READONLY
     EDITTEXT        IDC_WORDS_FR_EDIT_REPL,154,296,67,14,ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Слово:",IDC_WORDS_FR_TEXT_WORD,19,298,26,8
-    LTEXT           "Замена:",IDC_WORDS_FR_TEXT_REPL,124,298,29,8
-    PUSHBUTTON      "Найти",IDC_WORDS_FR_BTN_FIND,245,296,42,14
-    PUSHBUTTON      "Заменить",IDC_WORDS_FR_BTN_REPL,299,296,43,14,WS_DISABLED
+    LTEXT           "РЎР»РѕРІРѕ:",IDC_WORDS_FR_TEXT_WORD,19,298,26,8
+    LTEXT           "Р—Р°РјРµРЅР°:",IDC_WORDS_FR_TEXT_REPL,124,298,29,8
+    PUSHBUTTON      "РќР°Р№С‚Рё",IDC_WORDS_FR_BTN_FIND,245,296,42,14
+    PUSHBUTTON      "Р—Р°РјРµРЅРёС‚СЊ",IDC_WORDS_FR_BTN_REPL,299,296,43,14,WS_DISABLED
 END
 
 IDD_SPELL_CHECK DIALOGEX 0, 0, 273, 135
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Орфография"
+CAPTION "РћСЂС„РѕРіСЂР°С„РёСЏ"
 FONT 8, "Tahoma", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Отмена",IDCANCEL,216,112,50,14
-    LTEXT           "Нет в словаре:",IDC_STATIC,7,14,64,8
+    DEFPUSHBUTTON   "РћС‚РјРµРЅР°",IDCANCEL,216,112,50,14
+    LTEXT           "РќРµС‚ РІ СЃР»РѕРІР°СЂРµ:",IDC_STATIC,7,14,64,8
     EDITTEXT        IDC_SPELL_BEDWORD,72,12,194,12,ES_AUTOHSCROLL
-    LTEXT           "Изменить на:",IDC_STATIC,8,30,46,8
+    LTEXT           "РР·РјРµРЅРёС‚СЊ РЅР°:",IDC_STATIC,8,30,46,8
     EDITTEXT        IDC_SPELL_REPLACEMENT,72,29,194,12,ES_AUTOHSCROLL
-    LTEXT           "Варианты:",IDC_STATIC,7,47,46,8
+    LTEXT           "Р’Р°СЂРёР°РЅС‚С‹:",IDC_STATIC,7,47,46,8
     LISTBOX         IDC_SPELL_SUGG_LIST,7,58,145,68,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Пропустить",IDC_SPELL_IGNORE,159,58,50,14
-    PUSHBUTTON      "Пропуск всех",IDC_SPELL_IGNOREALL,216,58,50,14
-    PUSHBUTTON      "Заменить",IDC_SPELL_CHANGE,159,76,50,14
-    PUSHBUTTON      "Замена всех",IDC_SPELL_CHANGEALL,216,76,50,14
-    PUSHBUTTON      "Добавить",IDC_SPELL_ADD,159,94,50,14
-    PUSHBUTTON      "Вариант",IDC_SPELL_SUGGEST,216,94,50,14,WS_DISABLED
-    PUSHBUTTON      "Вернуть",IDC_SPELL_UNDO,159,112,50,14,WS_DISABLED
+    PUSHBUTTON      "РџСЂРѕРїСѓСЃС‚РёС‚СЊ",IDC_SPELL_IGNORE,159,58,50,14
+    PUSHBUTTON      "РџСЂРѕРїСѓСЃРє РІСЃРµС…",IDC_SPELL_IGNOREALL,216,58,50,14
+    PUSHBUTTON      "Р—Р°РјРµРЅРёС‚СЊ",IDC_SPELL_CHANGE,159,76,50,14
+    PUSHBUTTON      "Р—Р°РјРµРЅР° РІСЃРµС…",IDC_SPELL_CHANGEALL,216,76,50,14
+    PUSHBUTTON      "Р”РѕР±Р°РІРёС‚СЊ",IDC_SPELL_ADD,159,94,50,14
+    PUSHBUTTON      "Р’Р°СЂРёР°РЅС‚",IDC_SPELL_SUGGEST,216,94,50,14,WS_DISABLED
+    PUSHBUTTON      "Р’РµСЂРЅСѓС‚СЊ",IDC_SPELL_UNDO,159,112,50,14,WS_DISABLED
 END
 
 
@@ -729,431 +729,431 @@ IDR_MAINFRAME           ICON                    "res\\FBE2.ico"
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "FBE"
-    IDS_SB_NO_ERR           "Ошибок не обнаружено."
-    IDS_DMS_TI              "Информация о произведении"
-    IDS_LANG_ENGLISH        "Английский"
-    IDS_LANG_RUSSIAN        "Русский"
-    IDS_DMS_GENRE_M         "Соответствие жанру"
-    IDS_DMS_KW              "Ключевые слова"
-    IDS_DMS_AUTHOR          "Ник автора"
-    IDS_DMS_DI              "Информация о документе"
+    IDS_SB_NO_ERR           "РћС€РёР±РѕРє РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ."
+    IDS_DMS_TI              "РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РїСЂРѕРёР·РІРµРґРµРЅРёРё"
+    IDS_LANG_ENGLISH        "РђРЅРіР»РёР№СЃРєРёР№"
+    IDS_LANG_RUSSIAN        "Р СѓСЃСЃРєРёР№"
+    IDS_DMS_GENRE_M         "РЎРѕРѕС‚РІРµС‚СЃС‚РІРёРµ Р¶Р°РЅСЂСѓ"
+    IDS_DMS_KW              "РљР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°"
+    IDS_DMS_AUTHOR          "РќРёРє Р°РІС‚РѕСЂР°"
+    IDS_DMS_DI              "РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РґРѕРєСѓРјРµРЅС‚Рµ"
     IDS_DMS_ID              "ID"
-    IDS_DMS_STI             "Информация о оригинальном тексте"
-    IDS_DMS_CI              "Дополнительная информация"
-    IDS_SETTINGS_VIEW_CAPTION "Вид"
-    IDS_SETTINGS_OTHER_CAPTION "Другое"
+    IDS_DMS_STI             "РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РѕСЂРёРіРёРЅР°Р»СЊРЅРѕРј С‚РµРєСЃС‚Рµ"
+    IDS_DMS_CI              "Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ"
+    IDS_SETTINGS_VIEW_CAPTION "Р’РёРґ"
+    IDS_SETTINGS_OTHER_CAPTION "Р”СЂСѓРіРѕРµ"
     IDS_TB_CAPT_ID          "ID:"
-    IDS_TB_CAPT_HREF        "Ссылка:"
+    IDS_TB_CAPT_HREF        "РЎСЃС‹Р»РєР°:"
 END
 
 STRINGTABLE
 BEGIN
     IDS_MB_OK               "OK"
-    IDS_MB_CANCEL           "Отмена"
-    IDS_MB_ABORT            "П&рервать"
-    IDS_MB_RETRY            "&Повторить"
-    IDS_MB_IGNORE           "&Игнорировать"
-    IDS_MB_YES              "&Да"
-    IDS_MB_NO               "&Нет"
-    IDS_MB_CLOSE            "&Закрыть"
+    IDS_MB_CANCEL           "РћС‚РјРµРЅР°"
+    IDS_MB_ABORT            "Рџ&СЂРµСЂРІР°С‚СЊ"
+    IDS_MB_RETRY            "&РџРѕРІС‚РѕСЂРёС‚СЊ"
+    IDS_MB_IGNORE           "&РРіРЅРѕСЂРёСЂРѕРІР°С‚СЊ"
+    IDS_MB_YES              "&Р”Р°"
+    IDS_MB_NO               "&РќРµС‚"
+    IDS_MB_CLOSE            "&Р—Р°РєСЂС‹С‚СЊ"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_CTXMENU_COPY        "Копировать"
-    IDS_CTXMENU_PASTE       "Вставить"
-    IDS_CTXMENU_SELECT      "Выделить"
-    IDS_CTXMENU_IMG_SAVEAS  "Сохранить изображение как..."
-    IDS_UPDATE_CONNECTING   "Подключаюсь к серверу..."
-    IDS_HOTKEY_WRONG        "Неправильное сочетание!"
+    IDS_CTXMENU_COPY        "РљРѕРїРёСЂРѕРІР°С‚СЊ"
+    IDS_CTXMENU_PASTE       "Р’СЃС‚Р°РІРёС‚СЊ"
+    IDS_CTXMENU_SELECT      "Р’С‹РґРµР»РёС‚СЊ"
+    IDS_CTXMENU_IMG_SAVEAS  "РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РєР°Рє..."
+    IDS_UPDATE_CONNECTING   "РџРѕРґРєР»СЋС‡Р°СЋСЃСЊ Рє СЃРµСЂРІРµСЂСѓ..."
+    IDS_HOTKEY_WRONG        "РќРµРїСЂР°РІРёР»СЊРЅРѕРµ СЃРѕС‡РµС‚Р°РЅРёРµ!"
     IDS_HOTKEY_DEFAULT_COLLISION 
-                            "Сочетание по умолчанию для этой команды было зарезервировано для ""%s""! Заменить?"
-    IDS_HOTKEY_ASSIGN_NO_COLLISION "Не зарезервировано для других команд"
-    IDS_HOTKEY_ASSIGN_COLLISION "Зарезервировано ""%s"""
+                            "РЎРѕС‡РµС‚Р°РЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ СЌС‚РѕР№ РєРѕРјР°РЅРґС‹ Р±С‹Р»Рѕ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ РґР»СЏ ""%s""! Р—Р°РјРµРЅРёС‚СЊ?"
+    IDS_HOTKEY_ASSIGN_NO_COLLISION "РќРµ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ РґР»СЏ РґСЂСѓРіРёС… РєРѕРјР°РЅРґ"
+    IDS_HOTKEY_ASSIGN_COLLISION "Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ ""%s"""
     IDS_SETTINGS_NEED_RESTART 
-                            "Изменения вступят в силу после перезагрузки программы.\nПерезагрузить сейчас?"
-    IDS_DOCTREE_MENU_ELEMENTS "Элементы"
-    IDS_DOCTREE_MENU_SCRIPTS "Скрипты"
-    IDS_HOTKEY_EDIT_REMOVE_OUTER_SECTION "Удалить внешнюю секцию"
-    IDS_HOTKEY_GROUP_TOOLS  "Инструменты"
-    IDS_HOTKEY_TOOLS_WORDS  "Слова"
-    IDS_HOTKEY_GROUP_PLUGINS "Плагины"
+                            "РР·РјРµРЅРµРЅРёСЏ РІСЃС‚СѓРїСЏС‚ РІ СЃРёР»Сѓ РїРѕСЃР»Рµ РїРµСЂРµР·Р°РіСЂСѓР·РєРё РїСЂРѕРіСЂР°РјРјС‹.\nРџРµСЂРµР·Р°РіСЂСѓР·РёС‚СЊ СЃРµР№С‡Р°СЃ?"
+    IDS_DOCTREE_MENU_ELEMENTS "Р­Р»РµРјРµРЅС‚С‹"
+    IDS_DOCTREE_MENU_SCRIPTS "РЎРєСЂРёРїС‚С‹"
+    IDS_HOTKEY_EDIT_REMOVE_OUTER_SECTION "РЈРґР°Р»РёС‚СЊ РІРЅРµС€РЅСЋСЋ СЃРµРєС†РёСЋ"
+    IDS_HOTKEY_GROUP_TOOLS  "РРЅСЃС‚СЂСѓРјРµРЅС‚С‹"
+    IDS_HOTKEY_TOOLS_WORDS  "РЎР»РѕРІР°"
+    IDS_HOTKEY_GROUP_PLUGINS "РџР»Р°РіРёРЅС‹"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_UPDATE_DOWNLOADCOMPLETE "Загрузка завершена, записываю файл..."
-    IDS_UPDATE_DOWNLOADERROR "Ошибка загрузки"
-    IDS_UPDATE_404ERROR     "Ошибка 404 : файл update.xml не найден"
-    IDS_UPDATE_403ERROR     "Ошибка 403 : доступ запрещен"
-    IDS_UPDATE_407ERROR     "Ошибка 407 : требуется аутентификация прокси-сервера"
-    IDS_UPDATE_NOTSUPPORTEDRANGE " ( не поддерживаемая область )"
-    IDS_UPDATE_DOWNLOADERRORSTATUS "Ошибка загрузки, код статуса : %d"
-    IDS_UPDATE_INCORRECTMD5 "Ошибка, не верна контрольная сумма."
-    IDS_UPDATE_NEWVERSIONAVAILABLE "Новая версия FBE доступна для загрузки."
-    IDS_UPDATE_HAVELATESTVERSION "У Вас установлена последняя версия FBE."
-    IDS_ABOUT_LOGOCAPTION   "Анимированное лого FB2 » нажмите клавишу ? для справки"
-    IDS_UPDATE_CLOSE        "FBE должен быть закрыт для продолжения установки.\r\n\r\nВы можете позже удалить инсталляционный файл, находящийся в ""%s"".\r\n\r\nЗакрыть FBE и продолжить инсталляцию новой версии?"
-    IDS_LANG_UKRAINIAN      "Украинский"
-    IDS_UPDATEEXISTS        "Файл обновления %s обнаружен на диске. Желаете запустить этот файл?"
-    IDS_UPDATE_DOWNLOADREADY "Обновление готово."
-    IDS_BAD_XML_MSG         "Был открыт некорректный XML документ.\n\nВы должны исправить все ошибки XML (используйте команды ""Проверить"" и ""Перейти к ошибочному тегу"") перед тем, как переключиться в другой режим редактора."
+    IDS_UPDATE_DOWNLOADCOMPLETE "Р—Р°РіСЂСѓР·РєР° Р·Р°РІРµСЂС€РµРЅР°, Р·Р°РїРёСЃС‹РІР°СЋ С„Р°Р№Р»..."
+    IDS_UPDATE_DOWNLOADERROR "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё"
+    IDS_UPDATE_404ERROR     "РћС€РёР±РєР° 404 : С„Р°Р№Р» update.xml РЅРµ РЅР°Р№РґРµРЅ"
+    IDS_UPDATE_403ERROR     "РћС€РёР±РєР° 403 : РґРѕСЃС‚СѓРї Р·Р°РїСЂРµС‰РµРЅ"
+    IDS_UPDATE_407ERROR     "РћС€РёР±РєР° 407 : С‚СЂРµР±СѓРµС‚СЃСЏ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёСЏ РїСЂРѕРєСЃРё-СЃРµСЂРІРµСЂР°"
+    IDS_UPDATE_NOTSUPPORTEDRANGE " ( РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµРјР°СЏ РѕР±Р»Р°СЃС‚СЊ )"
+    IDS_UPDATE_DOWNLOADERRORSTATUS "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё, РєРѕРґ СЃС‚Р°С‚СѓСЃР° : %d"
+    IDS_UPDATE_INCORRECTMD5 "РћС€РёР±РєР°, РЅРµ РІРµСЂРЅР° РєРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР°."
+    IDS_UPDATE_NEWVERSIONAVAILABLE "РќРѕРІР°СЏ РІРµСЂСЃРёСЏ FBE РґРѕСЃС‚СѓРїРЅР° РґР»СЏ Р·Р°РіСЂСѓР·РєРё."
+    IDS_UPDATE_HAVELATESTVERSION "РЈ Р’Р°СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РїРѕСЃР»РµРґРЅСЏСЏ РІРµСЂСЃРёСЏ FBE."
+    IDS_ABOUT_LOGOCAPTION   "РђРЅРёРјРёСЂРѕРІР°РЅРЅРѕРµ Р»РѕРіРѕ FB2 В» РЅР°Р¶РјРёС‚Рµ РєР»Р°РІРёС€Сѓ ? РґР»СЏ СЃРїСЂР°РІРєРё"
+    IDS_UPDATE_CLOSE        "FBE РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р·Р°РєСЂС‹С‚ РґР»СЏ РїСЂРѕРґРѕР»Р¶РµРЅРёСЏ СѓСЃС‚Р°РЅРѕРІРєРё.\r\n\r\nР’С‹ РјРѕР¶РµС‚Рµ РїРѕР·Р¶Рµ СѓРґР°Р»РёС‚СЊ РёРЅСЃС‚Р°Р»Р»СЏС†РёРѕРЅРЅС‹Р№ С„Р°Р№Р», РЅР°С…РѕРґСЏС‰РёР№СЃСЏ РІ ""%s"".\r\n\r\nР—Р°РєСЂС‹С‚СЊ FBE Рё РїСЂРѕРґРѕР»Р¶РёС‚СЊ РёРЅСЃС‚Р°Р»Р»СЏС†РёСЋ РЅРѕРІРѕР№ РІРµСЂСЃРёРё?"
+    IDS_LANG_UKRAINIAN      "РЈРєСЂР°РёРЅСЃРєРёР№"
+    IDS_UPDATEEXISTS        "Р¤Р°Р№Р» РѕР±РЅРѕРІР»РµРЅРёСЏ %s РѕР±РЅР°СЂСѓР¶РµРЅ РЅР° РґРёСЃРєРµ. Р–РµР»Р°РµС‚Рµ Р·Р°РїСѓСЃС‚РёС‚СЊ СЌС‚РѕС‚ С„Р°Р№Р»?"
+    IDS_UPDATE_DOWNLOADREADY "РћР±РЅРѕРІР»РµРЅРёРµ РіРѕС‚РѕРІРѕ."
+    IDS_BAD_XML_MSG         "Р‘С‹Р» РѕС‚РєСЂС‹С‚ РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ XML РґРѕРєСѓРјРµРЅС‚.\n\nР’С‹ РґРѕР»Р¶РЅС‹ РёСЃРїСЂР°РІРёС‚СЊ РІСЃРµ РѕС€РёР±РєРё XML (РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РєРѕРјР°РЅРґС‹ ""РџСЂРѕРІРµСЂРёС‚СЊ"" Рё ""РџРµСЂРµР№С‚Рё Рє РѕС€РёР±РѕС‡РЅРѕРјСѓ С‚РµРіСѓ"") РїРµСЂРµРґ С‚РµРј, РєР°Рє РїРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ РІ РґСЂСѓРіРѕР№ СЂРµР¶РёРј СЂРµРґР°РєС‚РѕСЂР°."
 END
 
 STRINGTABLE
 BEGIN
-    IDS_CHOOSE_SCRIPTS_FLD  "Выберите папку со скриптами"
+    IDS_CHOOSE_SCRIPTS_FLD  "Р’С‹Р±РµСЂРёС‚Рµ РїР°РїРєСѓ СЃРѕ СЃРєСЂРёРїС‚Р°РјРё"
     IDS_SCRIPT_HOTKEY_CONFLICT 
-                            "Скрипт\n%s\n имеет код клавишы быстрого доступа, совпадающий с уже загруженным скриптом\n %s"
-    IDS_HOTKEY_EDIT_MERGE   "Слить"
-    IDS_HOTKEY_EDIT_PASTE   "Вставить"
-    IDS_HOTKEY_EDIT_REDO    "Вернуть"
-    IDS_HOTKEY_EDIT_REPLACE "Заменить"
-    IDS_HOTKEY_EDIT_SPLIT   "Разделить"
-    IDS_HOTKEY_EDIT_UNDO    "Отменить"
-    IDS_HOTKEY_GROUP_EDIT   "Редактировать"
-    IDS_HOTKEY_GROUP_NAVIGATION "Навигация"
-    IDS_UPDATE_CHECK        "Проверяю обновление..."
-    IDS_HOTKEY_NAVIGATION_NEXT_ITEM "Следующий элемент"
-    ID_PANE_INS             "ЗАМ"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE1 "Свернуть дерево на 1 уровень"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE2 "Свернуть дерево на 2 уровня"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE3 "Свернуть дерево на 3 уровня"
+                            "РЎРєСЂРёРїС‚\n%s\n РёРјРµРµС‚ РєРѕРґ РєР»Р°РІРёС€С‹ Р±С‹СЃС‚СЂРѕРіРѕ РґРѕСЃС‚СѓРїР°, СЃРѕРІРїР°РґР°СЋС‰РёР№ СЃ СѓР¶Рµ Р·Р°РіСЂСѓР¶РµРЅРЅС‹Рј СЃРєСЂРёРїС‚РѕРј\n %s"
+    IDS_HOTKEY_EDIT_MERGE   "РЎР»РёС‚СЊ"
+    IDS_HOTKEY_EDIT_PASTE   "Р’СЃС‚Р°РІРёС‚СЊ"
+    IDS_HOTKEY_EDIT_REDO    "Р’РµСЂРЅСѓС‚СЊ"
+    IDS_HOTKEY_EDIT_REPLACE "Р—Р°РјРµРЅРёС‚СЊ"
+    IDS_HOTKEY_EDIT_SPLIT   "Р Р°Р·РґРµР»РёС‚СЊ"
+    IDS_HOTKEY_EDIT_UNDO    "РћС‚РјРµРЅРёС‚СЊ"
+    IDS_HOTKEY_GROUP_EDIT   "Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ"
+    IDS_HOTKEY_GROUP_NAVIGATION "РќР°РІРёРіР°С†РёСЏ"
+    IDS_UPDATE_CHECK        "РџСЂРѕРІРµСЂСЏСЋ РѕР±РЅРѕРІР»РµРЅРёРµ..."
+    IDS_HOTKEY_NAVIGATION_NEXT_ITEM "РЎР»РµРґСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚"
+    ID_PANE_INS             "Р—РђРњ"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE1 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 1 СѓСЂРѕРІРµРЅСЊ"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE2 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 2 СѓСЂРѕРІРЅСЏ"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE3 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 3 СѓСЂРѕРІРЅСЏ"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_HOTKEY_PLUGINS_LAST_PLUGIN "Последний плагин"
-    IDS_HOTKEY_TOOLS_SPELL  "Орфография"
-    IDC_SPELL_ADD2DICT      "Добавить в словарь"
-    IDS_SPELL_CHECK_COMPLETED "Проверка орфографии завершена."
-    IDC_SPELL_IGNOREALL     "Пропустить все"
-    IDS_SPELL_CONTINUE      "Продолжить"
-    IDS_HOTKEY_EDIT_INSERT_INLINEIMAGE "Вставить изображение в текст"
-    IDS_UPDATE_CANTCONNECT  "Не могу подключиться к серверу"
-    IDS_HOTKEY_FASTMODE     "Ускоренный режим"
-    IDS_HOTKEY_TREEVIEW     "Дерево вкл/выкл"
-    IDS_HOTKEY_TOOLS_SPELLHIGHLIGHT "Переключить выделение слов с ошибками"
-    IDS_HOTKEY_NAVIGATION_GOTO_FOOTNOTE "Переход к сноске или к ссылке"
-    IDS_HOTKEY_NAVIGATION_GOTO_MATCHTAG "Переход на парный тег"
-    IDS_HOTKEY_NAVIGATION_GOTO_WRONGTAG "Переход к ошибочному тегу"
-    IDS_UPDATE_DOWNLOADEDFROM "Загружено %d Kb из %d Kb (%d%%)"
-    IDS_UPDATE_DOWNLOADED   "Загружено %d Kb"
+    IDS_HOTKEY_PLUGINS_LAST_PLUGIN "РџРѕСЃР»РµРґРЅРёР№ РїР»Р°РіРёРЅ"
+    IDS_HOTKEY_TOOLS_SPELL  "РћСЂС„РѕРіСЂР°С„РёСЏ"
+    IDC_SPELL_ADD2DICT      "Р”РѕР±Р°РІРёС‚СЊ РІ СЃР»РѕРІР°СЂСЊ"
+    IDS_SPELL_CHECK_COMPLETED "РџСЂРѕРІРµСЂРєР° РѕСЂС„РѕРіСЂР°С„РёРё Р·Р°РІРµСЂС€РµРЅР°."
+    IDC_SPELL_IGNOREALL     "РџСЂРѕРїСѓСЃС‚РёС‚СЊ РІСЃРµ"
+    IDS_SPELL_CONTINUE      "РџСЂРѕРґРѕР»Р¶РёС‚СЊ"
+    IDS_HOTKEY_EDIT_INSERT_INLINEIMAGE "Р’СЃС‚Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ С‚РµРєСЃС‚"
+    IDS_UPDATE_CANTCONNECT  "РќРµ РјРѕРіСѓ РїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рє СЃРµСЂРІРµСЂСѓ"
+    IDS_HOTKEY_FASTMODE     "РЈСЃРєРѕСЂРµРЅРЅС‹Р№ СЂРµР¶РёРј"
+    IDS_HOTKEY_TREEVIEW     "Р”РµСЂРµРІРѕ РІРєР»/РІС‹РєР»"
+    IDS_HOTKEY_TOOLS_SPELLHIGHLIGHT "РџРµСЂРµРєР»СЋС‡РёС‚СЊ РІС‹РґРµР»РµРЅРёРµ СЃР»РѕРІ СЃ РѕС€РёР±РєР°РјРё"
+    IDS_HOTKEY_NAVIGATION_GOTO_FOOTNOTE "РџРµСЂРµС…РѕРґ Рє СЃРЅРѕСЃРєРµ РёР»Рё Рє СЃСЃС‹Р»РєРµ"
+    IDS_HOTKEY_NAVIGATION_GOTO_MATCHTAG "РџРµСЂРµС…РѕРґ РЅР° РїР°СЂРЅС‹Р№ С‚РµРі"
+    IDS_HOTKEY_NAVIGATION_GOTO_WRONGTAG "РџРµСЂРµС…РѕРґ Рє РѕС€РёР±РѕС‡РЅРѕРјСѓ С‚РµРіСѓ"
+    IDS_UPDATE_DOWNLOADEDFROM "Р—Р°РіСЂСѓР¶РµРЅРѕ %d Kb РёР· %d Kb (%d%%)"
+    IDS_UPDATE_DOWNLOADED   "Р—Р°РіСЂСѓР¶РµРЅРѕ %d Kb"
 END
 
 STRINGTABLE
 BEGIN
-    ATL_IDS_MRU_FILE        "Открыть этот документ"
+    ATL_IDS_MRU_FILE        "РћС‚РєСЂС‹С‚СЊ СЌС‚РѕС‚ РґРѕРєСѓРјРµРЅС‚"
     IDS_ENCODINGS           "utf-8,utf-16,windows-1251,windows-1252,iso-8859-1,iso-8859-2,iso-8859-5,iso-8859-15,koi8-r"
-    IDS_DOCUMENT_TREE_CAPTION "Структура документа"
+    IDS_DOCUMENT_TREE_CAPTION "РЎС‚СЂСѓРєС‚СѓСЂР° РґРѕРєСѓРјРµРЅС‚Р°"
 END
 
 STRINGTABLE
 BEGIN
-    ATL_IDS_IDLEMESSAGE     "Готово"
+    ATL_IDS_IDLEMESSAGE     "Р“РѕС‚РѕРІРѕ"
 END
 
 STRINGTABLE
 BEGIN
-    ID_FILE_NEW             "Создать новый документ\nНовый"
-    ID_FILE_OPEN            "Открыть документ\nОткрыть"
-    ID_FILE_SAVE            "Сохранить документ\nСохранить"
-    ID_FILE_SAVE_AS         "Сохранить активный документ под новым именем\nСохранить как"
+    ID_FILE_NEW             "РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚\nРќРѕРІС‹Р№"
+    ID_FILE_OPEN            "РћС‚РєСЂС‹С‚СЊ РґРѕРєСѓРјРµРЅС‚\nРћС‚РєСЂС‹С‚СЊ"
+    ID_FILE_SAVE            "РЎРѕС…СЂР°РЅРёС‚СЊ РґРѕРєСѓРјРµРЅС‚\nРЎРѕС…СЂР°РЅРёС‚СЊ"
+    ID_FILE_SAVE_AS         "РЎРѕС…СЂР°РЅРёС‚СЊ Р°РєС‚РёРІРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ РїРѕРґ РЅРѕРІС‹Рј РёРјРµРЅРµРј\nРЎРѕС…СЂР°РЅРёС‚СЊ РєР°Рє"
 END
 
 STRINGTABLE
 BEGIN
-    ID_APP_ABOUT            "Показать информацию о программе, номер версии и копирайт\nО программе"
-    ID_APP_EXIT             "Закрыть программу; будет предложено сохранить документ перед закрытием\nВыход"
+    ID_APP_ABOUT            "РџРѕРєР°Р·Р°С‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїСЂРѕРіСЂР°РјРјРµ, РЅРѕРјРµСЂ РІРµСЂСЃРёРё Рё РєРѕРїРёСЂР°Р№С‚\nРћ РїСЂРѕРіСЂР°РјРјРµ"
+    ID_APP_EXIT             "Р—Р°РєСЂС‹С‚СЊ РїСЂРѕРіСЂР°РјРјСѓ; Р±СѓРґРµС‚ РїСЂРµРґР»РѕР¶РµРЅРѕ СЃРѕС…СЂР°РЅРёС‚СЊ РґРѕРєСѓРјРµРЅС‚ РїРµСЂРµРґ Р·Р°РєСЂС‹С‚РёРµРј\nР’С‹С…РѕРґ"
 END
 
 STRINGTABLE
 BEGIN
-    ID_EDIT_COPY            "Скопировать выделенный фрагмент в буфер обмена\nКопировать"
-    ID_EDIT_CUT             "Вырезать выделенный врагмент и положить его в буфер обмена\nВырезать"
-    ID_EDIT_FIND            "Найти текст\nНайти"
-    ID_EDIT_PASTE           "Вставить содержимое буфера обмена\nВставить"
-    ID_EDIT_REPLACE         "Найти текст и заменить его другим текстом\nЗаменить"
-    ID_EDIT_UNDO            "Отменить последнее действие\nОтменить"
-    ID_EDIT_REDO            "Вернуть последнее отмененное действие\nВернуть"
+    ID_EDIT_COPY            "РЎРєРѕРїРёСЂРѕРІР°С‚СЊ РІС‹РґРµР»РµРЅРЅС‹Р№ С„СЂР°РіРјРµРЅС‚ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°\nРљРѕРїРёСЂРѕРІР°С‚СЊ"
+    ID_EDIT_CUT             "Р’С‹СЂРµР·Р°С‚СЊ РІС‹РґРµР»РµРЅРЅС‹Р№ РІСЂР°РіРјРµРЅС‚ Рё РїРѕР»РѕР¶РёС‚СЊ РµРіРѕ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°\nР’С‹СЂРµР·Р°С‚СЊ"
+    ID_EDIT_FIND            "РќР°Р№С‚Рё С‚РµРєСЃС‚\nРќР°Р№С‚Рё"
+    ID_EDIT_PASTE           "Р’СЃС‚Р°РІРёС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ Р±СѓС„РµСЂР° РѕР±РјРµРЅР°\nР’СЃС‚Р°РІРёС‚СЊ"
+    ID_EDIT_REPLACE         "РќР°Р№С‚Рё С‚РµРєСЃС‚ Рё Р·Р°РјРµРЅРёС‚СЊ РµРіРѕ РґСЂСѓРіРёРј С‚РµРєСЃС‚РѕРј\nР—Р°РјРµРЅРёС‚СЊ"
+    ID_EDIT_UNDO            "РћС‚РјРµРЅРёС‚СЊ РїРѕСЃР»РµРґРЅРµРµ РґРµР№СЃС‚РІРёРµ\nРћС‚РјРµРЅРёС‚СЊ"
+    ID_EDIT_REDO            "Р’РµСЂРЅСѓС‚СЊ РїРѕСЃР»РµРґРЅРµРµ РѕС‚РјРµРЅРµРЅРЅРѕРµ РґРµР№СЃС‚РІРёРµ\nР’РµСЂРЅСѓС‚СЊ"
 END
 
 STRINGTABLE
 BEGIN
-    ID_STYLE_LINK           "Добавить гиперссылку\nГиперссылка"
-    ID_STYLE_NOTE           "Добавить сноску\nСноска"
-    ID_EDIT_FINDNEXT        "Повторить последний поиск\nНайти далее"
-    ID_VIEW_DESC            "Перейти к описанию документа\nОписание документа"
-    ID_VIEW_BODY            "Перейти к телу документа\nТело"
-    ID_STYLE_NOLINK         "Удалить ссылки из выделенного текста\nУдалить ссылки"
-    ID_EDIT_ADDBINARY       "Прикрепить бинарный файл к документу\nПрикрепить бинарный файл"
+    ID_STYLE_LINK           "Р”РѕР±Р°РІРёС‚СЊ РіРёРїРµСЂСЃСЃС‹Р»РєСѓ\nР“РёРїРµСЂСЃСЃС‹Р»РєР°"
+    ID_STYLE_NOTE           "Р”РѕР±Р°РІРёС‚СЊ СЃРЅРѕСЃРєСѓ\nРЎРЅРѕСЃРєР°"
+    ID_EDIT_FINDNEXT        "РџРѕРІС‚РѕСЂРёС‚СЊ РїРѕСЃР»РµРґРЅРёР№ РїРѕРёСЃРє\nРќР°Р№С‚Рё РґР°Р»РµРµ"
+    ID_VIEW_DESC            "РџРµСЂРµР№С‚Рё Рє РѕРїРёСЃР°РЅРёСЋ РґРѕРєСѓРјРµРЅС‚Р°\nРћРїРёСЃР°РЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°"
+    ID_VIEW_BODY            "РџРµСЂРµР№С‚Рё Рє С‚РµР»Сѓ РґРѕРєСѓРјРµРЅС‚Р°\nРўРµР»Рѕ"
+    ID_STYLE_NOLINK         "РЈРґР°Р»РёС‚СЊ СЃСЃС‹Р»РєРё РёР· РІС‹РґРµР»РµРЅРЅРѕРіРѕ С‚РµРєСЃС‚Р°\nРЈРґР°Р»РёС‚СЊ СЃСЃС‹Р»РєРё"
+    ID_EDIT_ADDBINARY       "РџСЂРёРєСЂРµРїРёС‚СЊ Р±РёРЅР°СЂРЅС‹Р№ С„Р°Р№Р» Рє РґРѕРєСѓРјРµРЅС‚Сѓ\nРџСЂРёРєСЂРµРїРёС‚СЊ Р±РёРЅР°СЂРЅС‹Р№ С„Р°Р№Р»"
 END
 
 STRINGTABLE
 BEGIN
-    ID_EDIT_BOLD            "Жирный\nЖирный"
-    ID_EDIT_ITALIC          "Курсив\nКурсив"
+    ID_EDIT_BOLD            "Р–РёСЂРЅС‹Р№\nР–РёСЂРЅС‹Р№"
+    ID_EDIT_ITALIC          "РљСѓСЂСЃРёРІ\nРљСѓСЂСЃРёРІ"
 END
 
 STRINGTABLE
 BEGIN
-    ID_STYLE_NORMAL         "Обычный текст\nОбычный текст"
-    ID_STYLE_TEXTAUTHOR     "Автор текста параграфа\nАвтор текста"
-    ID_STYLE_SUBTITLE       "Подзаголовок\nПодзаголовок"
-    ID_VIEW_OPTIONS         "Настройки редактора\nНатройки"
+    ID_STYLE_NORMAL         "РћР±С‹С‡РЅС‹Р№ С‚РµРєСЃС‚\nРћР±С‹С‡РЅС‹Р№ С‚РµРєСЃС‚"
+    ID_STYLE_TEXTAUTHOR     "РђРІС‚РѕСЂ С‚РµРєСЃС‚Р° РїР°СЂР°РіСЂР°С„Р°\nРђРІС‚РѕСЂ С‚РµРєСЃС‚Р°"
+    ID_STYLE_SUBTITLE       "РџРѕРґР·Р°РіРѕР»РѕРІРѕРє\nРџРѕРґР·Р°РіРѕР»РѕРІРѕРє"
+    ID_VIEW_OPTIONS         "РќР°СЃС‚СЂРѕР№РєРё СЂРµРґР°РєС‚РѕСЂР°\nРќР°С‚СЂРѕР№РєРё"
 END
 
 STRINGTABLE
 BEGIN
-    60161                   "Показать или скрыть панель инструментов\nПанель инструментов"
-    60162                   "Показать или скрыть панель скриптов\nПанель скриптов"
-    60163                   "Показать или скрыть панель ссылок\nПанель ссылок"
-    60164                   "Показать или скрыть панель редактирования параметров таблиц\nПанель таблиц"
+    60161                   "РџРѕРєР°Р·Р°С‚СЊ РёР»Рё СЃРєСЂС‹С‚СЊ РїР°РЅРµР»СЊ РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ\nРџР°РЅРµР»СЊ РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ"
+    60162                   "РџРѕРєР°Р·Р°С‚СЊ РёР»Рё СЃРєСЂС‹С‚СЊ РїР°РЅРµР»СЊ СЃРєСЂРёРїС‚РѕРІ\nРџР°РЅРµР»СЊ СЃРєСЂРёРїС‚РѕРІ"
+    60163                   "РџРѕРєР°Р·Р°С‚СЊ РёР»Рё СЃРєСЂС‹С‚СЊ РїР°РЅРµР»СЊ СЃСЃС‹Р»РѕРє\nРџР°РЅРµР»СЊ СЃСЃС‹Р»РѕРє"
+    60164                   "РџРѕРєР°Р·Р°С‚СЊ РёР»Рё СЃРєСЂС‹С‚СЊ РїР°РЅРµР»СЊ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ С‚Р°Р±Р»РёС†\nРџР°РЅРµР»СЊ С‚Р°Р±Р»РёС†"
 END
 
 STRINGTABLE
 BEGIN
-    ID_VIEW_STATUS_BAR      "Показать или скрыть панель статуса\nПанель статуса"
+    ID_VIEW_STATUS_BAR      "РџРѕРєР°Р·Р°С‚СЊ РёР»Рё СЃРєСЂС‹С‚СЊ РїР°РЅРµР»СЊ СЃС‚Р°С‚СѓСЃР°\nРџР°РЅРµР»СЊ СЃС‚Р°С‚СѓСЃР°"
 END
 
 STRINGTABLE
 BEGIN
-    ID_VIEW_TREE            "Показать или скрыть структуру документа\nСтруктура документа"
-    IDS_PANE_INS            "ВСТ"
-    IDS_PANE_OVR            "ЗАМ"
-    IDS_DOC_TREE_CLEANUP    "Очистить"
-    IDS_HOTKEY_FILE_OPEN    "Открыть"
-    IDS_HOTKEY_FILE_SAVE    "Сохранить"
-    IDS_HOTKEY_FILE_SAVEAS  "Сохранить как..."
-    IDS_HOTKEY_FILE_VALIDATE "Проверить"
-    IDS_HOTKEY_GROUP_FILE   "Файл"
-    IDS_HOTKEY_EDIT_ADD_ANNOTATION "Добавить аннотацию"
-    IDS_HOTKEY_EDIT_ADD_BODY "Добавить элемент body"
+    ID_VIEW_TREE            "РџРѕРєР°Р·Р°С‚СЊ РёР»Рё СЃРєСЂС‹С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ РґРѕРєСѓРјРµРЅС‚Р°\nРЎС‚СЂСѓРєС‚СѓСЂР° РґРѕРєСѓРјРµРЅС‚Р°"
+    IDS_PANE_INS            "Р’РЎРў"
+    IDS_PANE_OVR            "Р—РђРњ"
+    IDS_DOC_TREE_CLEANUP    "РћС‡РёСЃС‚РёС‚СЊ"
+    IDS_HOTKEY_FILE_OPEN    "РћС‚РєСЂС‹С‚СЊ"
+    IDS_HOTKEY_FILE_SAVE    "РЎРѕС…СЂР°РЅРёС‚СЊ"
+    IDS_HOTKEY_FILE_SAVEAS  "РЎРѕС…СЂР°РЅРёС‚СЊ РєР°Рє..."
+    IDS_HOTKEY_FILE_VALIDATE "РџСЂРѕРІРµСЂРёС‚СЊ"
+    IDS_HOTKEY_GROUP_FILE   "Р¤Р°Р№Р»"
+    IDS_HOTKEY_EDIT_ADD_ANNOTATION "Р”РѕР±Р°РІРёС‚СЊ Р°РЅРЅРѕС‚Р°С†РёСЋ"
+    IDS_HOTKEY_EDIT_ADD_BODY "Р”РѕР±Р°РІРёС‚СЊ СЌР»РµРјРµРЅС‚ body"
 END
 
 STRINGTABLE
 BEGIN
-    ID_EDIT_ADD_TITLE       "Добавить заголовок к выделенному элементу\nДобавить заголовок"
-    ID_EDIT_ADD_BODY        "Добавить новое тело документа\nДобавить тело"
-    ID_EDIT_CLONE           "Клонировать контейнер\nКлонировать"
-    ID_EDIT_INS_IMAGE       "Вставить изображение на месте курсора\nВставить изображение"
-    ID_EDIT_INS_INLINEIMAGE "Вставить изображение в текст на месте курсора\nВставить изображение в текст"
-    ID_FILE_VALIDATE        "Проверить документ на соответствие формату Fiction Book\nПроверить"
-    ID_EDIT_ADD_EPIGRAPH    "Добавить эпиграф к выделенному фрагменту\nДобавить эпиграф"
-    ID_EDIT_ADD_IMAGE       "Добавить изображение\nДобавить изображение"
-    ID_EDIT_ADD_ANN         "Добавить аннотацию выделенному фрагменту\nДобавить аннотацию"
-    ID_EDIT_SPLIT           "Разрезать контейнер\nРазрезать контейнер"
-    ID_EDIT_INS_POEM        "Добавить стихи\nДобавить стихи"
+    ID_EDIT_ADD_TITLE       "Р”РѕР±Р°РІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє Рє РІС‹РґРµР»РµРЅРЅРѕРјСѓ СЌР»РµРјРµРЅС‚Сѓ\nР”РѕР±Р°РІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє"
+    ID_EDIT_ADD_BODY        "Р”РѕР±Р°РІРёС‚СЊ РЅРѕРІРѕРµ С‚РµР»Рѕ РґРѕРєСѓРјРµРЅС‚Р°\nР”РѕР±Р°РІРёС‚СЊ С‚РµР»Рѕ"
+    ID_EDIT_CLONE           "РљР»РѕРЅРёСЂРѕРІР°С‚СЊ РєРѕРЅС‚РµР№РЅРµСЂ\nРљР»РѕРЅРёСЂРѕРІР°С‚СЊ"
+    ID_EDIT_INS_IMAGE       "Р’СЃС‚Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РЅР° РјРµСЃС‚Рµ РєСѓСЂСЃРѕСЂР°\nР’СЃС‚Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ"
+    ID_EDIT_INS_INLINEIMAGE "Р’СЃС‚Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ С‚РµРєСЃС‚ РЅР° РјРµСЃС‚Рµ РєСѓСЂСЃРѕСЂР°\nР’СЃС‚Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ С‚РµРєСЃС‚"
+    ID_FILE_VALIDATE        "РџСЂРѕРІРµСЂРёС‚СЊ РґРѕРєСѓРјРµРЅС‚ РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ С„РѕСЂРјР°С‚Сѓ Fiction Book\nРџСЂРѕРІРµСЂРёС‚СЊ"
+    ID_EDIT_ADD_EPIGRAPH    "Р”РѕР±Р°РІРёС‚СЊ СЌРїРёРіСЂР°С„ Рє РІС‹РґРµР»РµРЅРЅРѕРјСѓ С„СЂР°РіРјРµРЅС‚Сѓ\nР”РѕР±Р°РІРёС‚СЊ СЌРїРёРіСЂР°С„"
+    ID_EDIT_ADD_IMAGE       "Р”РѕР±Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ\nР”РѕР±Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ"
+    ID_EDIT_ADD_ANN         "Р”РѕР±Р°РІРёС‚СЊ Р°РЅРЅРѕС‚Р°С†РёСЋ РІС‹РґРµР»РµРЅРЅРѕРјСѓ С„СЂР°РіРјРµРЅС‚Сѓ\nР”РѕР±Р°РІРёС‚СЊ Р°РЅРЅРѕС‚Р°С†РёСЋ"
+    ID_EDIT_SPLIT           "Р Р°Р·СЂРµР·Р°С‚СЊ РєРѕРЅС‚РµР№РЅРµСЂ\nР Р°Р·СЂРµР·Р°С‚СЊ РєРѕРЅС‚РµР№РЅРµСЂ"
+    ID_EDIT_INS_POEM        "Р”РѕР±Р°РІРёС‚СЊ СЃС‚РёС…Рё\nР”РѕР±Р°РІРёС‚СЊ СЃС‚РёС…Рё"
 END
 
 STRINGTABLE
 BEGIN
-    ID_EDIT_ADD_TA          "Добавить автора текста в контейнер\nДобавить автора текста"
-    ID_EDIT_MERGE           "Слить выделенный контейнер со следующим\nСлить контейнеры"
-    ID_EDIT_INS_CITE        "Вставить цитату\nВставить цитату"
-    ID_EDIT_STRIK           "Зачеркнутый текст\nЗачеркнутый текст"
-    ID_EDIT_SUB             "Нижний индекс\nНижний индекс"
-    ID_EDIT_SUP             "Верхний индекс\nВерхний индекс"
-    ID_EDIT_CODE            "Код\nКод"
+    ID_EDIT_ADD_TA          "Р”РѕР±Р°РІРёС‚СЊ Р°РІС‚РѕСЂР° С‚РµРєСЃС‚Р° РІ РєРѕРЅС‚РµР№РЅРµСЂ\nР”РѕР±Р°РІРёС‚СЊ Р°РІС‚РѕСЂР° С‚РµРєСЃС‚Р°"
+    ID_EDIT_MERGE           "РЎР»РёС‚СЊ РІС‹РґРµР»РµРЅРЅС‹Р№ РєРѕРЅС‚РµР№РЅРµСЂ СЃРѕ СЃР»РµРґСѓСЋС‰РёРј\nРЎР»РёС‚СЊ РєРѕРЅС‚РµР№РЅРµСЂС‹"
+    ID_EDIT_INS_CITE        "Р’СЃС‚Р°РІРёС‚СЊ С†РёС‚Р°С‚Сѓ\nР’СЃС‚Р°РІРёС‚СЊ С†РёС‚Р°С‚Сѓ"
+    ID_EDIT_STRIK           "Р—Р°С‡РµСЂРєРЅСѓС‚С‹Р№ С‚РµРєСЃС‚\nР—Р°С‡РµСЂРєРЅСѓС‚С‹Р№ С‚РµРєСЃС‚"
+    ID_EDIT_SUB             "РќРёР¶РЅРёР№ РёРЅРґРµРєСЃ\nРќРёР¶РЅРёР№ РёРЅРґРµРєСЃ"
+    ID_EDIT_SUP             "Р’РµСЂС…РЅРёР№ РёРЅРґРµРєСЃ\nР’РµСЂС…РЅРёР№ РёРЅРґРµРєСЃ"
+    ID_EDIT_CODE            "РљРѕРґ\nРљРѕРґ"
 END
 
 STRINGTABLE
 BEGIN
-    ID_INSERT_TABLE         "Вставить таблицу на место курсора\nВставить таблицу"
-    ID_GOTO_FOOTNOTE        "Перейти на текст сноски или к ссылке\nПерейти на текст сноски или к ссылке"
+    ID_INSERT_TABLE         "Р’СЃС‚Р°РІРёС‚СЊ С‚Р°Р±Р»РёС†Сѓ РЅР° РјРµСЃС‚Рѕ РєСѓСЂСЃРѕСЂР°\nР’СЃС‚Р°РІРёС‚СЊ С‚Р°Р±Р»РёС†Сѓ"
+    ID_GOTO_FOOTNOTE        "РџРµСЂРµР№С‚Рё РЅР° С‚РµРєСЃС‚ СЃРЅРѕСЃРєРё РёР»Рё Рє СЃСЃС‹Р»РєРµ\nРџРµСЂРµР№С‚Рё РЅР° С‚РµРєСЃС‚ СЃРЅРѕСЃРєРё РёР»Рё Рє СЃСЃС‹Р»РєРµ"
 END
 
 STRINGTABLE
 BEGIN
-    ID_LAST_SCRIPT          "Выполнить последний запущенный скрипт\nПоследний скрипт"
-    ID_TOOLS_SPELLCHECK     "Проверка орфографии документа...\nПроверка орфографии"
-    ID_GOTO_MATCHTAG        "Перейти к парному тегу\nПерейти к парному тегу"
-    ID_GOTO_WRONGTAG        "Перейти к ошибочному тегу\nПерейти к ошибочному тегу"
+    ID_LAST_SCRIPT          "Р’С‹РїРѕР»РЅРёС‚СЊ РїРѕСЃР»РµРґРЅРёР№ Р·Р°РїСѓС‰РµРЅРЅС‹Р№ СЃРєСЂРёРїС‚\nРџРѕСЃР»РµРґРЅРёР№ СЃРєСЂРёРїС‚"
+    ID_TOOLS_SPELLCHECK     "РџСЂРѕРІРµСЂРєР° РѕСЂС„РѕРіСЂР°С„РёРё РґРѕРєСѓРјРµРЅС‚Р°...\nРџСЂРѕРІРµСЂРєР° РѕСЂС„РѕРіСЂР°С„РёРё"
+    ID_GOTO_MATCHTAG        "РџРµСЂРµР№С‚Рё Рє РїР°СЂРЅРѕРјСѓ С‚РµРіСѓ\nРџРµСЂРµР№С‚Рё Рє РїР°СЂРЅРѕРјСѓ С‚РµРіСѓ"
+    ID_GOTO_WRONGTAG        "РџРµСЂРµР№С‚Рё Рє РѕС€РёР±РѕС‡РЅРѕРјСѓ С‚РµРіСѓ\nРџРµСЂРµР№С‚Рё Рє РѕС€РёР±РѕС‡РЅРѕРјСѓ С‚РµРіСѓ"
 END
 
 STRINGTABLE
 BEGIN
-    ID_DT_LEFT              "\nПеренести влево"
-    ID_DT_DELETE            "\nУдалить выделенный узел"
-    ID_DT_RIGHT_ONE         "\nПеренести узел вправо"
-    ID_DT_RIGHT_SMART       "\nПеренести узел вправо в smart режиме"
-    ID_DT_MERGE             "\nСлить контейнеры"
-    ID_VIEW_FASTMODE        "Переключить в ускоренный режим\nПереключить в ускоренный режим"
+    ID_DT_LEFT              "\nРџРµСЂРµРЅРµСЃС‚Рё РІР»РµРІРѕ"
+    ID_DT_DELETE            "\nРЈРґР°Р»РёС‚СЊ РІС‹РґРµР»РµРЅРЅС‹Р№ СѓР·РµР»"
+    ID_DT_RIGHT_ONE         "\nРџРµСЂРµРЅРµСЃС‚Рё СѓР·РµР» РІРїСЂР°РІРѕ"
+    ID_DT_RIGHT_SMART       "\nРџРµСЂРµРЅРµСЃС‚Рё СѓР·РµР» РІРїСЂР°РІРѕ РІ smart СЂРµР¶РёРјРµ"
+    ID_DT_MERGE             "\nРЎР»РёС‚СЊ РєРѕРЅС‚РµР№РЅРµСЂС‹"
+    ID_VIEW_FASTMODE        "РџРµСЂРµРєР»СЋС‡РёС‚СЊ РІ СѓСЃРєРѕСЂРµРЅРЅС‹Р№ СЂРµР¶РёРј\nРџРµСЂРµРєР»СЋС‡РёС‚СЊ РІ СѓСЃРєРѕСЂРµРЅРЅС‹Р№ СЂРµР¶РёРј"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_HOTKEY_EDIT_ADD_EPIGRAPH "Добавить эпиграф"
-    IDS_HOTKEY_EDIT_ADD_IMAGE "Вставить картинку секции"
-    IDS_HOTKEY_EDIT_ADD_TA  "Добавить автора текста"
-    IDS_HOTKEY_EDIT_ADD_TITLE "Добавить заголовок"
-    IDS_HOTKEY_EDIT_BOLD    "Жирный"
-    IDS_HOTKEY_EDIT_CLONE   "Клонировать"
-    IDS_HOTKEY_EDIT_COPY    "Копировать"
-    IDS_HOTKEY_EDIT_CUT     "Вырезать"
-    IDS_HOTKEY_EDIT_FIND    "Найти"
-    IDS_HOTKEY_EDIT_FIND_NEXT "Найти следующий"
-    IDS_HOTKEY_EDIT_INCREMENTAL_SEARCH "Инкрементальный поиск"
-    IDS_HOTKEY_EDIT_INSERT_CITE "Вставить цитату"
-    IDS_HOTKEY_EDIT_INSERT_IMAGE "Вставить изображение"
-    IDS_HOTKEY_EDIT_INSERT_POEM "Вставить поэму"
-    IDS_HOTKEY_EDIT_ITALIC  "Курсив"
-    ID_VIEW_SOURCE          "Перейти к коду\nПерейти к коду"
+    IDS_HOTKEY_EDIT_ADD_EPIGRAPH "Р”РѕР±Р°РІРёС‚СЊ СЌРїРёРіСЂР°С„"
+    IDS_HOTKEY_EDIT_ADD_IMAGE "Р’СЃС‚Р°РІРёС‚СЊ РєР°СЂС‚РёРЅРєСѓ СЃРµРєС†РёРё"
+    IDS_HOTKEY_EDIT_ADD_TA  "Р”РѕР±Р°РІРёС‚СЊ Р°РІС‚РѕСЂР° С‚РµРєСЃС‚Р°"
+    IDS_HOTKEY_EDIT_ADD_TITLE "Р”РѕР±Р°РІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє"
+    IDS_HOTKEY_EDIT_BOLD    "Р–РёСЂРЅС‹Р№"
+    IDS_HOTKEY_EDIT_CLONE   "РљР»РѕРЅРёСЂРѕРІР°С‚СЊ"
+    IDS_HOTKEY_EDIT_COPY    "РљРѕРїРёСЂРѕРІР°С‚СЊ"
+    IDS_HOTKEY_EDIT_CUT     "Р’С‹СЂРµР·Р°С‚СЊ"
+    IDS_HOTKEY_EDIT_FIND    "РќР°Р№С‚Рё"
+    IDS_HOTKEY_EDIT_FIND_NEXT "РќР°Р№С‚Рё СЃР»РµРґСѓСЋС‰РёР№"
+    IDS_HOTKEY_EDIT_INCREMENTAL_SEARCH "РРЅРєСЂРµРјРµРЅС‚Р°Р»СЊРЅС‹Р№ РїРѕРёСЃРє"
+    IDS_HOTKEY_EDIT_INSERT_CITE "Р’СЃС‚Р°РІРёС‚СЊ С†РёС‚Р°С‚Сѓ"
+    IDS_HOTKEY_EDIT_INSERT_IMAGE "Р’СЃС‚Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ"
+    IDS_HOTKEY_EDIT_INSERT_POEM "Р’СЃС‚Р°РІРёС‚СЊ РїРѕСЌРјСѓ"
+    IDS_HOTKEY_EDIT_ITALIC  "РљСѓСЂСЃРёРІ"
+    ID_VIEW_SOURCE          "РџРµСЂРµР№С‚Рё Рє РєРѕРґСѓ\nРџРµСЂРµР№С‚Рё Рє РєРѕРґСѓ"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_TB_CAPT_SECTION_ID  "ID секции:"
-    IDS_TB_CAPT_IMAGE_TITLE "Подпись к картинке:"
-    IDS_TB_CAPT_TABLE_ID    "ID таблицы:"
-    IDS_TB_CAPT_TABLE_STYLE "Стиль таблицы:"
-    IDS_TB_CAPT_STYLE       "Стиль:"
+    IDS_TB_CAPT_SECTION_ID  "ID СЃРµРєС†РёРё:"
+    IDS_TB_CAPT_IMAGE_TITLE "РџРѕРґРїРёСЃСЊ Рє РєР°СЂС‚РёРЅРєРµ:"
+    IDS_TB_CAPT_TABLE_ID    "ID С‚Р°Р±Р»РёС†С‹:"
+    IDS_TB_CAPT_TABLE_STYLE "РЎС‚РёР»СЊ С‚Р°Р±Р»РёС†С‹:"
+    IDS_TB_CAPT_STYLE       "РЎС‚РёР»СЊ:"
     IDS_TB_CAPT_COLSPAN     "colspan:"
     IDS_TB_CAPT_ROWSPAN     "rowspan:"
     IDS_TB_CAPT_TR_ALIGN    "tr align:"
     IDS_TB_CAPT_TD_ALIGN    "th, td align:"
     IDS_TB_CAPT_TD_VALIGN   "th, td valign:"
-    IDS_SAVE_DLG_MSG        "Сохранить изменения в %s?"
-    IDS_ERRMSGBOX_CAPTION   "Ошибка"
-    IDS_INVALID_CML_MSG     "Неправильный параметр коммандной строки: %c"
-    IDS_CML_ARGS_MSG        "Для параметра коммандной строки %c нужен аргумент"
-    IDS_SEARCH_END_MSG      "Поиск строки ""%s"" завершен"
-    IDS_REPL_ALL_CAPT       "Заменить все"
+    IDS_SAVE_DLG_MSG        "РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ РІ %s?"
+    IDS_ERRMSGBOX_CAPTION   "РћС€РёР±РєР°"
+    IDS_INVALID_CML_MSG     "РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РєРѕРјРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё: %c"
+    IDS_CML_ARGS_MSG        "Р”Р»СЏ РїР°СЂР°РјРµС‚СЂР° РєРѕРјРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё %c РЅСѓР¶РµРЅ Р°СЂРіСѓРјРµРЅС‚"
+    IDS_SEARCH_END_MSG      "РџРѕРёСЃРє СЃС‚СЂРѕРєРё ""%s"" Р·Р°РІРµСЂС€РµРЅ"
+    IDS_REPL_ALL_CAPT       "Р—Р°РјРµРЅРёС‚СЊ РІСЃРµ"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_REPL_DONE_MSG       "Поиск завершен. Произведено замен: %d"
-    IDS_SEARCH_FAIL_MSG     "Строка '%s' не найдена."
-    IDS_SCRIPT_MSG_CPT      "FBE скрипт"
-    IDS_GENRES_LIST_MSG     "Не найден файл со списком жанров %s"
-    IDS_VALIDATION_FAIL_MSG "%s\r\nВсе равно сохранить файл?\r\n\r\nВНИМАНИЕ: Файлы, содержащие ошибки, могут неправильно отображаться и вызывать ошибки при открытиии другими программами."
-    IDS_VALIDATION_FAIL_CPT "Ошибка"
-    IDS_OUT_OF_MEM_MSG      "Для выполнения операции не хватает памяти"
+    IDS_REPL_DONE_MSG       "РџРѕРёСЃРє Р·Р°РІРµСЂС€РµРЅ. РџСЂРѕРёР·РІРµРґРµРЅРѕ Р·Р°РјРµРЅ: %d"
+    IDS_SEARCH_FAIL_MSG     "РЎС‚СЂРѕРєР° '%s' РЅРµ РЅР°Р№РґРµРЅР°."
+    IDS_SCRIPT_MSG_CPT      "FBE СЃРєСЂРёРїС‚"
+    IDS_GENRES_LIST_MSG     "РќРµ РЅР°Р№РґРµРЅ С„Р°Р№Р» СЃРѕ СЃРїРёСЃРєРѕРј Р¶Р°РЅСЂРѕРІ %s"
+    IDS_VALIDATION_FAIL_MSG "%s\r\nР’СЃРµ СЂР°РІРЅРѕ СЃРѕС…СЂР°РЅРёС‚СЊ С„Р°Р№Р»?\r\n\r\nР’РќРРњРђРќРР•: Р¤Р°Р№Р»С‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ РѕС€РёР±РєРё, РјРѕРіСѓС‚ РЅРµРїСЂР°РІРёР»СЊРЅРѕ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ Рё РІС‹Р·С‹РІР°С‚СЊ РѕС€РёР±РєРё РїСЂРё РѕС‚РєСЂС‹С‚РёРёРё РґСЂСѓРіРёРјРё РїСЂРѕРіСЂР°РјРјР°РјРё."
+    IDS_VALIDATION_FAIL_CPT "РћС€РёР±РєР°"
+    IDS_OUT_OF_MEM_MSG      "Р”Р»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё РЅРµ С…РІР°С‚Р°РµС‚ РїР°РјСЏС‚Рё"
     IDS_SCINTILLA_LOAD_ERR_MSG 
-                            "Не удалось загрузить текстовый движок Scintilla."
-    IDS_GOTO_REF_FAIL_MSG   "В документе нет ни одной ссылки на сноски!"
-    IDS_IMPORT_ERR_CPT      "Ошибка импорта"
-    IDS_IMPORT_ERR_MSG      "Неправильный интерфейс плагина"
-    IDS_IMPORT_XML_ERR_MSG  "Импортируемый объект не поддерживает интерфейс IXMLDOMDocument2"
-    IDS_EXPORT_ERR_CPT      "Ошибка экспорта"
-    IDS_EXPORT_ERR_MSG      "Неправильный интерфейс плагина"
-    IDS_FILE_CHANGED_CPT    "Файл изменен"
-    IDS_FILE_CHANGED_MSG    "Файл %s был изменен другим приложением.\nЗагрузить измененный файл?"
+                            "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С‚РµРєСЃС‚РѕРІС‹Р№ РґРІРёР¶РѕРє Scintilla."
+    IDS_GOTO_REF_FAIL_MSG   "Р’ РґРѕРєСѓРјРµРЅС‚Рµ РЅРµС‚ РЅРё РѕРґРЅРѕР№ СЃСЃС‹Р»РєРё РЅР° СЃРЅРѕСЃРєРё!"
+    IDS_IMPORT_ERR_CPT      "РћС€РёР±РєР° РёРјРїРѕСЂС‚Р°"
+    IDS_IMPORT_ERR_MSG      "РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ РїР»Р°РіРёРЅР°"
+    IDS_IMPORT_XML_ERR_MSG  "РРјРїРѕСЂС‚РёСЂСѓРµРјС‹Р№ РѕР±СЉРµРєС‚ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РёРЅС‚РµСЂС„РµР№СЃ IXMLDOMDocument2"
+    IDS_EXPORT_ERR_CPT      "РћС€РёР±РєР° СЌРєСЃРїРѕСЂС‚Р°"
+    IDS_EXPORT_ERR_MSG      "РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ РїР»Р°РіРёРЅР°"
+    IDS_FILE_CHANGED_CPT    "Р¤Р°Р№Р» РёР·РјРµРЅРµРЅ"
+    IDS_FILE_CHANGED_MSG    "Р¤Р°Р№Р» %s Р±С‹Р» РёР·РјРµРЅРµРЅ РґСЂСѓРіРёРј РїСЂРёР»РѕР¶РµРЅРёРµРј.\nР—Р°РіСЂСѓР·РёС‚СЊ РёР·РјРµРЅРµРЅРЅС‹Р№ С„Р°Р№Р»?"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_SCRIPT_ERRX_MSG     "Ошибка выполнения скрипта: %08X в строке %d, столбце %d"
-    IDS_SCRIPT_ERRD_MSG     "Ошибка выполнения скрипта: %s в строке %d, столбце %d"
-    IDS_SCRIPT_MSG          "Неизвестная ошибка выполнения скрипта."
-    IDS_SCRIPT_LOAD_ERR_MSG "При загрузке скрипта %s возникла ошибка: %s"
+    IDS_SCRIPT_ERRX_MSG     "РћС€РёР±РєР° РІС‹РїРѕР»РЅРµРЅРёСЏ СЃРєСЂРёРїС‚Р°: %08X РІ СЃС‚СЂРѕРєРµ %d, СЃС‚РѕР»Р±С†Рµ %d"
+    IDS_SCRIPT_ERRD_MSG     "РћС€РёР±РєР° РІС‹РїРѕР»РЅРµРЅРёСЏ СЃРєСЂРёРїС‚Р°: %s РІ СЃС‚СЂРѕРєРµ %d, СЃС‚РѕР»Р±С†Рµ %d"
+    IDS_SCRIPT_MSG          "РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР° РІС‹РїРѕР»РЅРµРЅРёСЏ СЃРєСЂРёРїС‚Р°."
+    IDS_SCRIPT_LOAD_ERR_MSG "РџСЂРё Р·Р°РіСЂСѓР·РєРµ СЃРєСЂРёРїС‚Р° %s РІРѕР·РЅРёРєР»Р° РѕС€РёР±РєР°: %s"
     IDS_COM_ERR_CPT         "COM Error"
     IDS_XML_PARSE_ERR_CPT   "XML Parse Error"
     IDS_XML_PARSE_ERR_MSG   "At %s, line %d, column %d: %s"
     IDS_XML_PARSE_ERRQ_MSG  "At %s: %s"
-    IDS_REPL_WORDS_CPT      "Замена слов"
-    IDS_REPL_WORDS_MSG      "Заменено слов: %d"
-    IDS_NO_SCRIPTS          "Не найдено ни одного скрипта"
-    IDS_SB_SAVED_NO_ERR     "Документ сохранен. Ошибок не обнаружено."
-    IDS_ADD_CLEARIMG_TEXT   "Вставить пустую картинку?"
-    IDS_ADD_CLEARIMG_CAPTION "Вставить картинку"
-    IDS_ADD_IMAGE_FILEDLG   "Выберите картинку для вставки:"
-    IDS_ADD_BINARIES_FILEDLG "Выберите один или несколько бинарных файлов:"
+    IDS_REPL_WORDS_CPT      "Р—Р°РјРµРЅР° СЃР»РѕРІ"
+    IDS_REPL_WORDS_MSG      "Р—Р°РјРµРЅРµРЅРѕ СЃР»РѕРІ: %d"
+    IDS_NO_SCRIPTS          "РќРµ РЅР°Р№РґРµРЅРѕ РЅРё РѕРґРЅРѕРіРѕ СЃРєСЂРёРїС‚Р°"
+    IDS_SB_SAVED_NO_ERR     "Р”РѕРєСѓРјРµРЅС‚ СЃРѕС…СЂР°РЅРµРЅ. РћС€РёР±РѕРє РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ."
+    IDS_ADD_CLEARIMG_TEXT   "Р’СЃС‚Р°РІРёС‚СЊ РїСѓСЃС‚СѓСЋ РєР°СЂС‚РёРЅРєСѓ?"
+    IDS_ADD_CLEARIMG_CAPTION "Р’СЃС‚Р°РІРёС‚СЊ РєР°СЂС‚РёРЅРєСѓ"
+    IDS_ADD_IMAGE_FILEDLG   "Р’С‹Р±РµСЂРёС‚Рµ РєР°СЂС‚РёРЅРєСѓ РґР»СЏ РІСЃС‚Р°РІРєРё:"
+    IDS_ADD_BINARIES_FILEDLG "Р’С‹Р±РµСЂРёС‚Рµ РѕРґРёРЅ РёР»Рё РЅРµСЃРєРѕР»СЊРєРѕ Р±РёРЅР°СЂРЅС‹С… С„Р°Р№Р»РѕРІ:"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE4 "Свернуть дерево на 4 уровня"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE5 "Свернуть дерево на 5 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE6 "Свернуть дерево на 6 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE7 "Свернуть дерево на 7 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE8 "Свернуть дерево на 8 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE9 "Свернуть дерево на 9 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND1 "Развернуть дерево на 1 уровень"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND2 "Развернуть дерево на 2 уровня"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND3 "Развернуть дерево на 3 уровня"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND4 "Развернуть дерево на 4 уровня"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND5 "Развернуть дерево на 5 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND6 "Развернуть дерево на 6 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND7 "Развернуть дерево на 7 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND8 "Развернуть дерево на 8 уровней"
-    IDS_HOTKEY_NAVIGATION_SCI_EXPAND9 "Развернуть дерево на 9 уровней"
-    IDS_HOTKEY_NAVIGATION_SELECT_HREF "Ссылка"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE4 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 4 СѓСЂРѕРІРЅСЏ"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE5 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 5 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE6 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 6 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE7 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 7 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE8 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 8 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_COLLAPSE9 "РЎРІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 9 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND1 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 1 СѓСЂРѕРІРµРЅСЊ"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND2 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 2 СѓСЂРѕРІРЅСЏ"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND3 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 3 СѓСЂРѕРІРЅСЏ"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND4 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 4 СѓСЂРѕРІРЅСЏ"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND5 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 5 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND6 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 6 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND7 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 7 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND8 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 8 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SCI_EXPAND9 "Р Р°Р·РІРµСЂРЅСѓС‚СЊ РґРµСЂРµРІРѕ РЅР° 9 СѓСЂРѕРІРЅРµР№"
+    IDS_HOTKEY_NAVIGATION_SELECT_HREF "РЎСЃС‹Р»РєР°"
 END
 
 STRINGTABLE
 BEGIN
     IDS_HOTKEY_NAVIGATION_SELECT_ID "ID "
-    IDS_HOTKEY_NAVIGATION_SELECT_ID_TABLE "ID таблицы"
-    IDS_HOTKEY_NAVIGATION_SELECT_TEXT "Текст"
-    IDS_HOTKEY_NAVIGATION_SELECT_TREE "Дерево"
-    IDS_HOTKEY_GROUP_STYLE  "Стиль"
-    IDS_HOTKEY_STYLE_LINK   "Ссылка"
-    IDS_HOTKEY_STYLE_NO_LINK "Без ссылки"
-    IDS_HOTKEY_STYLE_NORMAL "Нормализованный"
-    IDS_HOTKEY_STYLE_NOTE   "Сноска"
-    IDS_HOTKEY_STYLE_SUBTITLE "Подзаголовок"
-    IDS_HOTKEY_STYLE_TEXT_AUTHOR "Автор текста"
-    IDS_HOTKEY_GROUP_VIEW   "Просмотр"
-    IDS_HOTKEY_VIEW_BODY    "Дизайн"
-    IDS_HOTKEY_VIEW_DESCRIPTION "Описание"
-    IDS_HOTKEY_VIEW_SOURCE  "Код"
-    IDS_HOTKEY_EDIT_INSERT_TABLE "Вставить таблицу"
+    IDS_HOTKEY_NAVIGATION_SELECT_ID_TABLE "ID С‚Р°Р±Р»РёС†С‹"
+    IDS_HOTKEY_NAVIGATION_SELECT_TEXT "РўРµРєСЃС‚"
+    IDS_HOTKEY_NAVIGATION_SELECT_TREE "Р”РµСЂРµРІРѕ"
+    IDS_HOTKEY_GROUP_STYLE  "РЎС‚РёР»СЊ"
+    IDS_HOTKEY_STYLE_LINK   "РЎСЃС‹Р»РєР°"
+    IDS_HOTKEY_STYLE_NO_LINK "Р‘РµР· СЃСЃС‹Р»РєРё"
+    IDS_HOTKEY_STYLE_NORMAL "РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅС‹Р№"
+    IDS_HOTKEY_STYLE_NOTE   "РЎРЅРѕСЃРєР°"
+    IDS_HOTKEY_STYLE_SUBTITLE "РџРѕРґР·Р°РіРѕР»РѕРІРѕРє"
+    IDS_HOTKEY_STYLE_TEXT_AUTHOR "РђРІС‚РѕСЂ С‚РµРєСЃС‚Р°"
+    IDS_HOTKEY_GROUP_VIEW   "РџСЂРѕСЃРјРѕС‚СЂ"
+    IDS_HOTKEY_VIEW_BODY    "Р”РёР·Р°Р№РЅ"
+    IDS_HOTKEY_VIEW_DESCRIPTION "РћРїРёСЃР°РЅРёРµ"
+    IDS_HOTKEY_VIEW_SOURCE  "РљРѕРґ"
+    IDS_HOTKEY_EDIT_INSERT_TABLE "Р’СЃС‚Р°РІРёС‚СЊ С‚Р°Р±Р»РёС†Сѓ"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_HOTKEY_GROUP_SCRIPTS "Скрипты"
-    IDS_HOTKEY_SCRIPTS_LAST_SCRIPT "Последний запущенный"
-    IDS_SETTINGS_HOTKEYS_CAPTION "Клавиши"
-    IDS_HOTKEY_GROUP_SYMBOLS "Символы"
-    IDS_SETTINGS_WORDS_CAPTION "Слова"
-    IDS_SETTINGS_WLIST_COUNTED "Встретилось"
-    IDS_SETTINGS_WLIST_WORD "Слово"
-    IDS_SETTINGS_WORDS_ADD_ERR_TEXT "Это слово уже есть в списке!"
-    IDS_SETTINGS_WORDS_ADD_ERR_CAP "Ошибка добавления слова"
+    IDS_HOTKEY_GROUP_SCRIPTS "РЎРєСЂРёРїС‚С‹"
+    IDS_HOTKEY_SCRIPTS_LAST_SCRIPT "РџРѕСЃР»РµРґРЅРёР№ Р·Р°РїСѓС‰РµРЅРЅС‹Р№"
+    IDS_SETTINGS_HOTKEYS_CAPTION "РљР»Р°РІРёС€Рё"
+    IDS_HOTKEY_GROUP_SYMBOLS "РЎРёРјРІРѕР»С‹"
+    IDS_SETTINGS_WORDS_CAPTION "РЎР»РѕРІР°"
+    IDS_SETTINGS_WLIST_COUNTED "Р’СЃС‚СЂРµС‚РёР»РѕСЃСЊ"
+    IDS_SETTINGS_WLIST_WORD "РЎР»РѕРІРѕ"
+    IDS_SETTINGS_WORDS_ADD_ERR_TEXT "Р­С‚Рѕ СЃР»РѕРІРѕ СѓР¶Рµ РµСЃС‚СЊ РІ СЃРїРёСЃРєРµ!"
+    IDS_SETTINGS_WORDS_ADD_ERR_CAP "РћС€РёР±РєР° РґРѕР±Р°РІР»РµРЅРёСЏ СЃР»РѕРІР°"
     IDS_SETTINGS_WORDS_ADD_ERR_SYM 
-                            "Новые исключения могут содержать только буквенные символы и один ""-"" между ними!"
-    IDS_WORDS_WLIST_WORD    "Слово"
-    IDS_WORDS_WLIST_REPLACEMENT "Замена"
-    IDS_WORDS_WLIST_COUNTED "Количество"
-    IDS_WORDS_FR_BTN_FIND0  "Найти"
-    IDS_WORDS_FR_BTN_FIND1  "Далее"
-    IDS_CTXMENU_CUT         "Вырезать"
+                            "РќРѕРІС‹Рµ РёСЃРєР»СЋС‡РµРЅРёСЏ РјРѕРіСѓС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ Р±СѓРєРІРµРЅРЅС‹Рµ СЃРёРјРІРѕР»С‹ Рё РѕРґРёРЅ ""-"" РјРµР¶РґСѓ РЅРёРјРё!"
+    IDS_WORDS_WLIST_WORD    "РЎР»РѕРІРѕ"
+    IDS_WORDS_WLIST_REPLACEMENT "Р—Р°РјРµРЅР°"
+    IDS_WORDS_WLIST_COUNTED "РљРѕР»РёС‡РµСЃС‚РІРѕ"
+    IDS_WORDS_FR_BTN_FIND0  "РќР°Р№С‚Рё"
+    IDS_WORDS_FR_BTN_FIND1  "Р”Р°Р»РµРµ"
+    IDS_CTXMENU_CUT         "Р’С‹СЂРµР·Р°С‚СЊ"
 END
 
 STRINGTABLE
 BEGIN
-    IDC_SPELL_IGNORE        "Пропустить"
+    IDC_SPELL_IGNORE        "РџСЂРѕРїСѓСЃС‚РёС‚СЊ"
 END
 
 STRINGTABLE
 BEGIN
-    IDC_SPELL_REPLACE       "Заменить слово"
+    IDC_SPELL_REPLACE       "Р—Р°РјРµРЅРёС‚СЊ СЃР»РѕРІРѕ"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_HOTKEY_EDIT_SUB     "Субскрипт"
-    IDS_HOTKEY_EDIT_SUP     "Суперскрипт"
+    IDS_HOTKEY_EDIT_SUB     "РЎСѓР±СЃРєСЂРёРїС‚"
+    IDS_HOTKEY_EDIT_SUP     "РЎСѓРїРµСЂСЃРєСЂРёРїС‚"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_HOTKEY_HELP         "Помощь"
+    IDS_HOTKEY_HELP         "РџРѕРјРѕС‰СЊ"
 END
 
-#endif    // Русский (Россия) resources
+#endif    // Р СѓСЃСЃРєРёР№ (Р РѕСЃСЃРёСЏ) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Английский (США) resources
+// РђРЅРіР»РёР№СЃРєРёР№ (РЎРЁРђ) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
+#pragma code_page(65001)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -1177,7 +1177,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Английский (США) resources
+#endif    // РђРЅРіР»РёР№СЃРєРёР№ (РЎРЁРђ) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
