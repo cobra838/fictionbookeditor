@@ -15,7 +15,7 @@ extern CSettings _Settings;
 #define IMG_LIST_DIMS 16
 #define MAKEDWORDLONG(a,b) ((DWORDLONG)(((DWORD)(a))|(((DWORDLONG)((DWORD)(b)))<<32)))
 
-static const wchar_t* pattern = L"%s( |\\n)*-( |\\n)*%s(?:[^A-Za-z�-��-�])";
+static const wchar_t* pattern = L"%s( |\\n)*-( |\\n)*%s(?:[^A-Za-z�-��-�])";
 
 enum
 {
@@ -265,8 +265,14 @@ public:
 	CButton btnFRFind, btnFRRepl;
 	bool m_single_repl;
 
-	int m_dlg_min_w, m_dlg_min_h;
-	int m_dlg_prev_h;
+	// Resize layout (captured on first WM_SIZE)
+	int m_initCW, m_initCH;
+	RECT m_rcList, m_rcOK, m_rcCancel;
+	RECT m_rcProcGrp, m_rcProcHlGrp;
+	RECT m_rcShowHide, m_rcBtnSelAll, m_rcBtnSelAllRepl;
+	RECT m_rcBtnAddExcl, m_rcBtnSetRepl, m_rcBtnDesel, m_rcBtnRemRepl;
+	RECT m_rcFRGrp, m_rcFRWord, m_rcFRRepl, m_rcFRTxtWord, m_rcFRTxtRepl;
+	RECT m_rcFRBtnFind, m_rcFRBtnRepl;
 
 	DWORD m_ct;
 
@@ -275,7 +281,8 @@ public:
 													m_showhide_excls(_Settings.GetShowWordsExcls()),
 													m_doc(document),
 													m_single_repl(false),
-													m_ct(0)
+													m_ct(0),
+													m_initCW(0), m_initCH(0)
 	{
 		if(!_Settings.GetShowWordsExcls())
 		{
@@ -293,6 +300,7 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
 
 		COMMAND_HANDLER(IDC_REDIT, EN_KILLFOCUS, OnEditLoseFocus)
 		COMMAND_HANDLER(IDC_CHECK_SHOWHIDE_EXCLS, BN_CLICKED, OnBnClickedCheckShowhideExcls)
@@ -413,19 +421,40 @@ public:
 
 		::lv_hWnd = m_lv.m_hWnd;
 
-		RECT defRect;
-		GetClientRect(&defRect);
+		// Capture initial layout at template size BEFORE SetWindowPlacement changes it
+		{
+			RECT initClient;
+			GetClientRect(&initClient);
+			m_initCW = initClient.right;
+			m_initCH = initClient.bottom;
 
-		m_dlg_min_w = defRect.right - defRect.left;
-		m_dlg_min_h = 255;
-		m_dlg_prev_h = defRect.bottom - defRect.top;
+			auto getRC = [&](int id, RECT& rc) {
+				::GetWindowRect(GetDlgItem(id), &rc);
+				ScreenToClient(&rc);
+			};
+			getRC(IDC_WLIST,                m_rcList);
+			getRC(IDOK,                     m_rcOK);
+			getRC(IDCANCEL,                 m_rcCancel);
+			getRC(IDC_WORDS_PROC_GRP,       m_rcProcGrp);
+			getRC(IDC_WORDS_PROC_HL_GRP,    m_rcProcHlGrp);
+			getRC(IDC_CHECK_SHOWHIDE_EXCLS, m_rcShowHide);
+			getRC(IDC_BUTTON_SELALL,        m_rcBtnSelAll);
+			getRC(IDC_BUTTON_SELALLREPL,    m_rcBtnSelAllRepl);
+			getRC(IDC_BUTTON_ADDHLTOEXCLS,  m_rcBtnAddExcl);
+			getRC(IDC_BUTTON_SETHLREPL,     m_rcBtnSetRepl);
+			getRC(IDC_BUTTON_DESEL,         m_rcBtnDesel);
+			getRC(IDC_BUTTON_REMOVEHLREPL,  m_rcBtnRemRepl);
+			getRC(IDC_WORDS_FR_GBOX_CURWORD, m_rcFRGrp);
+			getRC(IDC_WORDS_FR_EDIT_WORD,   m_rcFRWord);
+			getRC(IDC_WORDS_FR_EDIT_REPL,   m_rcFRRepl);
+			getRC(IDC_WORDS_FR_TEXT_WORD,   m_rcFRTxtWord);
+			getRC(IDC_WORDS_FR_TEXT_REPL,   m_rcFRTxtRepl);
+			getRC(IDC_WORDS_FR_BTN_FIND,    m_rcFRBtnFind);
+			getRC(IDC_WORDS_FR_BTN_REPL,    m_rcFRBtnRepl);
+		}
 
 		if(_Settings.GetWordsDlgPosition(wpl))
-		{
 			SetWindowPlacement(&wpl);
-			GetClientRect(&defRect);
-			m_dlg_prev_h = defRect.bottom - defRect.top;
-		}
 
 		btnFRFind = GetDlgItem(IDC_WORDS_FR_BTN_FIND);
 		btnFRRepl = GetDlgItem(IDC_WORDS_FR_BTN_REPL);
@@ -970,56 +999,88 @@ public:
 		return 0;
 	}
 
-	static BOOL CALLBACK EnumChildProc(HWND hWnd, LPARAM lParam)
+	LRESULT OnGetMinMaxInfo(UINT, WPARAM, LPARAM lParam, BOOL&)
 	{
-		int diff_h = lParam;
-
-		CWindow dlgFrame = ::GetParent(hWnd);
-		if(dlgFrame == ::lv_hWnd)
-			return TRUE;
-
-		CWindow wndChild = hWnd;
-		RECT rectChild;
-		wndChild.GetWindowRect(&rectChild);
-
-		dlgFrame.ScreenToClient(&rectChild);
-
-		if(hWnd != ::lv_hWnd && dlgFrame != ::lv_hWnd)
+		if (m_initCW > 0)
 		{
-			rectChild.top += diff_h;
-			rectChild.bottom += diff_h;
+			RECT wndRC, cliRC;
+			GetWindowRect(&wndRC);
+			GetClientRect(&cliRC);
+			int ncW = (wndRC.right - wndRC.left) - cliRC.right;
+			int ncH = (wndRC.bottom - wndRC.top) - cliRC.bottom;
+			LPMINMAXINFO pMMI = (LPMINMAXINFO)lParam;
+			pMMI->ptMinTrackSize.x = m_initCW + ncW;
+			pMMI->ptMinTrackSize.y = m_initCH + ncH;
 		}
-		else if(hWnd == ::lv_hWnd)
-		{
-			rectChild.bottom += diff_h;
-		}
-
-		wndChild.MoveWindow(&rectChild);
-		dlgFrame.Invalidate();
-
-		return TRUE;
+		return 0;
 	}
 
-	LRESULT OnSize(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
+	LRESULT OnSize(UINT, WPARAM, LPARAM, BOOL&)
 	{
-		RECT newRect, newClientRect;
-		GetWindowRect(&newRect);
-		GetClientRect(&newClientRect);
+		if (m_initCW == 0) return 0; // not yet initialized (WM_SIZE before OnInitDialog)
 
-		if(newClientRect.right - newClientRect.left != m_dlg_min_w)
-			newRect.right = newRect.left + m_dlg_min_w + 2*::GetSystemMetrics(SM_CXSIZEFRAME);
-		if(newClientRect.bottom - newClientRect.top < m_dlg_min_h)
-			newRect.bottom = newRect.top + m_dlg_min_h + 2*::GetSystemMetrics(SM_CYSIZEFRAME) + ::GetSystemMetrics(SM_CYMENU);
+		RECT client;
+		GetClientRect(&client);
+		int cw = client.right;
+		int ch = client.bottom;
 
-		MoveWindow(&newRect);
+		// Gap helpers
+		auto rGap = [&](const RECT& rc) { return m_initCW - rc.right; };
+		auto bGap = [&](const RECT& rc) { return m_initCH - rc.bottom; };
+		auto W    = [](const RECT& rc)  { return rc.right  - rc.left; };
+		auto H    = [](const RECT& rc)  { return rc.bottom - rc.top; };
+		auto aR   = [&](const RECT& rc) { return cw - rGap(rc) - W(rc); }; // anchor right → new X
+		auto aB   = [&](const RECT& rc) { return ch - bGap(rc) - H(rc); }; // anchor bottom → new Y
 
-		GetClientRect(&newRect);
-		int diff_h = (newRect.bottom - newRect.top) - m_dlg_prev_h;
-		m_dlg_prev_h = newRect.bottom - newRect.top;
+		// ListView — stretch both
+		::SetWindowPos(GetDlgItem(IDC_WLIST), NULL, 0, 0,
+			cw - m_rcList.left - rGap(m_rcList),
+			ch - m_rcList.top  - bGap(m_rcList),
+			SWP_NOMOVE | SWP_NOZORDER);
 
-		if(diff_h != 0)
-			::EnumChildWindows(m_hWnd, EnumChildProc, diff_h);
+		// OK, Cancel — bottom-right
+		::SetWindowPos(GetDlgItem(IDOK),     NULL, aR(m_rcOK),     aB(m_rcOK),     0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		::SetWindowPos(GetDlgItem(IDCANCEL), NULL, aR(m_rcCancel), aB(m_rcCancel), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
+		// Process groupbox (right) — bottom-right
+		::SetWindowPos(GetDlgItem(IDC_WORDS_PROC_GRP), NULL,
+			aR(m_rcProcGrp), aB(m_rcProcGrp), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+		// Process highlighted groupbox — bottom, left fixed
+		::SetWindowPos(GetDlgItem(IDC_WORDS_PROC_HL_GRP), NULL,
+			m_rcProcHlGrp.left, aB(m_rcProcHlGrp), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+		// Bottom-left anchored buttons (X fixed, Y anchors bottom)
+		auto moveB = [&](int id, const RECT& rc) {
+			::SetWindowPos(GetDlgItem(id), NULL, rc.left, aB(rc), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		};
+		moveB(IDC_CHECK_SHOWHIDE_EXCLS, m_rcShowHide);
+		moveB(IDC_BUTTON_SELALL,        m_rcBtnSelAll);
+		moveB(IDC_BUTTON_SELALLREPL,    m_rcBtnSelAllRepl);
+		moveB(IDC_BUTTON_ADDHLTOEXCLS,  m_rcBtnAddExcl);
+		moveB(IDC_BUTTON_SETHLREPL,     m_rcBtnSetRepl);
+		moveB(IDC_BUTTON_DESEL,         m_rcBtnDesel);
+		moveB(IDC_BUTTON_REMOVEHLREPL,  m_rcBtnRemRepl);
+
+		// Current word groupbox — bottom, stretch width
+		::SetWindowPos(GetDlgItem(IDC_WORDS_FR_GBOX_CURWORD), NULL,
+			m_rcFRGrp.left, aB(m_rcFRGrp),
+			cw - m_rcFRGrp.left - rGap(m_rcFRGrp), H(m_rcFRGrp),
+			SWP_NOZORDER);
+
+		// FR text/edit — bottom, X fixed
+		moveB(IDC_WORDS_FR_EDIT_WORD,  m_rcFRWord);
+		moveB(IDC_WORDS_FR_EDIT_REPL,  m_rcFRRepl);
+		moveB(IDC_WORDS_FR_TEXT_WORD,  m_rcFRTxtWord);
+		moveB(IDC_WORDS_FR_TEXT_REPL,  m_rcFRTxtRepl);
+
+		// FR buttons — bottom-right
+		::SetWindowPos(GetDlgItem(IDC_WORDS_FR_BTN_FIND), NULL,
+			aR(m_rcFRBtnFind), aB(m_rcFRBtnFind), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		::SetWindowPos(GetDlgItem(IDC_WORDS_FR_BTN_REPL), NULL,
+			aR(m_rcFRBtnRepl), aB(m_rcFRBtnRepl), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+		InvalidateRect(NULL, TRUE);
 		return 0;
 	}
 

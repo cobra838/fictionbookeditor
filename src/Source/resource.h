@@ -480,6 +480,8 @@
 #define IDC_AB_STATIC_BANNER            1112
 #define IDC_CHECK_DISABLE_WORDS_STATS   1113
 #define IDC_BUTTON_RESET_WORDS_STATS    1114
+#define IDC_WORDS_PROC_GRP              1115
+#define IDC_WORDS_PROC_HL_GRP           1116
 #define ID_SCRIPT_BASE                  9000
 #define ID_EDIT_INS_SYMBOL              10000
 #define IDS_HOTKEY_HELP                 32700
