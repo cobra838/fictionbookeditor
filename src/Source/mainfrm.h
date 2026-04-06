@@ -556,6 +556,7 @@ public:
 		// help menu
 		COMMAND_ID_HANDLER(ID_HELP, OnHelp)
 		COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
+		COMMAND_ID_HANDLER(ID_HELP_UPDATE_SCRIPTS, OnHelpUpdateScripts)
 
 		// navigation commands
 		COMMAND_ID_HANDLER(ID_SELECT_TREE, OnSelectCtl)
@@ -796,6 +797,7 @@ public:
 
   LRESULT OnAppAbout(WORD, WORD, HWND, BOOL&);
   LRESULT OnHelp(WORD, WORD, HWND, BOOL&);
+  LRESULT OnHelpUpdateScripts(WORD, WORD, HWND, BOOL&);
 
   LRESULT OnSelectCtl(WORD, WORD, HWND, BOOL&);
   LRESULT OnNextItem(WORD, WORD, HWND, BOOL&);

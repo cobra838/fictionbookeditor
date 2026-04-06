@@ -112,6 +112,12 @@
     <ClCompile Include="Source\utils\Utils.cpp">
       <Filter>Other\utils</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ScriptUpdate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\miniz\miniz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Source\fbe.idl">
@@ -138,6 +144,9 @@
       <Filter>Other\extras</Filter>
     </ClInclude>
     <ClInclude Include="Source\AboutBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ScriptUpdate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\wtl\atlapp.h">

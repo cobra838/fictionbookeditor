@@ -1,4 +1,6 @@
 .vs/
+.claude/
+todo.txt
 src/Release/
 src/Package/
 Locales/res_rus/Release/

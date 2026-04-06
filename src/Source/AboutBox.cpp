@@ -2,6 +2,9 @@
 #include "Utils.h"
 #include "AboutBox.h"
 #include <winhttp.h>
+#include <vector>
+#include <Shlobj.h>
+#include "../../lib/miniz/miniz.h"
 #pragma comment(lib, "winhttp.lib")
 
 LRESULT CAboutDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
@@ -663,6 +666,97 @@ LRESULT CAboutDlg::OnResizeOpenGLWindow(UINT, WPARAM, LPARAM, BOOL&)
 	return TRUE;
 }
 
+// Extract a ZIP file into destDir using miniz.
+// Locked files (exe/dll in use) are written as .new and added to pendingRenames.
+// Returns number of files written, -1 on error.
+static int ExtractZipToDir(const CString& zipPath, const CString& destDir,
+                            std::vector<std::wstring>& pendingRenames)
+{
+    HANDLE hf = CreateFileW(zipPath, GENERIC_READ, FILE_SHARE_READ,
+        NULL, OPEN_EXISTING, 0, NULL);
+    if (hf == INVALID_HANDLE_VALUE) return -1;
+
+    DWORD fsize = GetFileSize(hf, NULL);
+    std::vector<char> data(fsize);
+    DWORD nRead = 0;
+    ReadFile(hf, data.data(), fsize, &nRead, NULL);
+    CloseHandle(hf);
+    if (nRead != fsize) return -1;
+
+    mz_zip_archive zip;
+    mz_zip_zero_struct(&zip);
+    if (!mz_zip_reader_init_mem(&zip, data.data(), data.size(), 0)) return -1;
+
+    // Detect top-level prefix ("FBE-2.8.0/" etc.) from first entry
+    std::string prefix;
+    {
+        mz_zip_archive_file_stat st;
+        if (mz_zip_reader_file_stat(&zip, 0, &st))
+        {
+            std::string fn = st.m_filename;
+            size_t sl = fn.find('/');
+            if (sl != std::string::npos) prefix = fn.substr(0, sl + 1);
+        }
+    }
+
+    int done = 0;
+    int n = (int)mz_zip_reader_get_num_files(&zip);
+    for (int i = 0; i < n; i++)
+    {
+        if (mz_zip_reader_is_file_a_directory(&zip, i)) continue;
+
+        mz_zip_archive_file_stat st;
+        if (!mz_zip_reader_file_stat(&zip, i, &st)) continue;
+
+        std::string relA = st.m_filename;
+        if (!prefix.empty() && relA.compare(0, prefix.size(), prefix) == 0)
+            relA = relA.substr(prefix.size());
+        if (relA.empty()) continue;
+
+        int wlen = MultiByteToWideChar(CP_UTF8, 0, relA.c_str(), -1, NULL, 0);
+        std::wstring wRel(wlen > 1 ? wlen - 1 : 0, 0);
+        MultiByteToWideChar(CP_UTF8, 0, relA.c_str(), -1, &wRel[0], wlen);
+        for (auto& c : wRel) if (c == L'/') c = L'\\';
+
+        std::wstring localPath = (LPCWSTR)destDir + std::wstring(L"\\") + wRel;
+
+        std::wstring parent = localPath.substr(0, localPath.rfind(L'\\'));
+        SHCreateDirectoryExW(NULL, parent.c_str(), NULL);
+
+        size_t fsz = 0;
+        void* pBuf = mz_zip_reader_extract_to_heap(&zip, i, &fsz, 0);
+        if (!pBuf) continue;
+
+        // Try to write directly first
+        HANDLE hOut = CreateFileW(localPath.c_str(), GENERIC_WRITE, 0,
+            NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+        if (hOut == INVALID_HANDLE_VALUE)
+        {
+            // File is locked (exe/dll in use) — write as .new, rename later
+            std::wstring newPath = localPath + L".new";
+            hOut = CreateFileW(newPath.c_str(), GENERIC_WRITE, 0,
+                NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (hOut != INVALID_HANDLE_VALUE)
+            {
+                DWORD w; WriteFile(hOut, pBuf, (DWORD)fsz, &w, NULL);
+                CloseHandle(hOut);
+                pendingRenames.push_back(localPath); // original path, .new suffix implied
+                ++done;
+            }
+        }
+        else
+        {
+            DWORD w; WriteFile(hOut, pBuf, (DWORD)fsz, &w, NULL);
+            CloseHandle(hOut);
+            ++done;
+        }
+        mz_free(pBuf);
+    }
+    mz_zip_reader_end(&zip);
+    return done;
+}
+
 CString CAboutDlg::GetUpdateFileName()
 {
 	wchar_t tempDir[1024];
@@ -688,47 +782,26 @@ void CAboutDlg::RunUpdate(CString filename)
 
 		if (ext == L".zip")
 		{
-			// Extract via PowerShell: wait for app to exit, expand, relaunch
-			wchar_t tempDir[MAX_PATH];
-			GetTempPath(MAX_PATH, tempDir);
-			CString ps1(tempDir);
-			ps1 += L"fbe_update.ps1";
-
-			CString script;
-			script.Format(
-				// L"Start-Sleep -Milliseconds 500\r\n"
-				L"Write-Host 'Extracting update...'\r\n"
-				L"Add-Type -AssemblyName System.IO.Compression.FileSystem\r\n"
-				L"$tmp = Join-Path $env:TEMP 'fbe_update_extract'\r\n"
-				L"Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue\r\n"
-				L"[System.IO.Compression.ZipFile]::ExtractToDirectory('%s', $tmp)\r\n"
-				L"$items = Get-ChildItem $tmp\r\n"
-				L"if ($items.Count -eq 1 -and $items[0].PSIsContainer) { $src = $items[0].FullName } else { $src = $tmp }\r\n"
-				L"Write-Host 'Installing...'\r\n"
-				L"Copy-Item -Path \"$src\\*\" -Destination '%s' -Recurse -Force\r\n"
-				L"Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue\r\n"
-				L"Remove-Item -LiteralPath '%s' -Force -ErrorAction SilentlyContinue\r\n"
-				L"Write-Host 'Done. Starting FBE...'\r\n"
-				// L"Start-Sleep -Milliseconds 500\r\n"
-				L"Start-Process '%s'\r\n",
-				(LPCWSTR)filename,
-				(LPCWSTR)appDir,
-				(LPCWSTR)filename,
-				(LPCWSTR)appExe);
-
-			HANDLE hf = CreateFile(ps1, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-			if (hf != INVALID_HANDLE_VALUE)
+			// Extract ZIP using miniz into appDir; locked files go to .new
+			std::vector<std::wstring> pendingRenames;
+			int extracted = ExtractZipToDir(filename, appDir, pendingRenames);
+			if (extracted <= 0)
 			{
-				BYTE bom[] = { 0xFF, 0xFE };
-				DWORD dw;
-				WriteFile(hf, bom, 2, &dw, NULL);
-				WriteFile(hf, (LPCWSTR)script, script.GetLength() * sizeof(wchar_t), &dw, NULL);
-				CloseHandle(hf);
+				SetDlgItemText(IDC_TEXT_STATUS, m_sDownloadError);
+				return;
 			}
 
-			CString args;
-			args.Format(L"-ExecutionPolicy Bypass -File \"%s\"", (LPCWSTR)ps1);
-			ShellExecute(0, L"open", L"powershell.exe", args, NULL, SW_SHOWDEFAULT);
+			// Rename locked files: original→.old, .new→original
+			// .old files are cleaned up on next launch (OnCreate)
+			for (const auto& path : pendingRenames)
+			{
+				CString p(path.c_str());
+				DeleteFile(p + L".old");
+				MoveFileEx(p, p + L".old", MOVEFILE_REPLACE_EXISTING);
+				MoveFileEx(p + L".new", p, MOVEFILE_REPLACE_EXISTING);
+			}
+			DeleteFile(filename);                      // delete downloaded zip
+			ShellExecute(0, L"open", appExe, NULL, NULL, SW_SHOW);
 		}
 		else
 		{
