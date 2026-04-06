@@ -40,14 +40,15 @@ jobs:
     - name: Patch FBE.rc
       shell: pwsh
       run: |
+        $path = "src/Source/FBE.rc"
         $v = "${{ steps.ver.outputs.version }}"
         $p = $v.Split('.')
-        $rc = Get-Content src/Source/FBE.rc -Raw -Encoding Unicode
-        $rc = $rc -replace 'FILEVERSION \d+,\d+,\d+,\d+',    "FILEVERSION $($p[0]),$($p[1]),$($p[2]),0"
+        $rc = Get-Content $path -Raw -Encoding utf8
+        $rc = $rc -replace 'FILEVERSION \d+,\d+,\d+,\d+', "FILEVERSION $($p[0]),$($p[1]),$($p[2]),0"
         $rc = $rc -replace 'PRODUCTVERSION \d+,\d+,\d+,\d+', "PRODUCTVERSION $($p[0]),$($p[1]),$($p[2]),0"
-        $rc = $rc -replace '"FileVersion", "\d+\.\d+\.\d+"',    '"FileVersion", "' + $v + '"'
-        $rc = $rc -replace '"ProductVersion", "\d+\.\d+\.\d+"', '"ProductVersion", "' + $v + '"'
-        Set-Content src/Source/FBE.rc $rc -Encoding Unicode
+        $rc = $rc -replace '"FileVersion",\s*"\d+\.\d+\.\d+"', "`"FileVersion`", `"$v`""
+        $rc = $rc -replace '"ProductVersion",\s*"\d+\.\d+\.\d+"', "`"ProductVersion`", `"$v`""
+        [System.IO.File]::WriteAllText((Resolve-Path $path), $rc, [System.Text.Encoding]::UTF8)
 
     - name: Generate buildstamp.c
       shell: pwsh
@@ -93,6 +94,11 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: FBE_${{ needs.build.outputs.version }}
+
     - name: Generate changelog
       id: log
       run: |
@@ -105,11 +111,6 @@ jobs:
         echo "items<<EOF" >> $GITHUB_OUTPUT
         echo "$ITEMS"     >> $GITHUB_OUTPUT
         echo "EOF"        >> $GITHUB_OUTPUT
-
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: FBE_${{ needs.build.outputs.version }}
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
