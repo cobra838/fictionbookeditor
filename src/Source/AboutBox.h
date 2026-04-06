@@ -114,6 +114,7 @@ public:
 private:
 	RECT m_SaveRect, m_LogoRect, m_InitialRect;
 	RECT m_rcOK, m_rcUpdate, m_rcContribs, m_rcStatus, m_rcPic;
+	RECT m_rcAppName, m_rcBuildStamp, m_rcLatestVer, m_rcLinks;
 	int m_initCW, m_initCH;
 	CGLLogoView m_glLogo;
 	auto_ptr<CDownloadMonitor> m_monitor;

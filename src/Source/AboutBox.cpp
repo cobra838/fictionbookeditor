@@ -251,6 +251,10 @@ LRESULT CAboutDlg::OnUpdateCheckDone(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
     if (!remoteVer.empty() && !dlUrl.empty())
     {
         int cmp = CompareVersions(remoteVer.c_str(), localVer.c_str());
+        // Show remote version under Build stamp
+        CString remoteVerW(remoteVer.c_str());
+        SetDlgItemText(IDC_LATESTVER, remoteVerW);
+
         if (cmp > 0)
         {
             m_UpdateReady = true;
@@ -264,17 +268,13 @@ LRESULT CAboutDlg::OnUpdateCheckDone(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
         }
         else
         {
-            CString dbg;
-            dbg.Format(L"%s [remote:%S local:%S]", (LPCWSTR)m_sHaveLatestVersion, remoteVer.c_str(), localVer.c_str());
-            SetDlgItemText(IDC_TEXT_STATUS, dbg);
+            SetDlgItemText(IDC_TEXT_STATUS, m_sHaveLatestVersion);
             m_UpdatePict.SetBitmap(m_StatusBitmaps[0]);
         }
     }
     else
     {
-        CString dbg;
-        dbg.Format(L"%s [rv:%S dl:%d]", (LPCWSTR)m_sCantConnect, remoteVer.c_str(), (int)dlUrl.size());
-        SetDlgItemText(IDC_TEXT_STATUS, dbg);
+        SetDlgItemText(IDC_TEXT_STATUS, m_sCantConnect);
     }
     return 0;
 }
@@ -517,6 +517,10 @@ LRESULT CAboutDlg::OnSize(UINT, WPARAM, LPARAM, BOOL&)
 		getRC(IDC_CONTRIBS,    m_rcContribs);
 		getRC(IDC_TEXT_STATUS, m_rcStatus);
 		getRC(IDC_PIC_UPDATE,  m_rcPic);
+		getRC(IDC_STATIC_AB_APPNAMEVER, m_rcAppName);
+		getRC(IDC_BUILDSTAMP, m_rcBuildStamp);
+		getRC(IDC_LATESTVER, m_rcLatestVer);
+		getRC(IDC_SYSLINK_AB_LINKS, m_rcLinks);
 	}
 
 	// normal mode: stretch contributors text, anchor buttons to bottom-right
@@ -562,6 +566,18 @@ LRESULT CAboutDlg::OnSize(UINT, WPARAM, LPARAM, BOOL&)
 		m_rcStatus.left, statusY, statusW, statH, SWP_NOZORDER);
 	::SetWindowPos(GetDlgItem(IDC_PIC_UPDATE), NULL,
 		m_rcPic.left, statusY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+
+	// Top-right text controls — stretch width, keep position
+	auto stretchW = [&](int id, const RECT& rc) {
+		int rGap = m_initCW - rc.right;
+		::SetWindowPos(GetDlgItem(id), NULL, 0, 0,
+			cw - rc.left - rGap, rc.bottom - rc.top,
+			SWP_NOMOVE | SWP_NOZORDER);
+	};
+	stretchW(IDC_STATIC_AB_APPNAMEVER, m_rcAppName);
+	stretchW(IDC_BUILDSTAMP, m_rcBuildStamp);
+	stretchW(IDC_LATESTVER, m_rcLatestVer);
+	stretchW(IDC_SYSLINK_AB_LINKS, m_rcLinks);
 
 	// force full repaint so hidden controls don't leave ghost artifacts
 	InvalidateRect(NULL, TRUE);
