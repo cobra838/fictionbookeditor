@@ -9,6 +9,7 @@ LRESULT CAboutDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 	m_bAllowResize = false;
 	m_hCheckThread = NULL;
 	memset(&m_InitialRect, 0, sizeof(m_InitialRect));
+	m_initCW = m_initCH = 0;
 
 	SetIcon(LoadIcon(_Module.GetResourceInstance(),MAKEINTRESOURCE(IDR_MAINFRAME)));
 
@@ -502,13 +503,18 @@ LRESULT CAboutDlg::OnSize(UINT, WPARAM, LPARAM, BOOL&)
 	if (m_InitialRect.right == 0)
 	{
 		GetWindowRect(&m_InitialRect);
+		RECT initClient;
+		GetClientRect(&initClient);
+		m_initCW = initClient.right;
+		m_initCH = initClient.bottom;
+
 		auto getRC = [&](int id, RECT& rc) {
 			::GetWindowRect(GetDlgItem(id), &rc);
 			ScreenToClient(&rc);
 		};
-		getRC(IDOK,        m_rcOK);
-		getRC(IDC_UPDATE,  m_rcUpdate);
-		getRC(IDC_CONTRIBS,m_rcContribs);
+		getRC(IDOK,            m_rcOK);
+		getRC(IDC_UPDATE,      m_rcUpdate);
+		getRC(IDC_CONTRIBS,    m_rcContribs);
 		getRC(IDC_TEXT_STATUS, m_rcStatus);
 		getRC(IDC_PIC_UPDATE,  m_rcPic);
 	}
@@ -516,36 +522,42 @@ LRESULT CAboutDlg::OnSize(UINT, WPARAM, LPARAM, BOOL&)
 	// normal mode: stretch contributors text, anchor buttons to bottom-right
 	RECT client;
 	GetClientRect(&client);
-	int cw = client.right - client.left;
-	int ch = client.bottom - client.top;
+	int cw = client.right;
+	int ch = client.bottom;
 
-	const int margin = 7;
-	int btnW  = m_rcOK.right     - m_rcOK.left;
-	int btnH  = m_rcOK.bottom    - m_rcOK.top;
+	// Gaps derived from initial template layout — pixel-perfect at original size
+	int rightGap     = m_initCW - m_rcOK.right;              // OK right → client right
+	int bottomGap    = m_initCH - m_rcOK.bottom;             // OK bottom → client bottom
+	int okUpdGap     = m_rcOK.left - m_rcUpdate.right;       // Update right → OK left
+	int statUpdGap   = m_rcUpdate.left - m_rcStatus.right;   // Status right → Update left
+	int contribBtnGap = m_rcOK.top - m_rcContribs.bottom;   // Contributors bottom → buttons top
+
+	int btnW  = m_rcOK.right      - m_rcOK.left;
+	int btnH  = m_rcOK.bottom     - m_rcOK.top;
 	int updW  = m_rcUpdate.right  - m_rcUpdate.left;
 	int statH = m_rcStatus.bottom - m_rcStatus.top;
 
-	// OK — bottom-right
-	::SetWindowPos(GetDlgItem(IDOK), NULL,
-		cw - margin - btnW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	// OK — anchored to bottom-right
+	int okX = cw - rightGap - btnW;
+	int okY = ch - bottomGap - btnH;
+	::SetWindowPos(GetDlgItem(IDOK), NULL, okX, okY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
-	// Update — always reposition (hidden window doesn't paint, but stays in correct place)
-	::SetWindowPos(GetDlgItem(IDC_UPDATE), NULL,
-		cw - margin - btnW - margin - updW, ch - margin - btnH, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+	// Update — to the left of OK, always repositioned (so it doesn't ghost)
+	int updX = okX - okUpdGap - updW;
+	::SetWindowPos(GetDlgItem(IDC_UPDATE), NULL, updX, okY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 
 	// Contributors — stretch width and height
 	::SetWindowPos(GetDlgItem(IDC_CONTRIBS), NULL, 0, 0,
-		cw - m_rcContribs.left - margin,
-		ch - margin - btnH - margin - m_rcContribs.top,
+		cw - m_rcContribs.left - rightGap,
+		okY - contribBtnGap - m_rcContribs.top,
 		SWP_NOMOVE | SWP_NOZORDER);
 
-	// Status text + pic — anchored to bottom-left, above buttons
-	int statusY = ch - margin - btnH + (btnH - statH) / 2;
+	// Status text — right edge: just left of Update (if visible) or just left of OK (if hidden)
+	// statUpdGap may be ≤0 in template (status and Update overlap; only one shown at a time)
 	bool updateVisible = GetDlgItem(IDC_UPDATE).IsWindowVisible() != FALSE;
-	int rightEdge = updateVisible
-		? (cw - margin - btnW - margin - updW - margin)
-		: (cw - margin - btnW - margin);
-	int statusW = rightEdge - m_rcStatus.left;
+	int statusRightEdge = updateVisible ? (updX - statUpdGap) : (okX - okUpdGap);
+	int statusW = statusRightEdge - m_rcStatus.left;
+	int statusY = okY + (btnH - statH) / 2;
 	::SetWindowPos(GetDlgItem(IDC_TEXT_STATUS), NULL,
 		m_rcStatus.left, statusY, statusW, statH, SWP_NOZORDER);
 	::SetWindowPos(GetDlgItem(IDC_PIC_UPDATE), NULL,
