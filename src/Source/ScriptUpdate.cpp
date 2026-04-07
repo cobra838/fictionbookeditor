@@ -210,14 +210,13 @@ DWORD WINAPI CScriptUpdateDlg::ThreadProc(LPVOID pParam)
 
     mz_zip_reader_end(&zip);
 
-    {
-        wstring msg = wstring(L"Matched: ") + to_wstring(matched) +
-                      L"  Done: " + to_wstring(done) +
-                      L"  Failed: " + to_wstring(failed);
-        PostLog(msg.c_str());
-    }
+    wstring* pResult = new wstring(
+        wstring(L"Matched: ") + to_wstring(matched) +
+        L"  Done: " + to_wstring(done) +
+        L"  Failed: " + to_wstring(failed) +
+        L"\r\nDone! " + to_wstring(done) + L" files updated.");
 
-    ::PostMessage(hw, WM_SCRIPTUPDATE_DONE, *pCancel ? 2 : 1, (LPARAM)done);
+    ::PostMessage(hw, WM_SCRIPTUPDATE_DONE, *pCancel ? 2 : 1, (LPARAM)pResult);
     return 0;
 }
 
@@ -225,26 +224,39 @@ DWORD WINAPI CScriptUpdateDlg::ThreadProc(LPVOID pParam)
 // Dialog handlers
 // ---------------------------------------------------------------------------
 
-void CScriptUpdateDlg::AppendLog(const wchar_t* s)
-{
-    int len = m_log.GetWindowTextLength();
-    m_log.SetSel(len, len);
-    if (len > 0) m_log.ReplaceSel(L"\r\n");
-    m_log.ReplaceSel(s);
-    m_log.SendMessage(WM_VSCROLL, SB_BOTTOM, 0);
-}
-
 LRESULT CScriptUpdateDlg::OnInitDialog(UINT, WPARAM, LPARAM, BOOL&)
 {
     m_bCancel         = false;
     m_bCloseRequested = false;
     m_hThread         = NULL;
-    m_log.Attach(GetDlgItem(IDC_SCRIPTUPDATE_LOG));
+    m_AnimIdx         = 0;
+
+    m_result.Attach(GetDlgItem(IDC_SCRIPTUPDATE_LOG));
+    m_Pict.SubclassWindow(GetDlgItem(IDC_PIC_UPDATE));
+    m_Pict.m_transparentColor = RGB(0, 0, 0);
+
+    for (int i = 0; i < ANIM_SIZE; i++)
+        m_AnimBitmaps[i].LoadBitmap(IDB_UPD_CHECK1 + i);
+    m_StatusBitmaps[0].LoadBitmap(IDB_UPD_OK);
+    m_StatusBitmaps[1].LoadBitmap(IDB_UPD_UPDATE);
+    m_StatusBitmaps[2].LoadBitmap(IDB_UPD_ERR);
+
+    m_Pict.SetBitmap(m_AnimBitmaps[0]);
+    SetDlgItemText(IDC_TEXT_STATUS, L"Downloading archive from GitHub...");
     GetDlgItem(IDOK).EnableWindow(FALSE);
+
+    SetTimer(1, 100, NULL);
 
     ThreadParam* p = new ThreadParam{ m_hWnd, &m_bCancel };
     m_hThread = CreateThread(NULL, 0, ThreadProc, p, 0, NULL);
     return TRUE;
+}
+
+LRESULT CScriptUpdateDlg::OnAnimTimer(UINT, WPARAM, LPARAM, BOOL&)
+{
+    if (m_AnimIdx >= ANIM_SIZE) m_AnimIdx = 0;
+    m_Pict.SetBitmap(m_AnimBitmaps[m_AnimIdx++]);
+    return 0;
 }
 
 LRESULT CScriptUpdateDlg::OnWindowClose(UINT, WPARAM, LPARAM, BOOL& bHandled)
@@ -256,7 +268,7 @@ LRESULT CScriptUpdateDlg::OnWindowClose(UINT, WPARAM, LPARAM, BOOL& bHandled)
         m_bCancel         = true;
         m_bCloseRequested = true;
         GetDlgItem(IDCANCEL).EnableWindow(FALSE);
-        AppendLog(L"Cancelling...");
+        SetDlgItemText(IDC_TEXT_STATUS, L"Cancelling...");
     }
     return 0;
 }
@@ -264,27 +276,38 @@ LRESULT CScriptUpdateDlg::OnWindowClose(UINT, WPARAM, LPARAM, BOOL& bHandled)
 LRESULT CScriptUpdateDlg::OnLogMsg(UINT, WPARAM, LPARAM lParam, BOOL&)
 {
     wstring* s = (wstring*)lParam;
-    AppendLog(s->c_str());
+    SetDlgItemText(IDC_TEXT_STATUS, s->c_str());
     delete s;
     return 0;
 }
 
 LRESULT CScriptUpdateDlg::OnDoneMsg(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
 {
+    KillTimer(1);
     if (m_hThread) { CloseHandle(m_hThread); m_hThread = NULL; }
 
-    if (m_bCloseRequested) { EndDialog(IDOK); return 0; }
+    wstring* pResult = (wstring*)lParam;
 
-    if (wParam == 1)
+    if (m_bCloseRequested) { delete pResult; EndDialog(IDOK); return 0; }
+
+    if (wParam == 1 && pResult)
     {
-        wstring msg = wstring(L"Done! ") + to_wstring((int)lParam) + L" files updated.";
-        AppendLog(msg.c_str());
+        m_Pict.SetBitmap(m_StatusBitmaps[0]); // OK
+        SetDlgItemText(IDC_TEXT_STATUS, L"Update complete.");
+        m_result.SetWindowText(pResult->c_str());
     }
     else if (wParam == 2)
-        AppendLog(L"Cancelled.");
+    {
+        m_Pict.SetBitmap(m_StatusBitmaps[2]);
+        SetDlgItemText(IDC_TEXT_STATUS, L"Cancelled.");
+    }
     else
-        AppendLog(L"Error: download failed.");
+    {
+        m_Pict.SetBitmap(m_StatusBitmaps[2]);
+        SetDlgItemText(IDC_TEXT_STATUS, L"Error: download failed.");
+    }
 
+    delete pResult;
     GetDlgItem(IDOK).EnableWindow(TRUE);
     GetDlgItem(IDCANCEL).EnableWindow(FALSE);
     return 0;
@@ -301,6 +324,6 @@ LRESULT CScriptUpdateDlg::OnCancelCmd(WORD, WORD, HWND, BOOL&)
     m_bCancel         = true;
     m_bCloseRequested = true;
     GetDlgItem(IDCANCEL).EnableWindow(FALSE);
-    AppendLog(L"Cancelling...");
+    SetDlgItemText(IDC_TEXT_STATUS, L"Cancelling...");
     return 0;
 }

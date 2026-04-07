@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "resource.h"
+#include "AboutBox.h"   // CTransparentBitmap, ANIM_SIZE, IDB_UPD_*
 #include <string>
 
 #define WM_SCRIPTUPDATE_LOG   (WM_USER + 110)
@@ -14,6 +15,7 @@ public:
     BEGIN_MSG_MAP(CScriptUpdateDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         MESSAGE_HANDLER(WM_CLOSE,              OnWindowClose)
+        MESSAGE_HANDLER(WM_TIMER, OnAnimTimer)
         MESSAGE_HANDLER(WM_SCRIPTUPDATE_LOG,   OnLogMsg)
         MESSAGE_HANDLER(WM_SCRIPTUPDATE_DONE,  OnDoneMsg)
         COMMAND_ID_HANDLER(IDOK,     OnCloseCmd)
@@ -25,7 +27,11 @@ public:
 
 private:
     HANDLE m_hThread;
-    CEdit  m_log;
+    CTransparentBitmap m_Pict;
+    CEdit m_result;
+    CBitmap m_AnimBitmaps[ANIM_SIZE];
+    CBitmap m_StatusBitmaps[3];
+    int m_AnimIdx;
 
     struct ThreadParam {
         HWND           hwnd;
@@ -36,10 +42,9 @@ private:
 
     LRESULT OnInitDialog  (UINT, WPARAM, LPARAM, BOOL&);
     LRESULT OnWindowClose (UINT, WPARAM, LPARAM, BOOL& bHandled);
+    LRESULT OnAnimTimer   (UINT, WPARAM, LPARAM, BOOL&);
     LRESULT OnLogMsg      (UINT, WPARAM, LPARAM lParam, BOOL&);
     LRESULT OnDoneMsg     (UINT, WPARAM wParam, LPARAM lParam, BOOL&);
     LRESULT OnCloseCmd    (WORD, WORD, HWND, BOOL&);
     LRESULT OnCancelCmd   (WORD, WORD, HWND, BOOL&);
-
-    void AppendLog(const wchar_t* s);
 };
