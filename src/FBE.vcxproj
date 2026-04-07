@@ -56,7 +56,7 @@
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Release;$(ProjectDir)Source\extras;$(ProjectDir)Source\utils;$(ProjectDir)Source\wtl;$(ProjectDir)..\lib\Hunspell\Package;$(ProjectDir)..\lib\Pcre\Package;$(ProjectDir)..\lib\Scintilla\Package;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Source;$(ProjectDir)Release;$(ProjectDir)Source\extras;$(ProjectDir)Source\utils;$(ProjectDir)Source\wtl;$(ProjectDir)..\lib\Hunspell\Package;$(ProjectDir)..\lib\Pcre\Package;$(ProjectDir)..\lib\Scintilla\Package;$(ProjectDir)..\lib\nativefiledialog-extended\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;UNICODE;STRICT;HUNSPELL_STATIC;USE_PCRE;_CRT_SECURE_NO_WARNINGS;_WTL_CMDBAR_VISTA_MENUS=0;_WTL_USE_VSSYM32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
@@ -110,6 +110,9 @@ if exist "$(ProjectDir)..\Locales\res_ukr\Package\res_ukr.dll" copy /Y "$(Projec
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\AboutBox.cpp" />
+    <ClCompile Include="..\lib\nativefiledialog-extended\src\nfd_win.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\ScriptUpdate.cpp" />
     <ClCompile Include="..\lib\miniz\miniz.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>

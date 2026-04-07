@@ -4,6 +4,7 @@
 
 #include <fcntl.h>
 #include "Settings.h"
+#include "nfd.h"
 
 extern CSettings _Settings;
 
@@ -161,19 +162,17 @@ public:
 
 		if (prompt)
 		{
-			CString fname = ATLPath::FindFileName(file_name );
-			CString fpath(file_name);
-			fpath = fpath.Left(file_name.GetLength()-fname.GetLength());
-			CFileDialog imgSaveDlg(FALSE, NULL, fname);
-			imgSaveDlg.m_ofn.lpstrInitialDir = fpath;
-
-			// add file types
-			imgSaveDlg.m_ofn.lpstrFilter = L"JPEG files (*.jpg)\0*.jpg\0PNG files (*.png)\0*.png\0All files (*.*)\0*.*\0\0";
-			imgSaveDlg.m_ofn.nFilterIndex = 0;
-			imgSaveDlg.m_ofn.lpstrDefExt = L"jpg";
-
-			modalResult = imgSaveDlg.DoModal(NULL);
-			file_name.SetString(imgSaveDlg.m_szFileName);
+			CString fname = ATLPath::FindFileName(file_name);
+			nfdnchar_t* extOutPath = nullptr;
+			nfdnfilteritem_t extFilters[] = { { L"JPEG", L"jpg" }, { L"PNG", L"png" } };
+			nfdresult_t extResult = NFD_SaveDialogN(&extOutPath, extFilters, 2, nullptr, (nfdnchar_t*)(LPCWSTR)fname);
+			if (extResult == NFD_OKAY) {
+				modalResult = IDOK;
+				file_name.SetString(extOutPath);
+				NFD_FreePathN(extOutPath);
+			} else {
+				modalResult = IDCANCEL;
+			}
 		}
 
 		if (modalResult == IDOK)

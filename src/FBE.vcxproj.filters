@@ -118,6 +118,9 @@
     <ClCompile Include="..\lib\miniz\miniz.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\lib\nativefiledialog-extended\src\nfd_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Source\fbe.idl">
