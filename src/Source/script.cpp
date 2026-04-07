@@ -672,7 +672,7 @@ HRESULT	ScriptLoad(const wchar_t *filename) {
   IMultiLanguage2 *pimlang2;
   CoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_ALL, IID_IMultiLanguage2, (void **)&pimlang2);
 
-  // 1�� ������ ������ ���������� ��� ����������� ���������. �������� ������� �������, ��� � ����� ������.
+  // 1КБ текста вполне достаточно для определения кодировки. Работает гораздо быстрее, чем с целым файлом.
   INT len = min(1024, length);
   HRESULT hCP = pimlang2->DetectInputCodepage(MLDETECTCP_8BIT, 0, (CHAR*)tmp, &len, &pencode, &nos);
 

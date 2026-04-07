@@ -77,8 +77,8 @@ void CSettingsWordsDlg::ResortWordsList()
 	}
 	else
 	{
-		// Ñîõðàíÿåì òåêóùåå ïîâåäåíèå îêíà:
-		// ïðè íà÷àëüíîé çàãðóçêå ñïèñîê ñîðòèðóåòñÿ ïî counted desc.
+		// Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ñ‚ÐµÐºÑƒÑ‰ÐµÐµ Ð¿Ð¾Ð²ÐµÐ´ÐµÐ½Ð¸Ðµ Ð¾ÐºÐ½Ð°:
+		// Ð¿Ñ€Ð¸ Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½Ð¾Ð¹ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐµ ÑÐ¿Ð¸ÑÐ¾Ðº ÑÐ¾Ñ€Ñ‚Ð¸Ñ€ÑƒÐµÑ‚ÑÑ Ð¿Ð¾ counted desc.
 		qsort(m_words.GetData(), m_words.GetSize(), sizeof(WordsItem), g_compare_funcs[1]);
 	}
 }
@@ -109,17 +109,17 @@ void CSettingsWordsDlg::ApplyPreferredSort()
 {
 	if (m_chk_disable_words_stats.GetCheck() != 0)
 	{
-		m_sort = 2; // âòîðàÿ êîëîíêà, ïðÿìîé ïîðÿäîê
+		m_sort = 2; // Ð²Ñ‚Ð¾Ñ€Ð°Ñ ÐºÐ¾Ð»Ð¾Ð½ÐºÐ°, Ð¿Ñ€ÑÐ¼Ð¾Ð¹ Ð¿Ð¾Ñ€ÑÐ´Ð¾Ðº
 		qsort(m_words.GetData(), m_words.GetSize(), sizeof(WordsItem), g_compare_funcs[2]);
 	}
 	else if (AreAllCountsZero())
 	{
-		m_sort = 1; // ïåðâàÿ êîëîíêà, ïðÿìîé ïîðÿäîê
+		m_sort = 1; // Ð¿ÐµÑ€Ð²Ð°Ñ ÐºÐ¾Ð»Ð¾Ð½ÐºÐ°, Ð¿Ñ€ÑÐ¼Ð¾Ð¹ Ð¿Ð¾Ñ€ÑÐ´Ð¾Ðº
 		qsort(m_words.GetData(), m_words.GetSize(), sizeof(WordsItem), g_compare_funcs[0]);
 	}
 	else
 	{
-		m_sort = -1; // ïåðâàÿ êîëîíêà, îáðàòíûé ïîðÿäîê
+		m_sort = -1; // Ð¿ÐµÑ€Ð²Ð°Ñ ÐºÐ¾Ð»Ð¾Ð½ÐºÐ°, Ð¾Ð±Ñ€Ð°Ñ‚Ð½Ñ‹Ð¹ Ð¿Ð¾Ñ€ÑÐ´Ð¾Ðº
 		qsort(m_words.GetData(), m_words.GetSize(), sizeof(WordsItem), g_compare_funcs[1]);
 	}
 }
@@ -469,7 +469,7 @@ LRESULT CSettingsWordsDlg::OnBnClickedButtonRemovesel(WORD /*wNotifyCode*/, WORD
 	if (!selected.GetSize())
 		return 0;
 
-	// Óäàëÿåì ñíèçó ââåðõ, ÷òîáû èíäåêñû íå ñúåçæàëè
+	// Ð£Ð´Ð°Ð»ÑÐµÐ¼ ÑÐ½Ð¸Ð·Ñƒ Ð²Ð²ÐµÑ€Ñ…, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð¸Ð½Ð´ÐµÐºÑÑ‹ Ð½Ðµ ÑÑŠÐµÐ·Ð¶Ð°Ð»Ð¸
 	for (int i = selected.GetSize() - 1; i >= 0; --i)
 	{
 		RemoveWord(selected[i]);
