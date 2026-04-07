@@ -203,8 +203,7 @@ DWORD WINAPI CScriptUpdateDlg::ThreadProc(LPVOID pParam)
         // Log every 10 files to keep UI responsive
         if (done % 10 == 0 || failed > 0)
         {
-            wstring msg = wstring(L"[") + to_wstring(done) + L"/" +
-                          to_wstring(matched) + L"] " + wRel;
+            wstring msg = wstring(L"[") + to_wstring(done) + L"/" + to_wstring(matched) + L"]";
             PostLog(msg.c_str());
         }
     }
@@ -299,7 +298,8 @@ LRESULT CScriptUpdateDlg::OnCloseCmd(WORD, WORD, HWND, BOOL&)
 
 LRESULT CScriptUpdateDlg::OnCancelCmd(WORD, WORD, HWND, BOOL&)
 {
-    m_bCancel = true;
+    m_bCancel         = true;
+    m_bCloseRequested = true;
     GetDlgItem(IDCANCEL).EnableWindow(FALSE);
     AppendLog(L"Cancelling...");
     return 0;
