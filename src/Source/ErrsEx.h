@@ -8,7 +8,9 @@ struct VB_ERRORS
 };
 
 // currently supported dictionaries
-const VB_ERRORS vberrs[] = { 
+#pragma warning(push)
+#pragma warning(disable: 4838)
+const VB_ERRORS vberrs[] = {
 	{0x800A03E9, L"Microsoft VBScript syntax error",  L"Memory error"},
 	{0x800A03EA, L"Microsoft VBScript syntax error",  L"Syntax error"},
 	{0x800A03EB, L"Microsoft VBScript syntax error",  L"Lack of ':'"},
@@ -128,3 +130,4 @@ const VB_ERRORS vberrs[] = {
 	{0x800A139D, L"Microsoft VBScript runtime error", L"Character set cross-border"},
 	{0x800A802B, L"Microsoft VBScript runtime error", L"Element not found"}
 };
+#pragma warning(pop)

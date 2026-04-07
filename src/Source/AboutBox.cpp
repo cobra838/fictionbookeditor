@@ -398,7 +398,7 @@ bool CAboutDlg::FinishUpdateStatus (FCHttpDownload* pTask)
 {
 	bool bStatus = false;
     const HTTP_RESPONSE_INFO& resp = pTask->GetResponseInfo();
-	int nDownload = m_file.tellp();
+	auto nDownload = m_file.tellp();
 
     CString s = m_sDownloadError;
     switch (resp.m_status_code)

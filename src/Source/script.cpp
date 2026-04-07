@@ -32,11 +32,11 @@ static void	strlcatW(wchar_t *d, const wchar_t *s, int dl) {
   d[l] = 0;
 }
 
-static inline void  *::operator new(size_t amount) {
+void *operator new(size_t amount) {
   return ::HeapAlloc(::GetProcessHeap(),0,amount);
 }
 
-static inline void  ::operator delete(void *p) {
+void operator delete(void *p) noexcept {
   ::HeapFree(::GetProcessHeap(),0,p);
 }
 
@@ -672,7 +672,7 @@ HRESULT	ScriptLoad(const wchar_t *filename) {
   IMultiLanguage2 *pimlang2;
   CoCreateInstance(CLSID_CMultiLanguage, NULL, CLSCTX_ALL, IID_IMultiLanguage2, (void **)&pimlang2);
 
-  // 1КБ текста вполне достаточно для определения кодировки. Работает гораздо быстрее, чем с целым файлом.
+  // 1пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
   INT len = min(1024, length);
   HRESULT hCP = pimlang2->DetectInputCodepage(MLDETECTCP_8BIT, 0, (CHAR*)tmp, &len, &pencode, &nos);
 

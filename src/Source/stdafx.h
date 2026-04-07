@@ -42,6 +42,8 @@
 
 #include <shellapi.h>
 
+// #pragma warning(push)
+// #pragma warning(disable: 4838 4302)
 #include <atlapp.h>
 
 extern CAppModule _Module;
@@ -55,19 +57,22 @@ extern CAppModule _Module;
 #include <atlctrls.h>
 #include <atldlgs.h>
 #include <atlctrlw.h>
-#include <atlctrlw.h>
 #include <atlctrlx.h>
 #include <atlsplit.h>
 #include <atlddx.h>
 
 #include <atltheme.h>
+// #pragma warning(pop)
 
 // C library
 #include <ctype.h>
 #include <time.h>
 
 // MSXML
+// #pragma warning(push)
+// #pragma warning(disable: 4192)
 #import <msxml6.dll>
+// #pragma warning(pop)
 
 // vb regexps
 #import "vbscript3.tlb"
@@ -77,7 +82,7 @@ extern CAppModule _Module;
 #include <mshtmdid.h>
 #include <mshtmcid.h>
 #import <shdocvw.dll> no_auto_exclude rename_namespace("SHD") rename("FindText","FindTextX")
-#import <mshtml.tlb> no_auto_exclude rename("TranslateAccelerator","TranslateAcceleratorX")
+#import <mshtml.tlb> no_auto_exclude rename("TranslateAccelerator","TranslateAcceleratorX") rename("max","mshtml_max") rename("min","mshtml_min")
 
 // use com utils
 using namespace _com_util;

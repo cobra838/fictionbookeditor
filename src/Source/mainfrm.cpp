@@ -5607,10 +5607,10 @@ void CMainFrame::DisplayCharCode()
 		// The long complicated way to get unicode character from Scintilla!
 		char buf[5] = {0,0,0,0,0};
 		int pos = m_source.SendMessage(SCI_GETCURRENTPOS);
-		buf[0] = m_source.SendMessage(SCI_GETCHARAT, pos);
+		buf[0] = (char)m_source.SendMessage(SCI_GETCHARAT, pos);
 		int len = UTF8_CHAR_LEN(buf[0]);
 		for (int i=1; i<len && i<5; i++)
-			buf[i] = m_source.SendMessage(SCI_GETCHARAT, pos+i);
+			buf[i] = (char)m_source.SendMessage(SCI_GETCHARAT, pos+i);
 		CA2W str (buf, CP_UTF8);
 		CString s;
 		s.Format(L"  U+%.4X", str[0]);

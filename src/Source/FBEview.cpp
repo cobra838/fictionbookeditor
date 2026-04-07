@@ -95,7 +95,7 @@ void	  CFBEView::QueryStatus(OLECMD *cmd,int ncmd) {
 CString	  CFBEView::QueryCmdText(int cmd) {
   IOleCommandTargetPtr	  ct(m_browser);
   if (ct) {
-    OLECMD	oc={cmd};
+    OLECMD	oc={(UINT)cmd};
     struct {
       OLECMDTEXT	oct;
       wchar_t		buffer[512];
