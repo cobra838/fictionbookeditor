@@ -206,9 +206,6 @@
     <ClInclude Include="Source\XMLSerializer\XMLSerializer.h">
       <Filter>Other\XMLSerializer</Filter>
     </ClInclude>
-    <ClInclude Include="Source\utils\CFileDialogEx.h">
-      <Filter>Other\utils</Filter>
-    </ClInclude>
     <ClInclude Include="Source\utils\utils.h">
       <Filter>Other\utils</Filter>
     </ClInclude>

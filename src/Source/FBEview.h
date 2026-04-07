@@ -13,7 +13,6 @@
 
 #include "resource.h"
 #include "Settings.h"
-#include "CFileDialogEx.h"
 
 extern CSettings _Settings;
 
@@ -464,18 +463,27 @@ public:
 			return 0;
 		}
 
-		CFileDialog imgSaveDlg(FALSE, NULL, src);
-		if(m_file_path != L"")
-			imgSaveDlg.m_ofn.lpstrInitialDir = m_file_path;
+		TCHAR szImgFile[MAX_PATH] = {0};
+		if (src) wcsncpy_s(szImgFile, src, MAX_PATH - 1);
 
-		// add file types
-		imgSaveDlg.m_ofn.lpstrFilter = L"JPEG files (*.jpg)\0*.jpg\0PNG files (*.png)\0*.png\0All files (*.*)\0*.*\0\0";
-		imgSaveDlg.m_ofn.nFilterIndex = 0;
-		imgSaveDlg.m_ofn.lpstrDefExt = L"jpg";
+		OPENFILENAME imgOfn = {0};
+		imgOfn.lStructSize = sizeof(OPENFILENAME);
+		imgOfn.hwndOwner = m_hWnd;
+		if (m_file_path != L"")
+			imgOfn.lpstrInitialDir = m_file_path;
+		imgOfn.lpstrFilter =
+			L"JPEG\0*.jpg;*.jpeg\0"
+			L"PNG\0*.png\0"
+			L"All files\0*.*\0\0";
+		imgOfn.lpstrFile = szImgFile;
+		imgOfn.nMaxFile = MAX_PATH;
+		imgOfn.nFilterIndex = 0;
+		imgOfn.lpstrDefExt = L"jpg";
+		imgOfn.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER;
 
-		if(imgSaveDlg.DoModal(m_hWnd) == IDOK)
+		if(::GetSaveFileName(&imgOfn))
 		{
-			HANDLE imgFile = ::CreateFile(	imgSaveDlg.m_szFileName,
+			HANDLE imgFile = ::CreateFile(	szImgFile,
 											GENERIC_WRITE,
 											NULL,
 											NULL,

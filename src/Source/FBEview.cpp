@@ -3517,23 +3517,31 @@ LRESULT CFBEView::OnEditInsImage(WORD, WORD cmdID, HWND, BOOL&)
 
 	if(!_Settings.GetIsInsClearImage())
 	{
-		CFileDialogEx dlg(
-			TRUE,
-			NULL,
-			NULL,
-			OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,
-			L"FBE supported (*.jpg;*.jpeg;*.png)\0*.jpg;*.jpeg;*.png\0JPEG (*.jpg)\0*.jpg\0PNG (*.png)\0*.png\0Bitmap (*.bmp"\
-			L")\0*.bmp\0GIF (*.gif)\0*.gif\0TIFF (*.tif)\0*.tif\0\0"
-			);
+		TCHAR szFile[MAX_PATH] = {0};
 
 		wchar_t dlgTitle[MAX_LOAD_STRING + 1];
 		::LoadString(_Module.GetResourceInstance(), IDS_ADD_IMAGE_FILEDLG, dlgTitle, MAX_LOAD_STRING);
-		dlg.m_ofn.lpstrTitle = dlgTitle;
-		dlg.m_ofn.nFilterIndex = 1;
 
-		if(dlg.DoModal(*this) == IDOK)
+		OPENFILENAME ofn = {0};
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = m_hWnd;
+		ofn.lpstrFilter =
+			L"Supported images\0*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif\0"
+			L"JPEG\0*.jpg;*.jpeg\0"
+			L"PNG\0*.png\0"
+			L"Bitmap\0*.bmp\0"
+			L"GIF\0*.gif\0"
+			L"TIFF\0*.tif\0"
+			L"All files\0*.*\0\0";
+		ofn.lpstrFile = szFile;
+		ofn.nMaxFile = MAX_PATH;
+		ofn.nFilterIndex = 1;
+		ofn.lpstrTitle = dlgTitle;
+		ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR | OFN_EXPLORER;
+
+		if(::GetOpenFileName(&ofn))
 		{
-			AddImage(dlg.m_szFileName, bInline);
+			AddImage(CString(szFile), bInline);
 		}
 	}
 	else

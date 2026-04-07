@@ -6,7 +6,6 @@
 #include "MainFrm.h"
 #include "AboutBox.h"
 #include "ScriptUpdate.h"
-#include "CFileDialogEx.h"
 #include "SettingsDlg.h"
 #include "xmlMatchedTagsHighlighter.h"
 #include <fstream>
@@ -415,108 +414,41 @@ void  CMainFrame::AttachDocument(FB::Doc *doc)
 	m_view.ActivateWnd(doc->m_body);
 }
 
-CString	CMainFrame::GetOpenFileName() 
+CString	CMainFrame::GetOpenFileName()
 {
-	CFileDialog dlg(TRUE, L"fb2", NULL, OFN_HIDEREADONLY|OFN_PATHMUSTEXIST, 
-		L"FictionBook files (*.fb2)\0*.fb2\0All files (*.*)\0*.*\0\0");
-	if (dlg.DoModal(*this)==IDOK) return dlg.m_szFileName;
+	TCHAR szFile[MAX_PATH] = {0};
+	OPENFILENAME ofn = {0};
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = m_hWnd;
+	ofn.lpstrFilter = L"FictionBook files (*.fb2)\0*.fb2\0All files (*.*)\0*.*\0\0";
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrDefExt = L"fb2";
+	ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER;
+	if (::GetOpenFileName(&ofn))
+		return CString(szFile);
 	return CString();
 }
 
-class CCustomSaveDialog : public CFileDialogImpl<CCustomSaveDialog>
-{
-public:
-  HWND	      m_hDlg;
-  CString     m_encoding;
-
-  CCustomSaveDialog(BOOL bOpenFileDialog, // TRUE for FileOpen, FALSE for FileSaveAs
-    const CString& encoding,
-    LPCTSTR lpszDefExt = NULL,
-    LPCTSTR lpszFileName = NULL,
-    DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-    LPCTSTR lpszFilter = NULL,
-    HWND hWndParent = NULL)
-    : CFileDialogImpl<CCustomSaveDialog>(bOpenFileDialog, lpszDefExt, lpszFileName, dwFlags, lpszFilter, hWndParent),
-      m_hDlg(NULL)
-  {
-    m_ofn.lpTemplateName=MAKEINTRESOURCE(IDD_CUSTOMSAVEDLG);
-	m_encoding = encoding;
-  }
-
-  BEGIN_MSG_MAP(CCustomSaveDialog)
-    if (uMsg==WM_INITDIALOG)
-      return OnInitDialog(hWnd,uMsg,wParam,lParam);
-
-    MESSAGE_HANDLER(WM_SIZE, OnSize);
-
-    CHAIN_MSG_MAP(CFileDialogImpl<CCustomSaveDialog>)
-  END_MSG_MAP()
-
-  LRESULT OnInitDialog(HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam) {
-    m_hDlg=hWnd;
-
-    TCHAR   buf[1024];
-
-    if (::LoadString(_Module.GetResourceInstance(),IDS_ENCODINGS,buf,sizeof(buf)/sizeof(buf[0]))==0)
-      return TRUE;
-
-    TCHAR   *cp=buf;
-    while (*cp) {
-      size_t len=_tcscspn(cp,L",");
-      if (cp[len])
-	cp[len++]= L'\0';
-      if (*cp)
-	::SendDlgItemMessage(hWnd,IDC_ENCODING,CB_ADDSTRING,0,(LPARAM)cp);
-      cp+=len;
-    }
-
-	::SendMessage(::GetDlgItem(hWnd, IDC_ENCODING), CB_SELECTSTRING, 0, (LPARAM)m_encoding.GetBuffer());	
-
-	return TRUE;
-  }
-
-  LRESULT OnSize(UINT uMsg,WPARAM wParam,LPARAM lParam,BOOL& bHandled) {
-    // make combobox the same size as std controls
-    RECT    rc_std,rc_my,rc_static, rc_static_my;
-    HWND    hCB=::GetDlgItem(m_hDlg,IDC_ENCODING);
-	HWND    hST=::GetDlgItem(m_hDlg,IDC_STATIC);
-    ::GetWindowRect(hCB,&rc_my);
-    ::GetWindowRect(GetFileDialogWindow().GetDlgItem(cmb1),&rc_std);
-
-	::GetWindowRect(hST,&rc_static_my);
-	::GetWindowRect(GetFileDialogWindow().GetDlgItem(stc2),&rc_static);
-
-    POINT   pt={rc_std.left,rc_my.top};
-	POINT   pt1={rc_static.left,rc_static_my.top};
-    ::ScreenToClient(m_hDlg,&pt);
-	::ScreenToClient(m_hDlg,&pt1);
-
-	::MoveWindow(hST,pt1.x,pt1.y,rc_static_my.right-rc_static_my.left,rc_my.bottom-rc_my.top,TRUE);
-    ::MoveWindow(hCB,pt.x,pt.y,rc_std.right-rc_std.left,rc_my.bottom-rc_my.top,TRUE);
-
-    return 0;
-  }
-  
-  BOOL OnFileOK(LPOFNOTIFY on) {
-    m_encoding=U::GetWindowText(::GetDlgItem(m_hDlg,IDC_ENCODING));    
-    return TRUE;
-  }
-};
-
 CString	CMainFrame::GetSaveFileName(CString& encoding) {
-	bstr_t filename = m_doc->m_filename;
-	if (!filename || (filename == bstr_t(L"Untitled.fb2")))
-		filename = L"";
+	encoding = _Settings.KeepEncoding() ? m_doc->m_encoding : _Settings.GetDefaultEncoding();
 
-  CCustomSaveDialog	dlg(FALSE,
-	_Settings.KeepEncoding() ? m_doc->m_encoding : _Settings.GetDefaultEncoding(), L"fb2", filename,
-    OFN_HIDEREADONLY|OFN_NOREADONLYRETURN|OFN_OVERWRITEPROMPT| OFN_ENABLETEMPLATE,
-    L"FictionBook files (*.fb2)\0*.fb2\0All files (*.*)\0*.*\0\0");
-  if (dlg.DoModal(*this)==IDOK) {
-    encoding=dlg.m_encoding;
-    return dlg.m_szFileName;
-  }
-  return CString();
+	TCHAR szFile[MAX_PATH] = {0};
+	bstr_t filename = m_doc->m_filename;
+	if (filename && wcscmp((wchar_t*)filename, L"Untitled.fb2") != 0)
+		wcsncpy_s(szFile, (wchar_t*)filename, MAX_PATH - 1);
+
+	OPENFILENAME ofn = {0};
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = m_hWnd;
+	ofn.lpstrFilter = L"FictionBook files (*.fb2)\0*.fb2\0All files (*.*)\0*.*\0\0";
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrDefExt = L"fb2";
+	ofn.Flags = OFN_HIDEREADONLY | OFN_NOREADONLYRETURN | OFN_OVERWRITEPROMPT | OFN_EXPLORER;
+	if (::GetSaveFileName(&ofn))
+		return CString(szFile);
+	return CString();
 }
 
 bool	CMainFrame::DocChanged() {
@@ -3505,27 +3437,42 @@ LRESULT CMainFrame::OnEditAddBinary(WORD, WORD, HWND, BOOL&) {
   if (!m_doc)
     return 0;
 
-  // Modification by Pilgrim
-  CFileDialogEx	dlg(
-    TRUE,
-    _T("*"),
-    NULL,
-	OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,
-	L"All files (*.*)\0*.*\0FBE supported (*.jpg;*.jpeg;*.png)\0*.jpg;*.jpeg;*.png\0JPEG (*.jpg)\0*.jpg\0PNG (*.png)"\
-	L"\0*.png\0Bitmap (*.bmp)\0*.bmp\0GIF (*.gif)\0*.gif\0TIFF (*.tif)\0*.tif\0\0"
-  );  
+  static TCHAR szFiles[32768];
+  szFiles[0] = szFiles[1] = 0;
+
   wchar_t dlgTitle[MAX_LOAD_STRING + 1];
   ::LoadString(_Module.GetResourceInstance(), IDS_ADD_BINARIES_FILEDLG, dlgTitle, MAX_LOAD_STRING);
-  dlg.m_ofn.lpstrTitle = dlgTitle;
-  dlg.m_ofn.nFilterIndex = 2;
 
+  OPENFILENAME ofn = {0};
+  ofn.lStructSize = sizeof(OPENFILENAME);
+  ofn.hwndOwner = m_hWnd;
+  ofn.lpstrFilter =
+    L"Supported images\0*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif\0"
+    L"JPEG\0*.jpg;*.jpeg\0"
+    L"PNG\0*.png\0"
+    L"Bitmap\0*.bmp\0"
+    L"GIF\0*.gif\0"
+    L"TIFF\0*.tif\0"
+    L"All files\0*.*\0\0";
+  ofn.lpstrFile = szFiles;
+  ofn.nMaxFile = 32767;
+  ofn.nFilterIndex = 2;
+  ofn.lpstrTitle = dlgTitle;
+  ofn.Flags = OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_EXPLORER;
 
-  if (dlg.DoModal(*this)==IDOK) {
-	_POSITION_ pos = dlg.GetStartPosition();
-	while(pos) {
-		CString fileName(dlg.GetNextPathName(pos));
-		m_doc->AddBinary(fileName);
-	}	
+  if (::GetOpenFileName(&ofn)) {
+    TCHAR* p = szFiles;
+    CString dir(p);
+    p += dir.GetLength() + 1;
+    if (*p == 0) {
+      m_doc->AddBinary(dir);
+    } else {
+      while (*p) {
+        CString fileName(p);
+        m_doc->AddBinary(dir + L"\\" + fileName);
+        p += fileName.GetLength() + 1;
+      }
+    }
   }
 
   return 0;
