@@ -18,7 +18,6 @@
 #include "Scintilla.h"
 #include "MainFrm.h"
 #include "MemProtocol.h"
-#include "nfd.h"
 
 // typelib interfaces
 #include "FBE.h"
@@ -242,12 +241,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
     isess->Release();
   }
 
-  NFD_Init();
-
   // run the main loop
   nRet = Run(lpstrCmdLine, nCmdShow);
-
-  NFD_Quit();
 out:
   _Module.Term();
 

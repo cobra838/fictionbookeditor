@@ -14,7 +14,6 @@
 #include "resource.h"
 #include "Settings.h"
 #include "CFileDialogEx.h"
-#include "nfd.h"
 
 extern CSettings _Settings;
 
@@ -465,12 +464,18 @@ public:
 			return 0;
 		}
 
-		nfdnchar_t* imgOutPath = nullptr;
-		nfdnfilteritem_t imgFilters[] = { { L"JPEG", L"jpg" }, { L"PNG", L"png" } };
-		nfdresult_t imgResult = NFD_SaveDialogN(&imgOutPath, imgFilters, 2, nullptr, (nfdnchar_t*)(LPCWSTR)src);
-		if(imgResult == NFD_OKAY)
+		CFileDialog imgSaveDlg(FALSE, NULL, src);
+		if(m_file_path != L"")
+			imgSaveDlg.m_ofn.lpstrInitialDir = m_file_path;
+
+		// add file types
+		imgSaveDlg.m_ofn.lpstrFilter = L"JPEG files (*.jpg)\0*.jpg\0PNG files (*.png)\0*.png\0All files (*.*)\0*.*\0\0";
+		imgSaveDlg.m_ofn.nFilterIndex = 0;
+		imgSaveDlg.m_ofn.lpstrDefExt = L"jpg";
+
+		if(imgSaveDlg.DoModal(m_hWnd) == IDOK)
 		{
-			HANDLE imgFile = ::CreateFile(	imgOutPath,
+			HANDLE imgFile = ::CreateFile(	imgSaveDlg.m_szFileName,
 											GENERIC_WRITE,
 											NULL,
 											NULL,
@@ -486,7 +491,6 @@ public:
 			::WriteFile(imgFile, pData, size, &written, NULL);
 
 			CloseHandle(imgFile);
-			NFD_FreePathN(imgOutPath);
 		}
 
 		return 0;

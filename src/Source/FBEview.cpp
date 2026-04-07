@@ -3517,19 +3517,23 @@ LRESULT CFBEView::OnEditInsImage(WORD, WORD cmdID, HWND, BOOL&)
 
 	if(!_Settings.GetIsInsClearImage())
 	{
-		nfdnchar_t* outPath = nullptr;
-		nfdnfilteritem_t filters[] = {
-			{ L"Supported images", L"jpg,jpeg,png,bmp,gif,tif" },
-			{ L"JPEG", L"jpg,jpeg" },
-			{ L"PNG", L"png" },
-			{ L"Bitmap", L"bmp" },
-			{ L"GIF", L"gif" },
-			{ L"TIFF", L"tif" }
-		};
-		nfdresult_t result = NFD_OpenDialogN(&outPath, filters, 6, nullptr);  // NFD adds "All files" automatically
-		if (result == NFD_OKAY) {
-			AddImage(CString(outPath), bInline);
-			NFD_FreePathN(outPath);
+		CFileDialogEx dlg(
+			TRUE,
+			NULL,
+			NULL,
+			OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,
+			L"FBE supported (*.jpg;*.jpeg;*.png)\0*.jpg;*.jpeg;*.png\0JPEG (*.jpg)\0*.jpg\0PNG (*.png)\0*.png\0Bitmap (*.bmp"\
+			L")\0*.bmp\0GIF (*.gif)\0*.gif\0TIFF (*.tif)\0*.tif\0\0"
+			);
+
+		wchar_t dlgTitle[MAX_LOAD_STRING + 1];
+		::LoadString(_Module.GetResourceInstance(), IDS_ADD_IMAGE_FILEDLG, dlgTitle, MAX_LOAD_STRING);
+		dlg.m_ofn.lpstrTitle = dlgTitle;
+		dlg.m_ofn.nFilterIndex = 1;
+
+		if(dlg.DoModal(*this) == IDOK)
+		{
+			AddImage(dlg.m_szFileName, bInline);
 		}
 	}
 	else
