@@ -780,7 +780,12 @@ void CAboutDlg::RunUpdate(CString filename)
 			// Get exe filename (e.g. "FBE.exe")
 			CString exeName = appExe.Mid(appExe.ReverseFind(L'\\') + 1);
 
-			// Write _update.bat — cmd.exe reads ANSI
+			// Write _update.bat — cmd.exe uses OEM codepage (CP866 on Russian Windows)
+			auto toOem = [](const CString& s) -> CStringA {
+				int len = WideCharToMultiByte(CP_OEMCP, 0, s, -1, NULL, 0, NULL, NULL);
+				CStringA r; WideCharToMultiByte(CP_OEMCP, 0, s, -1, r.GetBuffer(len), len, NULL, NULL);
+				r.ReleaseBuffer(); return r;
+			};
 			CString batPath = appDir + L"\\_update.bat";
 			CStringA bat;
 			bat.Format(
@@ -793,11 +798,11 @@ void CAboutDlg::RunUpdate(CString filename)
 				"del \"%s\"\r\n"
 				"start \"\" \"%s\\%s\"\r\n"
 				"start /b \"\" cmd /c del \"%%~f0\"\r\n",
-				(LPCSTR)CStringA(exeName), (LPCSTR)CStringA(exeName),
-				(LPCSTR)CStringA(tempDir), (LPCSTR)CStringA(appDir),
-				(LPCSTR)CStringA(tempDir),
-				(LPCSTR)CStringA(filename),
-				(LPCSTR)CStringA(appDir), (LPCSTR)CStringA(exeName)
+				(LPCSTR)toOem(exeName), (LPCSTR)toOem(exeName),
+				(LPCSTR)toOem(tempDir), (LPCSTR)toOem(appDir),
+				(LPCSTR)toOem(tempDir),
+				(LPCSTR)toOem(filename),
+				(LPCSTR)toOem(appDir), (LPCSTR)toOem(exeName)
 			);
 			HANDLE hBat = CreateFileW(batPath, GENERIC_WRITE, 0,
 				NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
