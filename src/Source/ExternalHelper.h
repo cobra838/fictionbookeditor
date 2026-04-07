@@ -161,19 +161,32 @@ public:
 
 		if (prompt)
 		{
-			CString fname = ATLPath::FindFileName(file_name );
-			CString fpath(file_name);
-			fpath = fpath.Left(file_name.GetLength()-fname.GetLength());
-			CFileDialog imgSaveDlg(FALSE, NULL, fname);
-			imgSaveDlg.m_ofn.lpstrInitialDir = fpath;
+			CString fname = ATLPath::FindFileName(file_name);
+			CString fpath = file_name.Left(file_name.GetLength() - fname.GetLength());
 
-			// add file types
-			imgSaveDlg.m_ofn.lpstrFilter = L"JPEG files (*.jpg)\0*.jpg\0PNG files (*.png)\0*.png\0All files (*.*)\0*.*\0\0";
-			imgSaveDlg.m_ofn.nFilterIndex = 0;
-			imgSaveDlg.m_ofn.lpstrDefExt = L"jpg";
+			TCHAR szFile[MAX_PATH] = {0};
+			wcsncpy_s(szFile, (LPCWSTR)fname, MAX_PATH - 1);
 
-			modalResult = imgSaveDlg.DoModal(NULL);
-			file_name.SetString(imgSaveDlg.m_szFileName);
+			OPENFILENAME ofn = {0};
+			ofn.lStructSize = sizeof(OPENFILENAME);
+			ofn.hwndOwner = ::GetActiveWindow();
+			ofn.lpstrInitialDir = fpath;
+			ofn.lpstrFilter =
+				L"JPEG\0*.jpg;*.jpeg\0"
+				L"PNG\0*.png\0"
+				L"All files\0*.*\0\0";
+			ofn.lpstrFile = szFile;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.nFilterIndex = 0;
+			ofn.lpstrDefExt = L"jpg";
+			ofn.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER;
+
+			if (::GetSaveFileName(&ofn)) {
+				modalResult = IDOK;
+				file_name.SetString(szFile);
+			} else {
+				modalResult = IDCANCEL;
+			}
 		}
 
 		if (modalResult == IDOK)

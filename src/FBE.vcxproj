@@ -205,7 +205,6 @@ if exist "$(ProjectDir)..\Locales\res_ukr\Package\res_ukr.dll" copy /Y "$(Projec
     <ClInclude Include="Source\apputils.h" />
     <ClInclude Include="Source\atlimage.h" />
     <ClInclude Include="Source\extras\atlcrypt.h" />
-    <ClInclude Include="Source\utils\CFileDialogEx.h" />
     <ClInclude Include="Source\ContainerWnd.h" />
     <ClInclude Include="Source\DocumentTree.h" />
     <ClInclude Include="Source\ElementDescMnr.h" />
