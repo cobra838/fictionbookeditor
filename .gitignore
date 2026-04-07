@@ -1,15 +1,5 @@
 .vs/
 .claude/
 todo.txt
-src/Release/
-src/Package/
-Locales/res_rus/Release/
-Locales/res_rus/Package/
-Locales/res_ukr/Release/
-Locales/res_ukr/Package/
-Lib/Hunspell/Release/
-Lib/Hunspell/Package/
-Lib/Pcre/Release/
-Lib/Pcre/Package/
-Lib/Scintilla/Release/
-Lib/Scintilla/Package/
+*Release/
+*Package/
