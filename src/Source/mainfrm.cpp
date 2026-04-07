@@ -1367,7 +1367,17 @@ BOOL CMainFrame::OnIdle()
 		m_change_state = DocChanged();
 		CString tt(U::GetFileTitle(m_doc->m_filename));
 		tt += m_change_state ? L" +" : L" -";
-		SetWindowText(tt + L" FB Editor");
+
+		// Extract version (N.N.N) from build_name
+		CString ver;
+		for (size_t i = 0; build_name[i]; i++)
+		{
+			if (!isdigit((unsigned char)build_name[i])) continue;
+			int a, b, c;
+			if (sscanf(build_name + i, "%d.%d.%d", &a, &b, &c) == 3)
+				{ ver.Format(L" %d.%d.%d", a, b, c); break; }
+		}
+		SetWindowText(tt + L" FBE" + ver);
 	}
 
 	return FALSE;
