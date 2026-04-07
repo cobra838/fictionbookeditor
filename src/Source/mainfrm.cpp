@@ -5136,87 +5136,80 @@ int CMainFrame::GrabScripts(CString path, TCHAR* mask, CString refid)
 		{
 			if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				if (StartScript(this) ==0 && SUCCEEDED(ScriptLoad(path + fd.cFileName)) && ScriptFindFunc(L"Run"))
+				ScrInfo script;
+				wchar_t* Name = new wchar_t[wcslen(fd.cFileName) + 1];
+				wchar_t* pos = wcschr(fd.cFileName, L'_');
+
+				script.order = L"0_";
+
+				if(!pos || !U::CheckScriptsVersion(fd.cFileName))
 				{
+					wcscpy(Name, fd.cFileName);
+					script.order += Name;
+				}
+				else
+				{
+					wcscpy(Name, pos + 1);
+					script.order = fd.cFileName;
+				}
+
+				Name[wcslen(Name) - 3] = 0;
+				script.name = Name;
+				script.path = path + fd.cFileName;
+
+				CString fullBaseName(fd.cFileName);
+				fullBaseName.Delete(fullBaseName.GetLength() - 3, 3);
+				fullBaseName.MakeLower();
+				script.hash = CalculateFNV1aHash(fullBaseName);
+
+				script.picture = NULL;
+				script.pictType = CMainFrame::NO_PICT;
+				WIN32_FIND_DATA picFd;
+				wchar_t* picName = new wchar_t[wcslen(fd.cFileName) + 1];
+				wcscpy(picName, fd.cFileName);
+
+				picName[wcslen(picName) - 3] = 0;
+				CString picPathNoExt = (path + picName);
+				HANDLE hPicture = FindFirstFile(picPathNoExt + L".bmp", &picFd);
+				HANDLE hIcon = FindFirstFile(picPathNoExt + L".ico", &picFd);
+
+				if(hPicture != INVALID_HANDLE_VALUE)
+				{
+					HBITMAP bitmap = (HBITMAP)LoadImage(NULL, (picPathNoExt + L".bmp").GetBuffer(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+					if(bitmap != NULL)
 					{
-						ScrInfo script;
-						wchar_t* Name = new wchar_t[wcslen(fd.cFileName) + 1];
-						wchar_t* pos = wcschr(fd.cFileName, L'_');
-
-						script.order = L"0_";
-
-						if(!pos || !U::CheckScriptsVersion(fd.cFileName))
-						{
-							wcscpy(Name, fd.cFileName);
-							script.order += Name;
-						}
-						else
-						{
-							wcscpy(Name, pos + 1);
-							script.order = fd.cFileName;
-						}
-					
-						Name[wcslen(Name) - 3] = 0;
-						script.name = Name;
-						script.path = path + fd.cFileName;
-
-						// ��������� ��� �������
-                        CString fullBaseName(fd.cFileName);
-                        fullBaseName.Delete(fullBaseName.GetLength() - 3, 3); // �������� ".js"
-                        fullBaseName.MakeLower(); // � ������ ������� ��� 100% ����������
-                        script.hash = CalculateFNV1aHash(fullBaseName); // ���������� � ���������
-                        
-						script.picture = NULL;
-						script.pictType = CMainFrame::NO_PICT;
-						WIN32_FIND_DATA picFd;
-						wchar_t* picName = new wchar_t[wcslen(fd.cFileName) + 1];
-						wcscpy(picName, fd.cFileName);
-
-						picName[wcslen(picName) - 3] = 0;
-						CString picPathNoExt = (path + picName);
-						HANDLE hPicture = FindFirstFile(picPathNoExt + L".bmp", &picFd);
-						HANDLE hIcon = FindFirstFile(picPathNoExt + L".ico", &picFd);
-
-						if(hPicture != INVALID_HANDLE_VALUE)
-						{
-							HBITMAP bitmap = (HBITMAP)LoadImage(NULL, (picPathNoExt + L".bmp").GetBuffer(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-							if(bitmap != NULL)
-							{
-								script.picture = bitmap;
-								script.pictType = CMainFrame::BITMAP;
-							}
-						}
-						else if(hIcon != INVALID_HANDLE_VALUE)
-						{
-							HICON icon = (HICON)LoadImage(NULL, (picPathNoExt + L".ico").GetBuffer(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
-							if(icon != NULL)
-							{
-								script.picture = icon;
-								script.pictType = CMainFrame::ICON;
-							}
-						}
-
-						if(hPicture != INVALID_HANDLE_VALUE)
-							FindClose(hPicture);
-						if(hIcon != INVALID_HANDLE_VALUE)
-							FindClose(hIcon);
-
-						delete[] picName;
-		
-						CString temp;
-						temp.Format(L"_%d", newid);
-						script.id = refid + temp;
-						script.refid = refid;
-						script.isFolder = false;
-						script.Type = 2;			
-						m_scripts.Add(script);
-						newid++;
-
-						delete[] Name;
+						script.picture = bitmap;
+						script.pictType = CMainFrame::BITMAP;
 					}
-					StopScript();
-				}				
-			 }		 
+				}
+				else if(hIcon != INVALID_HANDLE_VALUE)
+				{
+					HICON icon = (HICON)LoadImage(NULL, (picPathNoExt + L".ico").GetBuffer(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+					if(icon != NULL)
+					{
+						script.picture = icon;
+						script.pictType = CMainFrame::ICON;
+					}
+				}
+
+				if(hPicture != INVALID_HANDLE_VALUE)
+					FindClose(hPicture);
+				if(hIcon != INVALID_HANDLE_VALUE)
+					FindClose(hIcon);
+
+				delete[] picName;
+
+				CString temp;
+				temp.Format(L"_%d", newid);
+				script.id = refid + temp;
+				script.refid = refid;
+				script.isFolder = false;
+				script.Type = 2;
+				m_scripts.Add(script);
+				newid++;
+
+				delete[] Name;
+			 }
 		 }
 		 while(FindNextFile(found, &fd));
 
