@@ -1620,24 +1620,6 @@ void CMainFrame::InitPlugins()
 
 LRESULT CMainFrame::OnCreate(UINT, WPARAM, LPARAM, BOOL&)
 {
-  // Clean up any .old files left by a previous update
-  {
-    wchar_t exePath[MAX_PATH];
-    GetModuleFileName(NULL, exePath, MAX_PATH);
-    PathRemoveFileSpecW(exePath);
-    std::wstring exeDir(exePath);
-    std::wstring mask = exeDir + L"\\*.old";
-    WIN32_FIND_DATAW fd;
-    HANDLE hFind = FindFirstFileW(mask.c_str(), &fd);
-    if (hFind != INVALID_HANDLE_VALUE) {
-      do {
-        std::wstring full = exeDir + L"\\" + fd.cFileName;
-        DeleteFileW(full.c_str());
-      } while (FindNextFileW(hFind, &fd));
-      FindClose(hFind);
-    }
-  }
-
   m_ctrl_tab = false;
 
   // create command bar window

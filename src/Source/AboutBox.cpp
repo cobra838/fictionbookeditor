@@ -666,11 +666,9 @@ LRESULT CAboutDlg::OnResizeOpenGLWindow(UINT, WPARAM, LPARAM, BOOL&)
 	return TRUE;
 }
 
-// Extract a ZIP file into destDir using miniz.
-// Locked files (exe/dll in use) are written as .new and added to pendingRenames.
+// Extract ZIP into destDir (strips top-level folder prefix).
 // Returns number of files written, -1 on error.
-static int ExtractZipToDir(const CString& zipPath, const CString& destDir,
-                            std::vector<std::wstring>& pendingRenames)
+static int ExtractZipToTemp(const CString& zipPath, const CString& destDir)
 {
     HANDLE hf = CreateFileW(zipPath, GENERIC_READ, FILE_SHARE_READ,
         NULL, OPEN_EXISTING, 0, NULL);
@@ -727,25 +725,9 @@ static int ExtractZipToDir(const CString& zipPath, const CString& destDir,
         void* pBuf = mz_zip_reader_extract_to_heap(&zip, i, &fsz, 0);
         if (!pBuf) continue;
 
-        // Try to write directly first
         HANDLE hOut = CreateFileW(localPath.c_str(), GENERIC_WRITE, 0,
             NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-
-        if (hOut == INVALID_HANDLE_VALUE)
-        {
-            // File is locked (exe/dll in use) — write as .new, rename later
-            std::wstring newPath = localPath + L".new";
-            hOut = CreateFileW(newPath.c_str(), GENERIC_WRITE, 0,
-                NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-            if (hOut != INVALID_HANDLE_VALUE)
-            {
-                DWORD w; WriteFile(hOut, pBuf, (DWORD)fsz, &w, NULL);
-                CloseHandle(hOut);
-                pendingRenames.push_back(localPath); // original path, .new suffix implied
-                ++done;
-            }
-        }
-        else
+        if (hOut != INVALID_HANDLE_VALUE)
         {
             DWORD w; WriteFile(hOut, pBuf, (DWORD)fsz, &w, NULL);
             CloseHandle(hOut);
@@ -782,26 +764,52 @@ void CAboutDlg::RunUpdate(CString filename)
 
 		if (ext == L".zip")
 		{
-			// Extract ZIP using miniz into appDir; locked files go to .new
-			std::vector<std::wstring> pendingRenames;
-			int extracted = ExtractZipToDir(filename, appDir, pendingRenames);
+			// Extract ZIP to temp folder (no locked-file issues)
+			wchar_t tmpBase[MAX_PATH];
+			GetTempPathW(MAX_PATH, tmpBase);
+			CString tempDir = CString(tmpBase) + L"FBE_update";
+			SHCreateDirectoryExW(NULL, tempDir, NULL);
+
+			int extracted = ExtractZipToTemp(filename, tempDir);
 			if (extracted <= 0)
 			{
 				SetDlgItemText(IDC_TEXT_STATUS, m_sDownloadError);
 				return;
 			}
 
-			// Rename locked files: original→.old, .new→original
-			// .old files are cleaned up on next launch (OnCreate)
-			for (const auto& path : pendingRenames)
+			// Get exe filename (e.g. "FBE.exe")
+			CString exeName = appExe.Mid(appExe.ReverseFind(L'\\') + 1);
+
+			// Write _update.bat — cmd.exe reads ANSI
+			CString batPath = appDir + L"\\_update.bat";
+			CStringA bat;
+			bat.Format(
+				"@echo off\r\n"
+				":wait\r\n"
+				"tasklist /fi \"imagename eq %s\" 2>nul | find /i \"%s\" >nul\r\n"
+				"if not errorlevel 1 (timeout /t 1 /nobreak >nul & goto wait)\r\n"
+				"xcopy /y /e /r \"%s\\*\" \"%s\\\"\r\n"
+				"rmdir /s /q \"%s\"\r\n"
+				"del \"%s\"\r\n"
+				"start \"\" \"%s\\%s\"\r\n"
+				"start /b \"\" cmd /c del \"%%~f0\"\r\n",
+				(LPCSTR)CStringA(exeName), (LPCSTR)CStringA(exeName),
+				(LPCSTR)CStringA(tempDir), (LPCSTR)CStringA(appDir),
+				(LPCSTR)CStringA(tempDir),
+				(LPCSTR)CStringA(filename),
+				(LPCSTR)CStringA(appDir), (LPCSTR)CStringA(exeName)
+			);
+			HANDLE hBat = CreateFileW(batPath, GENERIC_WRITE, 0,
+				NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			if (hBat != INVALID_HANDLE_VALUE)
 			{
-				CString p(path.c_str());
-				DeleteFile(p + L".old");
-				MoveFileEx(p, p + L".old", MOVEFILE_REPLACE_EXISTING);
-				MoveFileEx(p + L".new", p, MOVEFILE_REPLACE_EXISTING);
+				DWORD w; WriteFile(hBat, (LPCSTR)bat, bat.GetLength(), &w, NULL);
+				CloseHandle(hBat);
 			}
-			DeleteFile(filename);                      // delete downloaded zip
-			ShellExecute(0, L"open", appExe, NULL, NULL, SW_SHOW);
+
+			// Launch batch hidden, detached
+			CString params = CString(L"/c \"") + batPath + L"\"";
+			ShellExecuteW(NULL, L"open", L"cmd.exe", params, appDir, SW_HIDE);
 		}
 		else
 		{
