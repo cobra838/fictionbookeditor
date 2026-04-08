@@ -504,6 +504,8 @@ SPELL_RESULT CSpeller::SpellCheck(CString word)
 		checkWord.Replace(L"\u00AD", L"");
 		// remove accent
 		checkWord.Replace(L"\u0301", L"");
+		// special case for Russian letter "ё"
+		// if (currDict == m_Dictionaries[LANG_RU].handle) checkWord.Replace(L"ё", L"е"); // Не проверять "ё", отключил, так как словарь с "ё" лучше
 
 		// encode string to the dictionary encoding 
 		CT2A str (checkWord, m_codePage);

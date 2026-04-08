@@ -50,18 +50,18 @@ extern CAppModule _Module;
 
 #define _WTL_NO_CSTRING
 #define _WTL_NO_WTYPES
-#include <atlmisc.h>
-#include <atluser.h>
+#include <wtl/atlmisc.h>
+#include <wtl/atluser.h>
 
-#include <atlframe.h>
-#include <atlctrls.h>
-#include <atldlgs.h>
-#include <atlctrlw.h>
-#include <atlctrlx.h>
-#include <atlsplit.h>
-#include <atlddx.h>
+#include <wtl/atlframe.h>
+#include <wtl/atlctrls.h>
+#include <wtl/atldlgs.h>
+#include <wtl/atlctrlw.h>
+#include <wtl/atlctrlx.h>
+#include <wtl/atlsplit.h>
+#include <wtl/atlddx.h>
 
-#include <atltheme.h>
+#include <wtl/atltheme.h>
 // #pragma warning(pop)
 
 // C library
