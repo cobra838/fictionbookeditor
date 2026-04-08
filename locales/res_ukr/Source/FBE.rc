@@ -1151,6 +1151,7 @@ STRINGTABLE
 BEGIN
     IDS_HOTKEY_EDIT_SUB     "Субскріпт"
     IDS_HOTKEY_EDIT_SUP     "Суперскріпт"
+    IDS_ENCODING            "Кодування:"
 END
 
 STRINGTABLE

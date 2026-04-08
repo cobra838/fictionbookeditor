@@ -3526,13 +3526,13 @@ LRESULT CFBEView::OnEditInsImage(WORD, WORD cmdID, HWND, BOOL&)
 		ofn.lStructSize = sizeof(OPENFILENAME);
 		ofn.hwndOwner = m_hWnd;
 		ofn.lpstrFilter =
-			L"Supported images\0*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif\0"
-			L"JPEG\0*.jpg;*.jpeg\0"
-			L"PNG\0*.png\0"
-			L"Bitmap\0*.bmp\0"
-			L"GIF\0*.gif\0"
-			L"TIFF\0*.tif\0"
-			L"All files\0*.*\0\0";
+			L"FBE supported (*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif)\0*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif\0"
+			L"JPEG (*.jpg;*.jpeg)\0*.jpg;*.jpeg\0"
+			L"PNG (*.png)\0*.png\0"
+			L"Bitmap (*.bmp)\0*.bmp\0"
+			L"GIF (*.gif)\0*.gif\0"
+			L"TIFF (*.tif)\0*.tif\0"
+			L"All files (*.*)\0*.*\0\0";
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = MAX_PATH;
 		ofn.nFilterIndex = 1;

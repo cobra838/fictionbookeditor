@@ -433,15 +433,75 @@ CString	CMainFrame::GetOpenFileName()
 CString	CMainFrame::GetSaveFileName(CString& encoding) {
 	encoding = _Settings.KeepEncoding() ? m_doc->m_encoding : _Settings.GetDefaultEncoding();
 
+	CString strFileName;
+
+	bstr_t bstrFilename = m_doc->m_filename;
+	LPCWSTR lpszFileName = ((wchar_t*)bstrFilename && wcscmp((wchar_t*)bstrFilename, L"Untitled.fb2") != 0)
+	                       ? (LPCWSTR)(wchar_t*)bstrFilename : NULL;
+
+	if (RunTimeHelper::IsVista()) {
+		const COMDLG_FILTERSPEC arrFilterSpec[] = {
+			{ L"FictionBook files", L"*.fb2" },
+			{ L"All files",        L"*.*"   }
+		};
+		CShellFileSaveDialog dlg(lpszFileName,
+			FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT,
+			L"fb2", arrFilterSpec, ARRAYSIZE(arrFilterSpec));
+
+		CComPtr<IFileDialogCustomize> spCustomize;
+		dlg.GetPtr()->QueryInterface(&spCustomize);
+		if (spCustomize) {
+			CString encList;
+			encList.LoadString(IDS_ENCODINGS);
+
+			CString strEncLabel; strEncLabel.LoadString(IDS_ENCODING);
+			spCustomize->StartVisualGroup(1000, strEncLabel);
+			spCustomize->AddComboBox(1001);
+			spCustomize->EndVisualGroup();
+
+			CSimpleArray<CString> lstEnc;
+			int pos = 0; CString tok;
+			while (!(tok = encList.Tokenize(L",", pos)).IsEmpty())
+				lstEnc.Add(tok);
+
+			for (int i = 0; i < lstEnc.GetSize(); i++)
+				spCustomize->AddControlItem(1001, 1100 + i, lstEnc[i]);
+
+			int nIdx = lstEnc.Find(CString(encoding).MakeLower());
+			spCustomize->SetSelectedControlItem(1001, 1100 + (nIdx >= 0 ? nIdx : 0));
+		}
+
+		if (dlg.DoModal(m_hWnd) == IDOK) {
+			dlg.GetFilePath(strFileName);
+			if (spCustomize) {
+				DWORD dwItem = 0;
+				if (SUCCEEDED(spCustomize->GetSelectedControlItem(1001, &dwItem))) {
+					CString encList;
+					encList.LoadString(IDS_ENCODINGS);
+					CSimpleArray<CString> lstEnc;
+					int pos = 0; CString tok;
+					while (!(tok = encList.Tokenize(L",", pos)).IsEmpty())
+						lstEnc.Add(tok);
+					int idx = (int)(dwItem - 1100);
+					if (idx >= 0 && idx < lstEnc.GetSize())
+						encoding = lstEnc[idx];
+				}
+			}
+		}
+		return strFileName;
+	}
+
+	// XP fallback: plain OPENFILENAME without encoding selector
 	TCHAR szFile[MAX_PATH] = {0};
-	bstr_t filename = m_doc->m_filename;
-	if (filename && wcscmp((wchar_t*)filename, L"Untitled.fb2") != 0)
-		wcsncpy_s(szFile, (wchar_t*)filename, MAX_PATH - 1);
+	if (lpszFileName)
+		wcsncpy_s(szFile, lpszFileName, MAX_PATH - 1);
 
 	OPENFILENAME ofn = {0};
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = m_hWnd;
-	ofn.lpstrFilter = L"FictionBook files (*.fb2)\0*.fb2\0All files (*.*)\0*.*\0\0";
+	ofn.lpstrFilter =
+	    L"FictionBook files (*.fb2)\0*.fb2\0"
+	    L"All files (*.*)\0*.*\0\0";
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrDefExt = L"fb2";
@@ -3432,7 +3492,7 @@ LRESULT CMainFrame::OnTreeClick(WORD, WORD, HWND hWndCtl, BOOL&)
   return 0;
 }
 
-// binary objects
+// binary objects from FBEview.cpp
 LRESULT CMainFrame::OnEditAddBinary(WORD, WORD, HWND, BOOL&) {
   if (!m_doc)
     return 0;
@@ -3447,16 +3507,16 @@ LRESULT CMainFrame::OnEditAddBinary(WORD, WORD, HWND, BOOL&) {
   ofn.lStructSize = sizeof(OPENFILENAME);
   ofn.hwndOwner = m_hWnd;
   ofn.lpstrFilter =
-    L"Supported images\0*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif\0"
-    L"JPEG\0*.jpg;*.jpeg\0"
-    L"PNG\0*.png\0"
-    L"Bitmap\0*.bmp\0"
-    L"GIF\0*.gif\0"
-    L"TIFF\0*.tif\0"
-    L"All files\0*.*\0\0";
+    L"FBE supported (*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif)\0*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tif\0"
+    L"JPEG (*.jpg;*.jpeg)\0*.jpg;*.jpeg\0"
+    L"PNG (*.png)\0*.png\0"
+    L"Bitmap (*.bmp)\0*.bmp\0"
+    L"GIF (*.gif)\0*.gif\0"
+    L"TIFF (*.tif)\0*.tif\0"
+    L"All files (*.*)\0*.*\0\0";
   ofn.lpstrFile = szFiles;
   ofn.nMaxFile = 32767;
-  ofn.nFilterIndex = 2;
+  ofn.nFilterIndex = 1;
   ofn.lpstrTitle = dlgTitle;
   ofn.Flags = OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_EXPLORER;
 

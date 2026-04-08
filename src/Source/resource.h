@@ -570,6 +570,7 @@
 #define ID_EDIT_PASTE2                  0xE525
 #define IDS_ENCODINGS                   61403
 #define IDS_DOCUMENT_TREE_CAPTION       61404
+#define IDS_ENCODING                    61405
 
 // Next default values for new objects
 // 

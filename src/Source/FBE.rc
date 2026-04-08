@@ -1246,6 +1246,7 @@ STRINGTABLE
 BEGIN
     IDS_HOTKEY_EDIT_SUB     "Subscript"
     IDS_HOTKEY_EDIT_SUP     "Superscript"
+    IDS_ENCODING            "Encoding:"
 END
 
 STRINGTABLE
