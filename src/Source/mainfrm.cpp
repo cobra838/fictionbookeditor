@@ -1357,7 +1357,7 @@ BOOL CMainFrame::OnIdle()
 	{
 		m_need_title_update = false;
 		m_change_state = DocChanged();
-		CString tt(U::GetFileTitle(m_doc->m_filename));
+		CString tt(_Settings.ShowFullPath() && m_doc->m_filename != L"Untitled.fb2" ? (CString)m_doc->m_filename : U::GetFileTitle(m_doc->m_filename));
 		tt += m_change_state ? L" +" : L" -";
 
 		// Extract version (N.N.N) from build_name

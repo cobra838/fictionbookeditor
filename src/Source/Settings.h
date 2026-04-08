@@ -487,6 +487,7 @@ class CSettings : public ISerializable, public IObjectFactory
 	CString		m_toolbars_settings;
 
 	bool		m_restore_file_position;
+	bool		m_show_full_path;
 
 	DWORD		m_interface_lang_id;
 
@@ -559,6 +560,7 @@ public:
 	bool ViewStatusBar()const;
 	bool ViewDocumentTree()const;
 	bool RestoreFilePosition()const;
+	bool ShowFullPath()const;
 
 	CString GetKeyPath()const;
 
@@ -623,7 +625,8 @@ public:
 	void	SetToolbarsSettings(CString& settings,  bool apply = false);
 	void	SetExtElementStyle(const CString& elem, bool ext, bool apply = false);
 	void	SetWindowPosition(const WINDOWPLACEMENT& wpl,  bool apply = false);
-	void	SetRestoreFilePosition(bool restore, bool apply = false);	
+	void	SetRestoreFilePosition(bool restore, bool apply = false);
+	void	SetShowFullPath(bool show, bool apply = false);
 	void	SetInterfaceLanguage(DWORD Language, bool apply = false);
 	void	SetInsImageAsking(const bool value, bool apply = false);
 	void	SetIsInsClearImage(const bool value, bool apply = false);

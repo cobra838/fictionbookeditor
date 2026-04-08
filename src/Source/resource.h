@@ -484,6 +484,7 @@
 #define IDC_WORDS_PROC_HL_GRP           1116
 #define IDC_LATESTVER                   1117
 #define IDC_SCRIPTUPDATE_LOG            1118
+#define IDC_SHOW_FULL_PATH              1119
 #define IDD_SCRIPTUPDATE                229
 #define ID_HELP_UPDATE_SCRIPTS          32911
 #define ID_SCRIPT_BASE                  9000

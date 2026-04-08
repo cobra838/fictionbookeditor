@@ -66,6 +66,7 @@ LRESULT CSettingsOtherDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
 	m_def_enc.SelectString(0, _Settings.GetDefaultEncoding());
 	m_keep.SetCheck(_Settings.KeepEncoding() ? BST_CHECKED : BST_UNCHECKED);
 	m_restore_pos.SetCheck(_Settings.RestoreFilePosition() ? BST_CHECKED : BST_UNCHECKED);
+	::SendMessage(GetDlgItem(IDC_SHOW_FULL_PATH), BM_SETCHECK, _Settings.ShowFullPath() ? BST_CHECKED : BST_UNCHECKED, 0);
 
     _Settings.m_initial_scripts_folder = _Settings.GetScriptsFolder(); 
     m_def_scripts_fld.SetCheck(BST_CHECKED);
@@ -127,6 +128,7 @@ LRESULT CSettingsOtherDlg::OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 	_Settings.SetDefaultEncoding(def_enc);
 	_Settings.SetKeepEncoding(m_keep.GetState() != 0);
 	_Settings.SetRestoreFilePosition(m_restore_pos.GetState() != 0);
+	_Settings.SetShowFullPath(IsDlgButtonChecked(IDC_SHOW_FULL_PATH) != 0);
 	
 	_Settings.SetInsImageAsking(IsDlgButtonChecked(IDC_SETTINGS_ASKIMAGE) != 0);
 	_Settings.SetIsInsClearImage(IsDlgButtonChecked(IDC_OPTIONS_CLEARIMGS) != 0);

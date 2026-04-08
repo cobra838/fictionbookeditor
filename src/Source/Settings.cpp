@@ -62,6 +62,7 @@ const wchar_t VIEW_DOCUMENT_TREE_KEY[]	= L"ViewDocumentTree";
 const wchar_t SPLITTER_POS_KEY[]		= L"SplitterPos";
 const wchar_t TOOLBARS_SETTINGS_KEY[]	= L"Toolbars";
 const wchar_t RESTORE_FILE_POS_KEY[]	= L"RestoreFilePosition";
+const wchar_t SHOW_FULL_PATH_KEY[]		= L"ShowFullPath";
 const wchar_t INTERFACE_LANG_KEY[]		= L"IntefaceLangID";
 const wchar_t SCRIPTS_FOLDER_KEY[]		= L"ScriptsFolder";
 
@@ -701,6 +702,7 @@ int CSettings::GetProperties(std::vector<CString>& properties)
 	properties.push_back(SPLITTER_POS_KEY);
 	properties.push_back(TOOLBARS_SETTINGS_KEY);
 	properties.push_back(RESTORE_FILE_POS_KEY);
+	properties.push_back(SHOW_FULL_PATH_KEY);
 	properties.push_back(INTERFACE_LANG_KEY);
 	// properties.push_back(SCRIPTS_FOLDER_KEY);
 	// SeNS
@@ -822,6 +824,11 @@ bool CSettings::GetPropertyValue(const CString& sProperty, CProperty& property)
 	else if(sProperty == RESTORE_FILE_POS_KEY)
 	{
 		property = GetStringedProperty(&m_restore_file_position, KEY_BOOL);
+		return true;
+	}
+	else if(sProperty == SHOW_FULL_PATH_KEY)
+	{
+		property = GetStringedProperty(&m_show_full_path, KEY_BOOL);
 		return true;
 	}
 	else if(sProperty == INTERFACE_LANG_KEY)
@@ -1053,6 +1060,11 @@ bool CSettings::SetPropertyValue(const CString& sProperty, CProperty& sValue)
 	else if(sProperty == RESTORE_FILE_POS_KEY)
 	{
 		m_restore_file_position = StrToBool(sValue.GetStringValue());
+		return true;
+	}
+	else if(sProperty == SHOW_FULL_PATH_KEY)
+	{
+		m_show_full_path = StrToBool(sValue.GetStringValue());
 		return true;
 	}
 	else if(sProperty == INTERFACE_LANG_KEY)
@@ -1816,6 +1828,18 @@ void CSettings::SetColorFG(DWORD col, bool apply)
 		Save();
 }
 
+bool CSettings::ShowFullPath() const
+{
+	return m_show_full_path;
+}
+
+void CSettings::SetShowFullPath(bool show, bool apply)
+{
+	m_show_full_path = show;
+	if(apply)
+		Save();
+}
+
 void CSettings::SetRestoreFilePosition(bool restore, bool apply)
 {
 	m_restore_file_position = restore;
@@ -2019,6 +2043,7 @@ void CSettings::SetDefaults()
 	m_splitter_pos			= 200;
 	m_toolbars_settings		= L"";
 	m_restore_file_position	= true;
+	m_show_full_path		= true;
 	m_interface_lang_id		= PRIMARYLANGID(GetSystemDefaultLangID());
 	m_scripts_folder		= GetDefaultScriptsFolder();
 	m_insimage_ask			= true;
