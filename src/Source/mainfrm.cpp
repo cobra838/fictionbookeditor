@@ -3598,7 +3598,7 @@ LRESULT CMainFrame::OnChar(UINT, WPARAM wParam, LPARAM lParam, BOOL&)
 bool  CMainFrame::SourceToHTML() 
 {
 	bool	changed = (m_source.SendMessage(SCI_GETMODIFY) != 0);
-	bool	needReload = changed || m_force_source_rebuild;
+	bool	needReload = changed;
 	int		textlen = 0;
 	char*	buffer = 0;
 
@@ -3803,8 +3803,6 @@ bool CMainFrame::ShowSource(bool saveSelection)
 
 	int bodies_count = 0;
 
-	if (saveSelection)
-		m_force_source_rebuild = true;
 
 	// берем HTML
 	// запоминаем путь до выделенного элемента
