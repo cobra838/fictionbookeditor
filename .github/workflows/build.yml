@@ -104,9 +104,9 @@ jobs:
       run: |
         PREV=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
         if [ -n "$PREV" ]; then
-          ITEMS=$(git log "${PREV}..HEAD" --pretty=format:"<li>%s</li>" --no-merges)
+          ITEMS=$(git log "${PREV}..HEAD" --pretty=format:'<li>%s (<a href="https://github.com/${{ github.repository }}/commit/%H">%h</a>)</li>' --no-merges)
         else
-          ITEMS=$(git log --pretty=format:"<li>%s</li>" --no-merges | head -30)
+          ITEMS=$(git log --pretty=format:'<li>%s (<a href="https://github.com/${{ github.repository }}/commit/%H">%h</a>)</li>' --no-merges | head -30)
         fi
         echo "items<<EOF" >> $GITHUB_OUTPUT
         echo "$ITEMS"     >> $GITHUB_OUTPUT
