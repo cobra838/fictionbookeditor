@@ -77,10 +77,10 @@ LRESULT CSettingsOtherDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
     m_scripts_folder_sel.EnableWindow(FALSE);
     m_scripts_switched = true;
 
-	// added by SeNS
-	m_nbsp_char.AddString(L"□");  // \u25A1
-	m_nbsp_char.AddString(L"▫");  // \u25AB
-	m_nbsp_char.AddString(L"◦");  // \u26E6
+	// Неразрывные пробелы
+	m_nbsp_char.AddString(L"\u25A1"); // □
+	m_nbsp_char.AddString(L"\u25AB"); // ▫
+	m_nbsp_char.AddString(L"\u25E6"); // ◦
 	m_nbsp_char.AddString(L"\u00A0");  // original nbsp
 	m_nbsp_char.SelectString (0, _Settings.GetNBSPChar());
 	m_change_keyb.SetCheck(_Settings.GetChangeKeybLayout());
@@ -162,3 +162,4 @@ LRESULT CSettingsOtherDlg::OnBnClickedSettingsAskimage(WORD /*wNotifyCode*/, WOR
 		::SendMessage(GetDlgItem(IDC_OPTIONS_CLEARIMGS), BM_SETCHECK, BST_UNCHECKED, 0);
 	return 0;
 }
+
